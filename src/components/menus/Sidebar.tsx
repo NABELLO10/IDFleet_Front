@@ -1,0 +1,276 @@
+import * as React from "react";
+import { Link } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Drawer from "@mui/material/Drawer";
+import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import Divider from "@mui/material/Divider";
+import Tooltip from "@mui/material/Tooltip";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import MailIcon from "@mui/icons-material/Mail";
+import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
+import MenuIcon from "@mui/icons-material/Menu";
+
+import { styled } from "@mui/material/styles";
+import MuiAccordion, { AccordionProps } from "@mui/material/Accordion";
+import MuiAccordionSummary, {
+  AccordionSummaryProps,
+} from "@mui/material/AccordionSummary";
+import MuiAccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+
+import HomeIcon from "@mui/icons-material/Home";
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import TuneIcon from '@mui/icons-material/Tune';
+import ApartmentTwoToneIcon from '@mui/icons-material/ApartmentTwoTone';
+import KeyTwoToneIcon from '@mui/icons-material/KeyTwoTone';
+import LocalShippingTwoToneIcon from '@mui/icons-material/LocalShippingTwoTone';
+import CommuteTwoToneIcon from '@mui/icons-material/CommuteTwoTone';
+import ContactPageTwoToneIcon from '@mui/icons-material/ContactPageTwoTone';
+import ContactMailTwoToneIcon from '@mui/icons-material/ContactMailTwoTone';
+import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
+import RvHookupTwoToneIcon from '@mui/icons-material/RvHookupTwoTone';
+
+type Anchor = "left";
+
+const menuGlobal = [
+  { name: "Wialon Token", href: "/admin/wialon", icono: <KeyTwoToneIcon /> },
+];
+
+const menuConfig = [
+  { name: "Perfiles", href: "/admin/perfil", icono: <TuneIcon /> },
+  { name: "Usuarios", href: "/admin/usuarios", icono: <PeopleAltIcon /> }, 
+  { name: "Empresas", href: "/admin/empresas", icono: <ApartmentTwoToneIcon /> },
+];
+
+const menuCamiones = [
+  { name: "Transportistas", href: "/admin/transportistas", icono: <ContactPageTwoToneIcon /> },
+  { name: "Camiones", href: "/admin/camiones", icono: <LocalShippingTwoToneIcon /> },
+  { name: "Arrastres", href: "/admin/arrastres", icono: <RvHookupTwoToneIcon /> },
+];
+
+const menuNotificaciones = [
+  { name: "Tipo Notificacion", href: "/admin/tipo-notificacion", icono: <NotificationsActiveTwoToneIcon /> },
+  { name: "Notificaciones", href: "/admin/correos-notificacion", icono: <ContactMailTwoToneIcon /> },
+];
+
+
+
+const Accordion = styled((props: AccordionProps) => (
+  <MuiAccordion disableGutters elevation={0} square {...props} />
+))(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+  "&:not(:last-child)": {
+    borderBottom: 0,
+  },
+  "&:before": {
+    display: "none",
+  },
+}));
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+  <MuiAccordionSummary
+    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
+    {...props}
+  />
+))(({ theme }) => ({
+  backgroundColor:
+    theme.palette.mode === "dark"
+      ? "rgba(255, 255, 255, .05)"
+      : "rgba(0, 0, 0, .03)",
+  flexDirection: "row-reverse",
+  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
+    transform: "rotate(90deg)",
+  },
+  "& .MuiAccordionSummary-content": {
+    marginLeft: theme.spacing(1),
+  },
+}));
+
+const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: "1px solid rgba(0, 0, 0, .125)",
+}));
+
+export default function Sidebar() {
+  const [state, setState] = React.useState({
+    left: false,
+  });
+
+  const [expanded, setExpanded] = React.useState<string | false>("");
+
+  const handleChange =
+    (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+      setExpanded(newExpanded ? panel : false);
+    };
+
+  const toggleDrawer =
+    (anchor: Anchor, open: boolean) =>
+    (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === "keydown" &&
+        ((event as React.KeyboardEvent).key === "Tab" ||
+          (event as React.KeyboardEvent).key === "Shift")
+      ) {
+        return;
+      }
+
+      setState({ ...state, [anchor]: open });
+    };
+
+  const handleSidebarClose = (event: React.MouseEvent) => {
+    const isAccordionButton =
+      event.currentTarget.tagName === "BUTTON" &&
+      event.currentTarget.getAttribute("aria-controls") === "panel1d-header";
+    event.currentTarget.getAttribute("aria-controls") === "config-header";
+    event.currentTarget.getAttribute("aria-controls") === "transporte-header";
+    event.currentTarget.getAttribute("aria-controls") === "notificaciones-header";
+    if (!isAccordionButton) {
+      toggleDrawer("left", false)(event);
+    }
+  };
+
+  const list = (anchor: Anchor) => (
+    <Box
+      sx={{
+        marginTop: 2,
+        width: 250,
+      }}
+      role="presentation"
+      onClick={toggleDrawer(anchor, true)}
+      onKeyDown={toggleDrawer(anchor, false)}
+    >
+      {menuGlobal.map((item) => (
+        <Link
+          key={item.name}
+          to={item.href}
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <ListItem disablePadding>
+            <ListItemButton>
+              <ListItemIcon>{item.icono}</ListItemIcon>
+              <ListItemText primary={item.name} />
+            </ListItemButton>
+          </ListItem>
+        </Link>
+      ))}
+
+      <Accordion
+        expanded={expanded === "config"}
+        onChange={handleChange("config")}
+      >
+        <AccordionSummary
+          aria-controls="config-content"
+          id="config-header"
+          onClick={(e) => e.stopPropagation()} // Avoid closing Sidebar when clicking the Accordion
+        >
+          <Typography> Configuración General</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <List>
+            {menuConfig.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>{item.icono}</ListItemIcon>
+                    <ListItemText primary={item.name} />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
+            ))}
+          </List>
+        </AccordionDetails>
+      </Accordion>
+
+
+      <Accordion
+        expanded={expanded === "transporte"}
+        onChange={handleChange("transporte")}
+      >
+        <AccordionSummary
+          aria-controls="transporte-content"
+          id="transporte-header"
+          onClick={(e) => e.stopPropagation()} // Avoid closing Sidebar when clicking the Accordion
+        >
+          <Typography> Transporte</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <List>
+            {menuCamiones.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>{item.icono}</ListItemIcon>
+                    <ListItemText primary={item.name} />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
+            ))}
+          </List>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion
+        expanded={expanded === "notificaciones"}
+        onChange={handleChange("notificaciones")}
+      >
+        <AccordionSummary
+          aria-controls="notificaciones-content"
+          id="notificaciones-header"
+          onClick={(e) => e.stopPropagation()} // Avoid closing Sidebar when clicking the Accordion
+        >
+          <Typography> Notificaciones</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <List>
+            {menuNotificaciones.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>{item.icono}</ListItemIcon>
+                    <ListItemText primary={item.name} />
+                  </ListItemButton>
+                </ListItem>
+              </Link>
+            ))}
+          </List>
+        </AccordionDetails>
+      </Accordion>
+
+      <Divider />
+    </Box>
+  );
+
+  return (
+    <div>
+      <Tooltip title="DESPLEGAR MENU">
+      <Button sx={{ color: "white" }} onClick={toggleDrawer("left", true)}>
+        <MenuIcon />
+      </Button>
+      </Tooltip>
+
+      <Drawer
+        anchor="left"
+        open={state.left}
+        onClose={toggleDrawer("left", false)}
+        onClick={handleSidebarClose}
+      >
+        {list("left")}
+      </Drawer>
+    </div>
+  );
+}
