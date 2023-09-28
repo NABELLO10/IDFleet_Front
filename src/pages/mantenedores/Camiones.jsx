@@ -45,19 +45,41 @@ const Camiones = () => {
   const [camiones, setCamiones] = useState([]);
 
 
-  // PAGINACION TABLA  
-const [page, setPage] = useState(0);
-const [rowsPerPage, setRowsPerPage] = useState(10);
+ // PAGINACION TABLA ////////////////////////////////////////////////////////////////
+ const [page, setPage] = useState(0);
+ const [rowsPerPage, setRowsPerPage] = useState(10);
 
-const handleChangePage = (event, newPage) => {
-  setPage(newPage);
-};
+ const handleChangePage = (event, newPage) => {
+   setPage(newPage);
+ };
 
-const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-};
+ const handleChangeRowsPerPage = (event) => {
+   setRowsPerPage(parseInt(event.target.value, 10));
+   setPage(0);
+ };
 
+ const filtered = camiones.filter((val) => {
+   if (busqueda === "") return true;
+
+   return (
+    val.nom_patente
+    .toLowerCase()
+    .includes(busqueda.toLowerCase()) ||
+  val.mae_transportista.nombre
+    .toLowerCase()
+    .includes(busqueda.toLowerCase()) ||
+  val.mae_transportista.ape_paterno
+    .toLowerCase()
+    .includes(busqueda.toLowerCase())
+   );
+ });
+
+ const paginatedCamiones = filtered.slice(
+   page * rowsPerPage,
+   page * rowsPerPage + rowsPerPage
+ );
+
+ /////////////////////////////////////////////////////////////////////////////////////
   //PARA EDICION de un edit
   const [edit, setEdit] = useState({});
 
@@ -86,7 +108,7 @@ const handleChangeRowsPerPage = (event) => {
       obtenerCamiones()  
       obtenerTransportistas()
 
-    }  
+    }
   }, [empresaSistema, id_empresa]);
 
 
@@ -484,7 +506,7 @@ const obtenerCamiones = async () => {
               placeholder=" Buscar Camión..."
             />
 
-            <Descargar data={camiones} nombrePdf={"Camiones"} />
+            <Descargar data={camiones} nombrePdf={"Camiones"} item={1}/>
           </div>
 
           
@@ -536,25 +558,7 @@ const obtenerCamiones = async () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100  border-gray-100">
-                    {camiones
-                      .filter((val) => {
-                        if (busqueda == "") {
-                          return val;
-                        } else if (
-                          val.nom_patente
-                            .toLowerCase()
-                            .includes(busqueda.toLowerCase()) +
-                          val.mae_transportista.nombre
-                            .toLowerCase()
-                            .includes(busqueda.toLowerCase()) +
-                          val.mae_transportista.ape_paterno
-                            .toLowerCase()
-                            .includes(busqueda.toLowerCase())
-                        ) {
-                          return val;
-                        }
-                      })
-                      .map((r) => (
+                    {paginatedCamiones.map((r) => (
                         <tr
                           className="whitespace-nowrap hover:bg-gray-200"
                           key={r.id}
@@ -663,17 +667,19 @@ const obtenerCamiones = async () => {
                   </tbody>
                 </table>
                 <div className="bg-gray-300">
-                  <TablePagination
-                    component="div"
-                    count={camiones.length}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    rowsPerPage={rowsPerPage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage="Registros por página:"
-                    labelDisplayedRows={({ from, to, count }) =>
-                      `${from}-${to} de ${count}`
-                    }
+                <TablePagination
+            component="div"
+            count={camiones.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Registros por página:"
+            className="bg-gray-300 w-full"
+            labelDisplayedRows={({ from, to, count }) =>
+              `${from}-${to} de ${count}`
+            }
+        
                   />
                 </div>
               </>

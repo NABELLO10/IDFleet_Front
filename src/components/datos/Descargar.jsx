@@ -7,7 +7,7 @@ import 'jspdf-autotable';
 import Tooltip from '@mui/material/Tooltip';
 import PictureAsPdfSharpIcon from '@mui/icons-material/PictureAsPdfSharp';
 
-const DownloadButton = ({ data, nombrePdf }) => {
+const DownloadButton = ({ data, nombrePdf, item }) => {
 
   const handleDownloadPDF = () => {
     const pdf = new jsPDF();
@@ -17,7 +17,10 @@ const DownloadButton = ({ data, nombrePdf }) => {
 
   const handleDownloadExcel = () => {
     // Mapea el array de data para obtener solo los campos que deseas
-    const filteredData = data.map(item => ({
+    let filteredData = ([])
+
+    if(item == 1){
+          filteredData = data.map(item => ({
         patente: item.nom_patente,
         transportista: item.mae_transportista.nombre + " " + item.mae_transportista.ape_paterno,
         empresa : item.mae_empresas_sistema.nom_empresa,
@@ -25,6 +28,9 @@ const DownloadButton = ({ data, nombrePdf }) => {
         permiso : item.fec_per_circulacion,
         seguro : item.fec_seguro        
     }));
+
+    }
+ 
 
     // Luego procede con el código original
     const ws = XLSX.utils.json_to_sheet(filteredData);

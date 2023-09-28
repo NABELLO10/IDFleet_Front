@@ -2,30 +2,83 @@ import { useEffect, useState } from "react";
 import { msgError, msgOk } from "../../components/Alertas";
 import clienteAxios from "../../config/axios";
 import useAuth from "../../hooks/useAuth";
+import Tooltip from "@mui/material/Tooltip";
 
 import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Descargar from "../../components/datos/Descargar";
+import DeleteTwoToneIcon from "@mui/icons-material/DeleteTwoTone";
+import TablePagination from "@mui/material/TablePagination";
 
-const CorreosNotificacion = () => {
-  const { auth } = useAuth();  
-
-  const [perfiles, setPerfiles] = useState([]);
-  const [empresasListado, setEmpresasListado] = useState([]);
-  const [nombre, setNombre] = useState("");
-  const [email, setEmail] = useState("");
+const CorreosNotificaciones = () => {
+  const { auth } = useAuth();
   const [id_empresa, setEmpresa] = useState(auth.id_empresa);
-  const [perfil, setPerfil] = useState("");
-  const [estado, setEstado] = useState(1);
+  const [empresasListado, setEmpresasListado] = useState([]);
+  const [id_notificacion, setNotificacion] = useState("");
+  const [transportistas, setTransportistas] = useState([]);
+  const [info, setInfo] = useState({});
+  const [id_transportista, setTransportista] = useState("");
+  const [tipos, setTipos] = useState([]);
+  const [est_activo, setEstado] = useState(1);
+  const [asunto, setAsunto] = useState("");
+  const [mensaje, setMensaje] = useState("");
+
+
   const [busqueda, setBusqueda] = useState("");
   const [id, setID] = useState(null);
 
-  //Lista de CorreosNotificacion registrados
-  const [CorreosNotificacion, setCorreosNotificacion] = useState([]);
+  //Lista de notificaciones registrados
+  const [notificaciones, setNotificaciones] = useState([]);
 
-  //PARA EDICION de un usuario
-  const [usuario, setUsuario] = useState({});
+  // PAGINACION TABLA ////////////////////////////////////////////////////////////////
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const filteredNotificaciones = notificaciones.filter((val) => {
+    if (busqueda === "") return true;
+
+    return (
+      val.asunto.toLowerCase().includes(busqueda.toLowerCase()) ||
+      val.mae_transportista.nombre
+        .toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
+      val.mae_transportista.ape_paterno
+        .toLowerCase()
+        .includes(busqueda.toLowerCase()) ||
+      val.mensaje.toLowerCase().includes(busqueda.toLowerCase()) ||
+      val.mae_tipo_notificacion.nom_tipo
+        .toLowerCase()
+        .includes(busqueda.toLowerCase())
+    );
+  });
+
+  const paginatedNotificaciones = filteredNotificaciones.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  /////////////////////////////////////////////////////////////////////////////////////
+
+  //PARA EDICION de un edit
+  const [edit, setEdit] = useState({});
 
   const [open, setOpen] = useState(false);
   const handleClickOpen = () => {
@@ -37,34 +90,53 @@ const CorreosNotificacion = () => {
   };
 
   useEffect(() => {
-    obtenerPerfiles();
-    obtenerEmpresas()
-    listarCorreosNotificacion();
+    obtenerTiposNot();
+    obtenerNotificaciones();
+    obtenerTransportistas();
   }, [id_empresa]);
 
+  useEffect(() => {
+    obtenerEmpresasListado();
+    obtenerTiposNot();
+  }, []);
 
-  const obtenerEmpresas = async () =>{
-    try {
-        const token = localStorage.getItem("token_emsegur")
+  function invertirFecha(fecha) {
+    return fecha.split("-").reverse().join("-");
+  }
 
-        if(!token) return
-  
-        const config = {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`
-            }
-        }                        
-     
-        const {data} = await clienteAxios('/crud/obtener-empresas', config)           
-        setEmpresasListado(data)
+  //CORREOS  ////////////////////////////////////////
+  const [correos, setCorreos] = useState([]);
+  const [nuevoCorreo, setNuevoCorreo] = useState("");
 
-    } catch (error) {
-        console.log(error)
+  const handleAddTask = () => {
+    if (nuevoCorreo.trim() !== "") {
+      setCorreos([...correos, nuevoCorreo]);
+      setNuevoCorreo("");
     }
-}   
+  };
 
-  const obtenerPerfiles = async () => {
+  const handleDeleteTask = (indexToDelete) => {
+    setCorreos(correos.filter((_, index) => index !== indexToDelete));
+  };
+  /////////////////////////////////////////////////////
+
+  const obtenerEmpresasListado = async () => {
+    const token = localStorage.getItem("token_emsegur");
+
+    if (!token) return;
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await clienteAxios("/crud/obtener-empresas", config);
+    setEmpresasListado(data);
+  };
+
+  const obtenerTiposNot = async () => {
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -78,60 +150,83 @@ const CorreosNotificacion = () => {
       };
 
       const { data } = await clienteAxios(
-        `/crud/obtener-perfil-activo/${id_empresa}`,
+        `/crud/obtener-tipo-notificacion1/${id_empresa}`,
         config
       );
-      setPerfiles(data);
+      setTipos(data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const listarCorreosNotificacion = async () => {
-    try {
-      const token = localStorage.getItem("token_emsegur");
+  const obtenerTransportistas = async () => {
+    const token = localStorage.getItem("token_emsegur");
 
-      if (!token) return;
+    if (!token) return;
 
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      };
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
-      const { data } = await clienteAxios(
-        `/crud/obtener-CorreosNotificacion/${id_empresa}`,
-        config
-      );
-      setCorreosNotificacion(data);
-    } catch (error) {
-      console.log(error);
-    }
+    const { data } = await clienteAxios(
+      `/crud/obtener-transportistas1/${id_empresa}`,
+      config
+    );
+    setTransportistas(data);
+  };
+
+  const obtenerNotificaciones = async () => {
+    const token = localStorage.getItem("token_emsegur");
+
+    if (!token) return;
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await clienteAxios(
+      `/crud/obtener-notificacion/${id_empresa}`,
+      config
+    );
+
+    console.log(data);
+    setNotificaciones(data);
   };
 
   const limpiarFormulario = () => {
-    setNombre("");
-    setEmail("");
-    //  setEmpresa('')
-    setPerfil("");
-    setUsuario({});
+    setAsunto("");
+    setTransportista("");
+    setEdit({});
     setID(null);
+    setEstado(1);
+    setAsunto("");
+    setMensaje("");
+    setNotificacion("");
+    setCorreos([]);
+    handleClose();
+    obtenerTransportistas();
+    obtenerNotificaciones();
   };
 
-  const setEdicion = (usuario) => {
-    setUsuario(usuario);
-
-    setNombre(usuario.nom_usuario);
-    setEmail(usuario.email);
-    setEmpresa(usuario.id_empresa);
-    setPerfil(usuario.id_perfil);
-    setNombre(usuario.nom_usuario);
-    setEstado(usuario.est_activo);
-    setID(usuario.id);
+  const setEdicion = (edit) => {
+    setEdit(edit);
+    setAsunto(edit.asunto);
+    setTransportista(edit.id_transportista);
+    setNotificacion(edit.id_notificacion);
+    setMensaje(edit.mensaje);
+    setEstado(edit.est_activo);
+    setAsunto(edit.asunto);
+    setID(edit.id);
+    setCorreos(JSON.parse(edit.correos));
   };
 
-  const eliminarUsuario = async (id) => {
+  const eliminarNotificacion = async (id) => {
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -148,75 +243,68 @@ const CorreosNotificacion = () => {
       };
 
       const { data } = await clienteAxios.delete(
-        `crud/registrar/${id}`,
+        `crud/notificacion/${id}`,
         config
       );
 
       msgOk(data.msg);
-      listarCorreosNotificacion();
       limpiarFormulario();
-      hand();
     } catch (error) {
       console.log(error);
     }
   };
 
   const registrar = async () => {
-    if ([nombre, email, id_empresa, perfil].includes("")) {
-      msgError("Ingrese todos los campos");
+    if ([id_notificacion, id_transportista, asunto].includes("")) {
+      msgError("Ingrese tipo notificación, transportista y asunto");
       return;
     }
 
-    try {
-      const token = localStorage.getItem("token_emsegur");
+    const token = localStorage.getItem("token_emsegur");
 
-      if (!token) {
-        msgError("Token no valido");
-        return;
-      }
-
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
-      if (usuario.id) {
-        const { data } = await clienteAxios.put(
-          `/crud/registrar/${usuario.id}`,
-          {
-            nombre: nombre,
-            id_empresa,
-            email,
-            id_perfil: perfil,
-            est_activo: estado,
-          },
-          config
-        );
-
-        msgOk(data.msg);
-      } else {
-        const { data } = await clienteAxios.post(
-          "/crud/registrar",
-          {
-            nombre,
-            email,
-            id_empresa,
-            id_perfil: perfil,
-            est_activo: estado,
-          },
-          config
-        );
-
-        msgOk(data.msg);
-      }
-
-      listarCorreosNotificacion();
-      limpiarFormulario();
-    } catch (error) {
-      msgError(error.response.data.msg);
+    if (!token) {
+      msgError("Token no valido");
+      return;
     }
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    if (edit.id) {
+      const { data } = await clienteAxios.put(
+        `/crud/notificacion/${edit.id}`,
+        {
+          id_notificacion,
+          id_transportista,
+          correos: JSON.stringify(correos),
+          asunto,
+          mensaje,
+          est_activo,
+        },
+        config
+      );
+      msgOk(data.msg);
+    } else {
+      const { data } = await clienteAxios.post(
+        "/crud/notificacion",
+        {
+          id_notificacion,
+          id_transportista,
+          correos: JSON.stringify(correos),
+          asunto,
+          mensaje,
+          est_activo,
+          id_empresa,
+        },
+        config
+      );
+      msgOk(data.msg);
+    }
+    limpiarFormulario();
   };
 
   const handleSubmit = async (e) => {
@@ -224,18 +312,19 @@ const CorreosNotificacion = () => {
     await registrar();
   };
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   return (
     <>
-      <h2 className="font-black text-cyan-900 text-2xl mx-4 ">
+      <h2 className="font-black text-cyan-900 text-2xl mx-1 ">
         Registrar{" "}
         <span className="font-black text-cyan-500 mb-10 text-center">
-          CorreosNotificacion
+          Notificaciones
         </span>
       </h2>
 
-      <div className="grid-cols-2 lg:flex mt-4">
-        <div className="shadow-lg  mx-6 lg:mx-auto lg:w-5/12 px-8 py-5 rounded-xl bg-white">
-          <form onSubmit={handleSubmit}>
+      <div className="grid-cols-2 lg:flex mt-2 lg:gap-4">
+        <div className="shadow-lg  mx-6 lg:mx-auto lg:w-3/12 px-3 py-3 rounded bg-white">
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {auth.id == 1 && (
               <div className="">
                 <label
@@ -262,85 +351,136 @@ const CorreosNotificacion = () => {
               </div>
             )}
 
-            <div className="py-3 relative">
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Tipo Notificación
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={id_notificacion}
+                  label="Tipo Notificación"
+                  onChange={(e) => setNotificacion(e.target.value)}
+                >
+                  {tipos.map((tipo) => (
+                    <MenuItem key={tipo.id} value={tipo.id}>
+                      {tipo.nom_tipo}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControlLabel
+                id="est_activo"
+                control={<Checkbox checked={est_activo === 1} />}
+                onChange={(e) => setEstado(e.target.checked ? 1 : 0)}
+                label="Activo"
+              />
+            </div>
+
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Transportista
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={id_transportista}
+                  label="Transportista"
+                  onChange={(e) => setTransportista(e.target.value)}
+                >
+                  {transportistas.map((tipo) => (
+                    <MenuItem key={tipo.id} value={tipo.id}>
+                      {tipo.nombre + " " + tipo.ape_paterno}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div className="lg:flex lg:gap-3 lg:space-y-0">
               <TextField
-                id="nombre"
-                className="peer pt-3 pb-2 block w-full"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                label="Nombre"
+                id="asunto"
+                className="peer pt-3 pb-2 w-full"
+                value={asunto}
+                onChange={(e) => setAsunto(e.target.value)}
+                label="Asunto"
                 variant="outlined"
               />
             </div>
 
-            <div className="py-2 relative">
+            <div className="lg:flex lg:gap-3 lg:space-y-0">
               <TextField
-                id="email"
+                id="mensaje"
                 className="peer pt-3 pb-2 block w-full"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                label="Email"
+                value={mensaje}
+                onChange={(e) => setMensaje(e.target.value)}
+                label="Mensaje"
                 variant="outlined"
+                multiline
+                rows={4}
               />
             </div>
 
-            <div className="my-8 relative">
-              <label
-                htmlFor="perfil"
-                className="peer-placeholder-shown:uppercase absolute left-0 -top-3.5 text-gray-900 text-sm
-                            peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 transition-all peer-placeholder-shown:top-3"
-              >
-                PERFIL
-              </label>
+            <div className="lg:space-y-0">
+              <div className=" ">
+                <TextField
+                  fullWidth
+                  label="Nuevo Correo..."
+                  variant="outlined"
+                  value={nuevoCorreo}
+                  type="email"
+                  onChange={(e) => setNuevoCorreo(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
+                />
 
-              <select
-                name="perfil"
-                value={perfil}
-                className="mt-2 w-full p-2  bg-gray-50 border border-gray-300 rounded-lg text-center text font-bold text-gray-500"
-                onChange={(e) => setPerfil(+e.target.value)}
-              >
-                <option value={""} disabled hidden>
-                  Seleccionar...
-                </option>
-                {perfiles.map((p) => (
-                  <option key={p.nom_perfil} value={p.id}>
-                    {p.nom_perfil}
-                  </option>
-                ))}
-              </select>
+                <button
+                  onClick={handleAddTask}
+                  type="button"
+                  className="bg-cyan-800 w-full  hover:bg-cyan-950 duration-500  text-white uppercase font-bold  hover:cursor-pointer px-10"
+                >
+                  Agregar correo
+                </button>
+
+                <ul className="mt-6 border overflow-auto h-48 text-sm border-cyan-900">
+                  {correos.length > 0 ? (
+                    correos.map((correo, idx) => (
+                      <li
+                        key={idx}
+                        className="p-1 bg-gray-100 border border-gray-300 rounded flex justify-between items-center"
+                      >
+                        <span>{correo}</span>
+                        <button
+                          type="button"
+                          className="ml-2 bg-red-500 text-white hover:bg-red-800 rounded px-1 py-1"
+                          onClick={() => handleDeleteTask(idx)}
+                        >
+                          <DeleteTwoToneIcon />
+                        </button>
+                      </li>
+                    ))
+                  ) : (
+                    <h2 className="text-center mt-4 text-red-800 font-semibold">
+                      Sin correos
+                    </h2>
+                  )}
+                </ul>
+              </div>
             </div>
 
-            <div className="my-8 relative">
-              <label
-                htmlFor="perfil"
-                className="peer-placeholder-shown:uppercase  absolute left-0 -top-3.5 text-gray-900 text-sm
-                        peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 transition-all peer-placeholder-shown:top-3"
-              >
-                ESTADO
-              </label>
-
-              <select
-                name="perfil"
-                value={estado}
-                className="mt-2 w-full p-2 bg-gray-50 border  border-gray-300 rounded-lg text-center text font-bold text-gray-500"
-                onChange={(e) => setEstado(+e.target.value)}
-              >
-                <option value={1}>Activo</option>
-                <option value={0}>Inactivo</option>
-              </select>
-            </div>
-
-            <div className="2xl:flex 2xl:gap-2">
+            <div className="lg:flex lg:gap-2">
               <input
                 type="submit"
-                value={usuario.id ? "Actualizar" : "Registrar"}
-                className="bg-cyan-600 w-full  hover:bg-cyan-900 duration-500 py-3 rounded-md text-white uppercase font-bold mt-2 hover:cursor-pointer px-10"
+                value={edit.id ? "Actualizar" : "Registrar"}
+                className="bg-cyan-600 w-full  hover:bg-cyan-900 duration-500 py-3 rounded-md text-white uppercase font-bold mt-2 hover:cursor-pointer "
               ></input>
 
               <button
                 type="button"
                 onClick={limpiarFormulario}
-                className={`bg-gray-600  hover:bg-gray-700 duration-500 w-full  py-3 rounded-md text-white uppercase font-bold mt-2 hover:cursor-pointer px-10 `}
+                className={`bg-gray-600  hover:bg-gray-700 duration-500 w-full  py-3 rounded-md text-white uppercase font-bold mt-2 hover:cursor-pointer `}
               >
                 Cancelar
               </button>
@@ -348,136 +488,169 @@ const CorreosNotificacion = () => {
           </form>
         </div>
 
-        <div className=" rounded-lg lg:mx-auto max-h-36 md:w-full mx-5 lg:w-6/12 mt-5 lg:mt-0">
-          <div className="">
+        <div className=" rounded-lg lg:mx-auto max-h-36 md:w-full mx-5 lg:w-9/12 mt-5 lg:mt-0">
+          <div className="lg:flex gap-4 ">
             <input
               name="busqueda"
               id="busqueda"
               type="text"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              className=" border border-blue-800 shadow rounded-md p-1  w-full text-blue-500 placeholder-blue-300 mb-2"
-              placeholder=" Buscar usuario..."
+              className="w-full lg:w-7/12 border shadow px-1 text-sky-500"
+              placeholder=" Buscar notificación..."
             />
+            <Descargar data={notificaciones} nombrePdf={"notificaciones"} />
           </div>
-          <div className="overflow-auto  rounded-lg lg:mx-auto h-96 md:w-full mx-5  mt-5 lg:mt-0">
-            <table className=" border-collapse border-2 lg:w-full shadow-lg border-gray-300 rounded-lg bg-white text-left text-xs text-gray-500">
-              <thead className="bg-gray-300">
-                <tr>
-                  <th scope="col" className="px-6 py-4 font-bold text-gray-900">
-                    Usuario
-                  </th>
 
-                  <th scope="col" className="px-6 py-4 font-bold text-gray-900">
-                    Perfil
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-bold text-gray-900"
-                  ></th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-medium text-gray-900"
-                  ></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100  border-gray-100">
-                {CorreosNotificacion
-                  .filter((val) => {
-                    if (busqueda == "") {
-                      return val;
-                    } else if (
-                      val.nom_usuario
-                        .toLowerCase()
-                        .includes(busqueda.toLowerCase())
-                    ) {
-                      return val;
-                    }
-                  })
-                  .map((usuario) => (
-                    <tr
-                      className="whitespace-nowrap hover:bg-gray-200"
-                      key={usuario.id}
-                    >
-                      <td className="px-6 font-bold py-4 text-sm text-gray-500">
-                        <p>{usuario.nom_usuario}</p>
-                        <p>{usuario.email}</p>
-                      </td>
-                      <td className="px-6 py-4  text-sm text-gray-500">
-                        {usuario.mae_perfile.nom_perfil}
-                      </td>
+          <div className="overflow-auto rounded h-96  md:w-full mt-2">
+            {paginatedNotificaciones.length > 0 ? (
+              <>
+                {" "}
+                <table
+                  id="table"
+                  className=" border-collapse border-2 lg:w-full shadow-lg border-gray-300 rounded-lg bg-white text-left text-xs text-gray-500"
+                >
+                  <thead className="bg-gray-300 ">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-6 py-2 font-bold text-gray-900"
+                      >
+                        Notificacion
+                      </th>
 
-                      <td className="px-6 py-4  text-sm text-gray-500">
-                        {" "}
-                        {usuario.est_activo ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-                            <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                            Activo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-                            Inactivo
-                          </span>
-                        )}
-                      </td>
-
-                      <td>
-                        <button
-                          type="button"
-                          onClick={() => setEdicion(usuario)}
-                          className="py-1 mx-2"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 h-6 text-blue-400 hover:text-blue-800"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
-
-                        {/* <button
-                          className="py-1 "
-                          onClick={() => {
-                            setID(usuario.id);
-                            handleClickOpen();
-                          }}
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 h-6 text-red-500 hover:text-red-800"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </button> */}
-                      </td>
+                      <th scope="col" className="px-6 font-bold text-gray-900">
+                        Asunto
+                      </th>
+                      <th scope="col" className="px-6 font-bold text-gray-900">
+                        Correos
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 font-medium text-gray-900"
+                      ></th>
                     </tr>
-                  ))}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100  border-gray-100">
+                    {paginatedNotificaciones.map((r) => (
+                      <tr
+                        className="whitespace-nowrap hover:bg-gray-200"
+                        key={r.id}
+                      >
+                        <td className="px-6   py-1 text-sm text-gray-500">
+                          <p className="font-bold">
+                            {r.mae_tipo_notificacion.nom_tipo}
+                          </p>
+                          <p>
+                            {r.mae_transportista.nombre +
+                              " " +
+                              r.mae_transportista.ape_paterno}
+                          </p>
+                          {r.est_activo ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+                              <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                              Activo
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+                              <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+                              Inactivo
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 text-sm text-gray-500">
+                          <Tooltip title={"Mensaje: " + r.mensaje}>
+                            <p>{r.asunto}</p>
+                          </Tooltip>
+                        </td>
+
+                        <td className="px-6 text-xs font-bold text-gray-500">
+                          {r.correos && (
+                            <div className="grid grid-cols-2">
+                              {JSON.parse(r.correos).map((correo, idx) => (
+                                <p key={idx}>{correo}</p>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => setEdicion(r)}
+                            className="py-1 mx-2"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-6 h-6 text-blue-400 hover:text-blue-800"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
+
+                          <button
+                            className="py-1 "
+                            onClick={() => {
+                              setID(edit.id);
+                              setInfo(r);                              
+                              handleClickOpen();
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-6 h-6 text-red-500 hover:text-red-800"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="bg-gray-300"></div>
+              </>
+            ) : (
+              <div className="h1 text-center mt-20 font-bold text-blue-900">
+                NO HAY DATOS
+              </div>
+            )}
           </div>
+          <TablePagination
+            component="div"
+            count={notificaciones.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Registros por página:"
+            className="bg-gray-300 w-full"
+            labelDisplayedRows={({ from, to, count }) =>
+              `${from}-${to} de ${count}`
+            }
+          />
         </div>
       </div>
 
-      {/* <Dialog
+      <Dialog
         fullWidth={true}
-        maxWidth={"md"}
+        maxWidth={"sm"}
         open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
@@ -487,7 +660,7 @@ const CorreosNotificacion = () => {
           <div className="p-0.5 rounded-lg">
             <div className="">
               <div className="modal-body relative p-4">
-                <p>¿Realmente desea eliminar este Usuario?</p>
+                <p>¿Realmente desea esta notificacion?</p>
               </div>
             </div>
           </div>
@@ -501,15 +674,15 @@ const CorreosNotificacion = () => {
           </button>
           <button
             type="button"
-            onClick={() => eliminarUsuario(id)}
+            onClick={() => eliminarNotificacion(info.id)}
             className="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out ml-1"
           >
             Eliminar
           </button>
         </DialogActions>
-      </Dialog> */}
+      </Dialog>
     </>
   );
 };
 
-export default CorreosNotificacion;
+export default CorreosNotificaciones;

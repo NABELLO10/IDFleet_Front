@@ -3,6 +3,3 @@
 @tailwind utilities;
 
 
-thead.sticky th {
-    z-index: 10;
-}

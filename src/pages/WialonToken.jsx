@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+
+import clienteAxios from "../config/axios";
 import clipboardCopy from "clipboard-copy";
 import ContentCopyTwoToneIcon from "@mui/icons-material/ContentCopyTwoTone";
 import Tooltip from "@mui/material/Tooltip";
@@ -6,10 +8,14 @@ import { msgError, msgInfo, msgOk, msgWarning } from "../components/Alertas";
 
 const WialonToken = () => {
   const [tokenExiste, setTokenExiste] = useState(true);
+  const [tokenJs, setToken] = useState("");
+  const [usuario, setUsuario] = useState("");
 
   const copyToClipboard = () => {
     const tokenElement = document.getElementById("token");
     if (tokenElement) {
+      actualizarToken()
+
       const tokenText = tokenElement.innerText;
       clipboardCopy(tokenText)
         .then(() => {
@@ -19,6 +25,37 @@ const WialonToken = () => {
           console.error("Error al copiar al portapapeles:", error);
         });
     }
+  };
+
+  
+  const actualizarToken = async () => {
+   
+   /*  try { */
+      const token = localStorage.getItem("token_emsegur");
+
+      if (!token) {
+        msgError("Token no valido");
+        return;
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios.put(
+        `/general/token-wialon`,
+        {
+          usuario,
+          token : tokenJs,
+        },
+        config
+      );
+   /*   } catch (error) {
+      msgError(error.response.data.msg);
+    }  */
   };
 
   // Wialon site dns
@@ -50,10 +87,11 @@ const WialonToken = () => {
     if (typeof msg == "string" && msg.indexOf("access_token=") >= 0) {
       // get token
       var token = msg.replace("access_token=", "");
+      setToken(token)
       // now we can use token, e.g show it on page
       document.getElementById("token").innerHTML = token;
       document.getElementById("login").setAttribute("disabled", "");
-      document.getElementById("logout").removeAttribute("disabled");
+    //  document.getElementById("logout").removeAttribute("disabled");
 
       // or login to wialon using our token
       wialon.core.Session.getInstance().initSession(
@@ -63,23 +101,17 @@ const WialonToken = () => {
       wialon.core.Session.getInstance().loginToken(token, "", function (code) {
         if (code) return;
         var user = wialon.core.Session.getInstance().getCurrUser().getName();
-        alert("Authorized as " + user);
+        setUsuario(user)
+       
       });
+   
       setTokenExiste(true);
       // remove "message" event listener
       window.removeEventListener("message", tokenRecieved);
     }
   }
 
-  function logout() {
-    var sess = wialon.core.Session.getInstance();
-    if (sess && sess.getId()) {
-      sess.logout(function () {
-        document.getElementById("logout").setAttribute("disabled", "");
-        document.getElementById("login").removeAttribute("disabled");
-      });
-    }
-  }
+ 
 
   return (
     <>
