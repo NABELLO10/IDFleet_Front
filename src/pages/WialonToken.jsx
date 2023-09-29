@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import clienteAxios from "../config/axios";
 import clipboardCopy from "clipboard-copy";
@@ -7,14 +7,53 @@ import Tooltip from "@mui/material/Tooltip";
 import { msgError, msgInfo, msgOk, msgWarning } from "../components/Alertas";
 
 const WialonToken = () => {
-  const [tokenExiste, setTokenExiste] = useState(true);
-  const [tokenJs, setToken] = useState("");
+
+
+  const [tokenExiste, setTokenExiste] = useState(false);
   const [usuario, setUsuario] = useState("");
+  const [tokenBD, setTokenBD] = useState("");
+  const [unidades, setUnidades] = useState([]);
+  const [tControl, setTcontrol] = useState([]);
+  const [oxs, setOX] = useState([]);
+  const [token, setToken] = useState("");
+
+
+  const obtenerTokenWialon = async () =>{
+    try {
+        const token = localStorage.getItem("token_emsegur")
+
+        if(!token) return
+  
+        const config = {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            }
+        }                        
+     
+        const {data} = await clienteAxios('/general/token-wialon', config)          
+        
+        return(data.token)     
+
+    } catch (error) {
+        console.log(error)
+    }
+}   
+
+const asignarToken = async () => {
+  const tokenWialon = await obtenerTokenWialon();
+  setTokenBD(tokenWialon);
+}
+
+  useEffect(() => {
+    asignarToken()
+  },[tokenExiste])
+
 
   const copyToClipboard = () => {
     const tokenElement = document.getElementById("token");
     if (tokenElement) {
-      actualizarToken()
+      actualizarToken();
 
       const tokenText = tokenElement.innerText;
       clipboardCopy(tokenText)
@@ -24,13 +63,12 @@ const WialonToken = () => {
         .catch((error) => {
           console.error("Error al copiar al portapapeles:", error);
         });
-    }
+    }   
   };
 
-  
+
   const actualizarToken = async () => {
-   
-   /*  try { */
+    try {
       const token = localStorage.getItem("token_emsegur");
 
       if (!token) {
@@ -49,13 +87,89 @@ const WialonToken = () => {
         `/general/token-wialon`,
         {
           usuario,
-          token : tokenJs,
+          token: tokenJs,
         },
         config
       );
-   /*   } catch (error) {
+    } catch (error) {
       msgError(error.response.data.msg);
-    }  */
+    }
+  };
+
+  const ListarUnidadesPY = async () => {
+    try {
+      const token = localStorage.getItem("token_emsegur");
+
+      if (!token) {
+        msgError("Token no valido");
+        return;
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await clienteAxios.get(
+        `/general/listarUnidadesPY`,
+        config
+      );
+  
+      setUnidades(data)
+
+    } catch (error) {
+      msgError(error.response.data.msg);
+    }
+  };
+
+  
+  const DatosOxPy = async () => {
+    try {
+      const token = localStorage.getItem("token_emsegur");
+
+      if (!token) {
+        msgError("Token no valido");
+        return;
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await clienteAxios.get(`/general/datosOx`, config); 
+      console.log(data)
+      setOX(data)
+
+    } catch (error) {
+      msgError(error.response.data.msg);
+    }
+  };
+  
+  const Tcontrol = async () => {
+    try {
+      const token = localStorage.getItem("token_emsegur");
+
+      if (!token) {
+        msgError("Token no valido");
+        return;
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const { data } = await clienteAxios.get(`/general/tControl`, config); 
+      console.log(data)
+      setTcontrol(data)
+
+    } catch (error) {
+      msgError(error.response.data.msg);
+    }
   };
 
   // Wialon site dns
@@ -87,11 +201,11 @@ const WialonToken = () => {
     if (typeof msg == "string" && msg.indexOf("access_token=") >= 0) {
       // get token
       var token = msg.replace("access_token=", "");
-      setToken(token)
+      setToken(token);
       // now we can use token, e.g show it on page
       document.getElementById("token").innerHTML = token;
       document.getElementById("login").setAttribute("disabled", "");
-    //  document.getElementById("logout").removeAttribute("disabled");
+      //  document.getElementById("logout").removeAttribute("disabled");
 
       // or login to wialon using our token
       wialon.core.Session.getInstance().initSession(
@@ -101,73 +215,181 @@ const WialonToken = () => {
       wialon.core.Session.getInstance().loginToken(token, "", function (code) {
         if (code) return;
         var user = wialon.core.Session.getInstance().getCurrUser().getName();
-        setUsuario(user)
-       
+        setUsuario(user);
       });
-   
+
       setTokenExiste(true);
       // remove "message" event listener
       window.removeEventListener("message", tokenRecieved);
     }
   }
 
- 
-
   return (
     <>
-      <h2 className="font-black text-cyan-900 text-2xl mx-4 ">
-        Obtener{" "}
-        <span className="font-black text-cyan-500 mb-10 text-center">
-          Token Wialon
-        </span>
-        
-      </h2>
-      
-
       <div className="lg:flex lg:justify-between">
-        <button
-          id="login"
-          className="bg-cyan-600 lg:mb-5 hover:bg-cyan-800 transition cursor-pointer py-3 w-full lg:w-3/12 rounded-lg p-3 px-10 text-white font-bold mt-5 "
-          value="Click to open login page"
-          onClick={getToken}
-        >
-          Obtener Token
-        </button>
-       
-
-        {/* <button
-          id="logout"
-          disabled
-          className="bg-gray-600 mb-5 hover:bg-gray-800 transition cursor-pointer py-3 w-full  lg:w-3/12 rounded-lg p-3 px-10 text-white font-bold mt-5 "
-          onClick={logout}
-        >
-          Salir
-        </button> */}
+        <h2 className="font-black text-cyan-900 text-2xl mx-4 ">
+          Tablero{" "}
+          <span className="font-black text-cyan-500 mb-10 text-center">
+            Wialon
+          </span>
+        </h2>
+        <div className="flex font-bold text-sm">
+          {tokenBD ? tokenBD : token}
+        </div>
       </div>
 
-      
-        <>
-          <div className="flex flex-col lg:w-12/12 gap-3 lg:mt-5">
-            <div className="flex gap-2">
-              <span className="text-3xl font-bold">Tu token</span>
-              <Tooltip title="Copiar al portapapeles">
-                <button
-                  className="bg-cyan-800 text-white rounded p-2 "
-                  onClick={copyToClipboard}
+      <div className="lg:flex items-center lg:gap-3 ">
+        <button
+          id="login"
+          className="bg-cyan-600 lg:mb-5 hover:bg-cyan-800 transition cursor-pointer w-full lg:w-2/12 rounded-lg p-1 text-white font-bold mt-5 "
+          value="Nuevo Token"
+          onClick={getToken}
+        >
+          Nuevo Token
+        </button>
+
+        <div>
+          <span className=" text-cyan-800 lg:text-md  font-bold" id="token">
+            {""}
+          </span>
+        </div>
+
+        <div>
+          <Tooltip title="Copiar al portapapeles">
+            <button
+              className={`bg-cyan-800 text-white rounded p-2 ${
+                tokenExiste ? "block" : " hidden"
+              } `}
+              onClick={copyToClipboard}
+            >
+              <ContentCopyTwoToneIcon />
+            </button>
+          </Tooltip>
+        </div>
+      </div>
+
+      <div className=" lg:flex lg:justify-between">
+        <div className="w-2/12">
+          <button
+            id="login"
+            className="bg-cyan-900 lg:mb-5 hover:bg-cyan-700 transition cursor-pointer w-full   p-1 text-white "
+            value="Listar Unidades"
+            onClick={ListarUnidadesPY}
+          >
+            Listar Unidades
+          </button>
+        </div>
+
+        <div className="w-2/12">
+          <button
+            id="login"
+            className="bg-cyan-900 lg:mb-5 hover:bg-cyan-700 transition cursor-pointer w-full   p-1 text-white "
+            value="Oxigenacion"
+            onClick={DatosOxPy}
+          >
+            Oxigenación
+          </button>
+        </div>
+        <div className="w-2/12">
+          <button
+            id="login"
+            className="bg-cyan-900 lg:mb-5 hover:bg-cyan-700 transition cursor-pointer w-full   p-1 text-white "
+            value="Listar Unidades"
+            onClick={Tcontrol}
+          >
+            Control token
+          </button>
+        </div>
+      </div>
+
+      <div className=" lg:flex lg:justify-between">
+        <div className="w-2/12">
+          <div className="max-w-md mx-auto overflow-auto bg-gray-800 p-5 rounded-xl shadow-md space-y-4">
+            <h2 className="text-xl font-semibold text-center text-white">
+              {unidades.length} Unidades
+            </h2>
+            <ul className="space-y-3">
+              {unidades.map((r, index) => (
+                <li
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-gray-100 rounded-md"
                 >
-                  <ContentCopyTwoToneIcon />
-                </button>
-              </Tooltip>
-            </div>
-
-            <span className=" text-cyan-700 lg:text-xl  font-bold" id="token">
-              {" "}
-            </span>
+                  <span className="text-lg font-medium text-gray-600">
+                    {r.ID}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
+        </div>
 
-          <div className="flex flex-wrap lg:justify-center"></div>
-        </>
-  
+        <div className="w-2/12">
+          <div className="bg-white shadow rounded-lg p-6 w-full mx-auto mt-6 max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Sensores</h2>
+            <ul>
+            {oxs.map((r, index) => (
+                <div key={index}>
+                  <li className="mb-2">
+                    <strong>Patente: {r.Patente}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Velocidad:  {r.Velocidad}</strong> km/h
+                  </li>                
+                  <li className="mb-2">
+                    <strong>Latitud:  {r.Latitud}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Longitud:  {r.Longitud}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Curso:  {r.Curso}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Altitud:  {r.Altitud}</strong>{" "}
+                  </li>                  
+                  <li className="mb-2">
+                    <strong>Oxigenación:  {r.Oxigenacion}</strong>{" "}
+                  </li>
+                
+                </div>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <div className="w-2/12">
+        <div className="bg-white shadow rounded-lg p-6 w-full mx-auto mt-6 max-w-md">
+            <h2 className="text-xl font-semibold mb-4">Sensores</h2>
+            <ul>
+            {tControl.map((r, index) => (
+                <div  key={index}>
+                  <hr className="py-3"></hr>
+                  <li className="mb-2">
+                    <strong>Patente: {r.Patente}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Velocidad:  {r.Velocidad}</strong> km/h
+                  </li>                
+                  <li className="mb-2">
+                    <strong>Latitud:  {r.Latitud}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Longitud:  {r.Longitud}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Curso:  {r.Curso}</strong>{" "}
+                  </li>
+                  <li className="mb-2">
+                    <strong>Altitud:  {r.Altitud}</strong>{" "}
+                  </li>                  
+                 
+                
+                </div>
+              ))}
+            </ul>
+          </div>
+        
+        </div>
+      </div>
     </>
   );
 };

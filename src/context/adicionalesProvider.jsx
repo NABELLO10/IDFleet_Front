@@ -6,13 +6,7 @@ const AdicionalesContext = createContext()
 const AdicionalesProvider = ({children}) => {
 
     const [empresas, setEmpresas] = useState([])
-
-    useEffect(() => {    
-        obtenerEmpresas()  
-                 
-    }, [])
-
-    
+      
     const obtenerEmpresas = async () =>{
         try {
             const token = localStorage.getItem("token_emsegur")
@@ -34,11 +28,19 @@ const AdicionalesProvider = ({children}) => {
         }
     }   
 
+     
+
+
+    useEffect(() => {    
+        obtenerEmpresas()             
+    }, [])
+
+ 
     return(
         <AdicionalesContext.Provider 
             value={{             
                 obtenerEmpresas,
-                empresas
+                empresas,    
             }}>
             {children}
         </AdicionalesContext.Provider>

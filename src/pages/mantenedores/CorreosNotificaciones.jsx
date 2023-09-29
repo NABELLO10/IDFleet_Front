@@ -194,8 +194,7 @@ const CorreosNotificaciones = () => {
       `/crud/obtener-notificacion/${id_empresa}`,
       config
     );
-
-    console.log(data);
+ 
     setNotificaciones(data);
   };
 
