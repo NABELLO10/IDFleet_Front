@@ -17,7 +17,7 @@ function Mapa({ posiciones  }) {
     const centerLon = posiciones.length > 0 ? posiciones[0].Longitud : 0;
 
     return (
-        <MapContainer center={[centerLat, centerLon]} zoom={10} style={{ width: '100%', height: '400px' }}>
+        <MapContainer center={[centerLat, centerLon]} zoom={8} style={{ width: '100%', height: '400px' }}>
         <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

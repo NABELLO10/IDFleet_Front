@@ -313,8 +313,8 @@ const asignarToken = async () => {
       </div>
 
       <div className=" lg:flex lg:justify-between gap-10">
-        <div className="w-4/12">
-          <div className="max-w-md mx-auto overflow-auto bg-gray-800 p-2 rounded-xl shadow-md space-y-4">
+        <div className="w-4/12 mb-10">
+        <div className="bg-gray-800 text-white shadow-xl rounded-lg p-6 w-full mx-auto max-w-md">
             {isLoading ? (
               <Box
                 sx={{
@@ -328,7 +328,7 @@ const asignarToken = async () => {
               </Box>
             ) : (
               <div>
-                <h2 className="text-xl font-semibold text-center text-white">
+           <h2 className="text-xl font-semibold mb-4">
                   {unidades.length} Unidades
                 </h2>
 
@@ -336,7 +336,7 @@ const asignarToken = async () => {
                   {unidades.map((r, index) => (
                     <li
                       key={index}
-                      className="flex items-center justify-between p-3 bg-gray-100 rounded-md"
+                      className="flex items-center justify-between p-1 bg-gray-100 "
                     >
                       <span className="text-lg font-medium text-gray-600">
                         {r.ID}
@@ -365,28 +365,28 @@ const asignarToken = async () => {
             ) : (
               <div>
                 <h2 className="text-xl font-semibold mb-4">Sensores</h2>
-                <ul>
+                <ul className="mb-3">
                   {oxs.map((r, index) => (
                     <div key={index}>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Patente: {r.Patente}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Velocidad: {r.Velocidad}</strong> km/h
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Latitud: {r.Latitud}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Longitud: {r.Longitud}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Curso: {r.Curso}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Altitud: {r.Altitud}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Oxigenación: {r.Oxigenacion}</strong>{" "}
                       </li>
                     </div>
@@ -418,26 +418,26 @@ const asignarToken = async () => {
             ) : (
               <div>
                 <h2 className="text-xl font-semibold mb-4">Control Token</h2>
-                <ul>
+                <ul className=" space-y-3 mb-8">
                   {tControl.map((r, index) => (
                     <div key={index}>
-                      <hr className="py-3"></hr>
-                      <li className="mb-2">
+                      <hr className=""></hr>
+                      <li className="">
                         <strong>Patente: {r.Patente}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Velocidad: {r.Velocidad}</strong> km/h
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Latitud: {r.Latitud}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Longitud: {r.Longitud}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Curso: {r.Curso}</strong>{" "}
                       </li>
-                      <li className="mb-2">
+                      <li className="">
                         <strong>Altitud: {r.Altitud}</strong>{" "}
                       </li>
                     </div>
