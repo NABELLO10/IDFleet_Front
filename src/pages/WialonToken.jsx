@@ -5,17 +5,24 @@ import clipboardCopy from "clipboard-copy";
 import ContentCopyTwoToneIcon from "@mui/icons-material/ContentCopyTwoTone";
 import Tooltip from "@mui/material/Tooltip";
 import { msgError, msgInfo, msgOk, msgWarning } from "../components/Alertas";
+import { format } from 'date-fns'
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+
+import Mapa from "../components/Mapa";
 
 const WialonToken = () => {
-
-
   const [tokenExiste, setTokenExiste] = useState(false);
   const [usuario, setUsuario] = useState("");
   const [tokenBD, setTokenBD] = useState("");
   const [unidades, setUnidades] = useState([]);
   const [tControl, setTcontrol] = useState([]);
+  const [inicioToken, setInicioToken] = useState("");
   const [oxs, setOX] = useState([]);
-  const [token, setToken] = useState("");
+  const [token1, setToken] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading2, setIsLoading2] = useState(false);
+  const [isLoading3, setIsLoading3] = useState(false);
 
 
   const obtenerTokenWialon = async () =>{
@@ -31,29 +38,32 @@ const WialonToken = () => {
             }
         }                        
      
-        const {data} = await clienteAxios('/general/token-wialon', config)          
+        const {data} = await clienteAxios('/general/token-wialon', config)        
         
-        return(data.token)     
+        return(data)     
 
     } catch (error) {
         console.log(error)
     }
 }   
 
+useEffect(()=> {
+asignarToken()
+},[])
+
+
+
 const asignarToken = async () => {
   const tokenWialon = await obtenerTokenWialon();
-  setTokenBD(tokenWialon);
+  setTokenBD(tokenWialon.token);
+  setInicioToken(tokenWialon.fec_add);
 }
-
-  useEffect(() => {
-    asignarToken()
-  },[tokenExiste])
 
 
   const copyToClipboard = () => {
     const tokenElement = document.getElementById("token");
     if (tokenElement) {
-      actualizarToken();
+    // actualizarToken();
 
       const tokenText = tokenElement.innerText;
       clipboardCopy(tokenText)
@@ -67,7 +77,7 @@ const asignarToken = async () => {
   };
 
 
-  const actualizarToken = async () => {
+  const actualizarToken = async (u, t) => {
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -86,17 +96,22 @@ const asignarToken = async () => {
       const { data } = await clienteAxios.put(
         `/general/token-wialon`,
         {
-          usuario,
-          token: tokenJs,
+          usuario : u,
+          token: t,
         },
         config
       );
+
+      asignarToken()
+      
     } catch (error) {
       msgError(error.response.data.msg);
     }
   };
 
   const ListarUnidadesPY = async () => {
+    setIsLoading(true);
+  
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -116,6 +131,8 @@ const asignarToken = async () => {
         config
       );
   
+      setIsLoading(false);
+
       setUnidades(data)
 
     } catch (error) {
@@ -125,6 +142,7 @@ const asignarToken = async () => {
 
   
   const DatosOxPy = async () => {
+    setIsLoading2(true);
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -140,8 +158,10 @@ const asignarToken = async () => {
         },
       };
       const { data } = await clienteAxios.get(`/general/datosOx`, config); 
-      console.log(data)
+     
+      setIsLoading2(false);
       setOX(data)
+      
 
     } catch (error) {
       msgError(error.response.data.msg);
@@ -149,6 +169,7 @@ const asignarToken = async () => {
   };
   
   const Tcontrol = async () => {
+    setIsLoading3(true);
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -164,8 +185,9 @@ const asignarToken = async () => {
         },
       };
       const { data } = await clienteAxios.get(`/general/tControl`, config); 
-      console.log(data)
+     
       setTcontrol(data)
+      setIsLoading3(false);
 
     } catch (error) {
       msgError(error.response.data.msg);
@@ -202,9 +224,10 @@ const asignarToken = async () => {
       // get token
       var token = msg.replace("access_token=", "");
       setToken(token);
+      setTokenBD(token)
       // now we can use token, e.g show it on page
-      document.getElementById("token").innerHTML = token;
-      document.getElementById("login").setAttribute("disabled", "");
+     // document.getElementById("token").innerHTML = token;
+      //document.getElementById("login").setAttribute("disabled", "");
       //  document.getElementById("logout").removeAttribute("disabled");
 
       // or login to wialon using our token
@@ -216,60 +239,47 @@ const asignarToken = async () => {
         if (code) return;
         var user = wialon.core.Session.getInstance().getCurrUser().getName();
         setUsuario(user);
+       // asignarToken()
+        actualizarToken(user, token);
       });
 
       setTokenExiste(true);
+     
       // remove "message" event listener
       window.removeEventListener("message", tokenRecieved);
     }
   }
 
+  const positions = [
+    { lat: 40.7128, lon: -74.0060, info: "Información para la posición 1" },
+    { lat: 40.7138, lon: -74.0070, info: "Información para la posición 2" },
+    // ... otras posiciones
+  ];
+
   return (
     <>
-      <div className="lg:flex lg:justify-between">
+      <div className="lg:flex lg:justify-between mb-5">
         <h2 className="font-black text-cyan-900 text-2xl mx-4 ">
           Tablero{" "}
           <span className="font-black text-cyan-500 mb-10 text-center">
             Wialon
           </span>
         </h2>
-        <div className="flex font-bold text-sm">
-          {tokenBD ? tokenBD : token}
+        <div className="flex items-center font-semibold text-sm gap-4">
+          <button
+            id="login"
+            className="bg-cyan-600 hover:bg-cyan-800 transition cursor-pointer rounded  p-1 text-white font-bold  "
+            value="Nuevo Token"
+            onClick={getToken}
+          >
+            Nuevo Token
+          </button>
+          Token Actual: {tokenBD ? tokenBD : token1} / {inicioToken}
         </div>
       </div>
 
-      <div className="lg:flex items-center lg:gap-3 ">
-        <button
-          id="login"
-          className="bg-cyan-600 lg:mb-5 hover:bg-cyan-800 transition cursor-pointer w-full lg:w-2/12 rounded-lg p-1 text-white font-bold mt-5 "
-          value="Nuevo Token"
-          onClick={getToken}
-        >
-          Nuevo Token
-        </button>
-
-        <div>
-          <span className=" text-cyan-800 lg:text-md  font-bold" id="token">
-            {""}
-          </span>
-        </div>
-
-        <div>
-          <Tooltip title="Copiar al portapapeles">
-            <button
-              className={`bg-cyan-800 text-white rounded p-2 ${
-                tokenExiste ? "block" : " hidden"
-              } `}
-              onClick={copyToClipboard}
-            >
-              <ContentCopyTwoToneIcon />
-            </button>
-          </Tooltip>
-        </div>
-      </div>
-
-      <div className=" lg:flex lg:justify-between">
-        <div className="w-2/12">
+      <div className=" lg:flex lg:justify-between gap-10">
+        <div className="w-4/12">
           <button
             id="login"
             className="bg-cyan-900 lg:mb-5 hover:bg-cyan-700 transition cursor-pointer w-full   p-1 text-white "
@@ -280,7 +290,7 @@ const asignarToken = async () => {
           </button>
         </div>
 
-        <div className="w-2/12">
+        <div className="w-4/12">
           <button
             id="login"
             className="bg-cyan-900 lg:mb-5 hover:bg-cyan-700 transition cursor-pointer w-full   p-1 text-white "
@@ -290,7 +300,7 @@ const asignarToken = async () => {
             Oxigenación
           </button>
         </div>
-        <div className="w-2/12">
+        <div className="w-4/12">
           <button
             id="login"
             className="bg-cyan-900 lg:mb-5 hover:bg-cyan-700 transition cursor-pointer w-full   p-1 text-white "
@@ -302,92 +312,145 @@ const asignarToken = async () => {
         </div>
       </div>
 
-      <div className=" lg:flex lg:justify-between">
-        <div className="w-2/12">
-          <div className="max-w-md mx-auto overflow-auto bg-gray-800 p-5 rounded-xl shadow-md space-y-4">
-            <h2 className="text-xl font-semibold text-center text-white">
-              {unidades.length} Unidades
-            </h2>
-            <ul className="space-y-3">
-              {unidades.map((r, index) => (
-                <li
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-100 rounded-md"
-                >
-                  <span className="text-lg font-medium text-gray-600">
-                    {r.ID}
-                  </span>
-                </li>
-              ))}
-            </ul>
+      <div className=" lg:flex lg:justify-between gap-10">
+        <div className="w-4/12">
+          <div className="max-w-md mx-auto overflow-auto bg-gray-800 p-2 rounded-xl shadow-md space-y-4">
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100vh",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <div>
+                <h2 className="text-xl font-semibold text-center text-white">
+                  {unidades.length} Unidades
+                </h2>
+
+                <ul className="space-y-3">
+                  {unidades.map((r, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-100 rounded-md"
+                    >
+                      <span className="text-lg font-medium text-gray-600">
+                        {r.ID}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="w-2/12">
-          <div className="bg-white shadow rounded-lg p-6 w-full mx-auto mt-6 max-w-md">
-            <h2 className="text-xl font-semibold mb-4">Sensores</h2>
-            <ul>
-            {oxs.map((r, index) => (
-                <div key={index}>
-                  <li className="mb-2">
-                    <strong>Patente: {r.Patente}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Velocidad:  {r.Velocidad}</strong> km/h
-                  </li>                
-                  <li className="mb-2">
-                    <strong>Latitud:  {r.Latitud}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Longitud:  {r.Longitud}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Curso:  {r.Curso}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Altitud:  {r.Altitud}</strong>{" "}
-                  </li>                  
-                  <li className="mb-2">
-                    <strong>Oxigenación:  {r.Oxigenacion}</strong>{" "}
-                  </li>
-                
-                </div>
-              ))}
-            </ul>
+        <div className="w-4/12">
+          <div className="bg-gray-800 text-white shadow rounded-lg p-6 w-full mx-auto  max-w-md">
+            {isLoading2 ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100vh",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Sensores</h2>
+                <ul>
+                  {oxs.map((r, index) => (
+                    <div key={index}>
+                      <li className="mb-2">
+                        <strong>Patente: {r.Patente}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Velocidad: {r.Velocidad}</strong> km/h
+                      </li>
+                      <li className="mb-2">
+                        <strong>Latitud: {r.Latitud}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Longitud: {r.Longitud}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Curso: {r.Curso}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Altitud: {r.Altitud}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Oxigenación: {r.Oxigenacion}</strong>{" "}
+                      </li>
+                    </div>
+                  ))}
+                </ul>
+
+                {oxs.length > 0 && (
+                  <div>
+                    <Mapa posiciones={oxs} />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
-        <div className="w-2/12">
-        <div className="bg-white shadow rounded-lg p-6 w-full mx-auto mt-6 max-w-md">
-            <h2 className="text-xl font-semibold mb-4">Sensores</h2>
-            <ul>
-            {tControl.map((r, index) => (
-                <div  key={index}>
-                  <hr className="py-3"></hr>
-                  <li className="mb-2">
-                    <strong>Patente: {r.Patente}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Velocidad:  {r.Velocidad}</strong> km/h
-                  </li>                
-                  <li className="mb-2">
-                    <strong>Latitud:  {r.Latitud}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Longitud:  {r.Longitud}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Curso:  {r.Curso}</strong>{" "}
-                  </li>
-                  <li className="mb-2">
-                    <strong>Altitud:  {r.Altitud}</strong>{" "}
-                  </li>                  
-                 
-                
-                </div>
-              ))}
-            </ul>
+        <div className="w-4/12">
+          <div className="bg-gray-800 text-white shadow rounded-lg p-6 w-full mx-auto  max-w-md">
+            {isLoading3 ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100vh",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Control Token</h2>
+                <ul>
+                  {tControl.map((r, index) => (
+                    <div key={index}>
+                      <hr className="py-3"></hr>
+                      <li className="mb-2">
+                        <strong>Patente: {r.Patente}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Velocidad: {r.Velocidad}</strong> km/h
+                      </li>
+                      <li className="mb-2">
+                        <strong>Latitud: {r.Latitud}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Longitud: {r.Longitud}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Curso: {r.Curso}</strong>{" "}
+                      </li>
+                      <li className="mb-2">
+                        <strong>Altitud: {r.Altitud}</strong>{" "}
+                      </li>
+                    </div>
+                  ))}
+                </ul>
+                {tControl.length > 0 && (
+                  <div>
+                    <Mapa posiciones={tControl} />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        
         </div>
       </div>
     </>

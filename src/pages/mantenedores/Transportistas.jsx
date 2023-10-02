@@ -284,8 +284,8 @@ const Transportistas = () => {
         </span>
       </h2>
 
-      <div className="grid-cols-2 lg:flex mt-4">
-        <div className="shadow-lg  mx-6 lg:mx-auto lg:w-5/12 px-8 py-5 rounded-xl bg-white">
+      <div className="grid-cols-2 lg:flex lg:gap-4 mt-4">
+        <div className="shadow-lg  mx-6 lg:mx-auto lg:w-4/12 px-8 py-5 rounded-xl bg-white">
           <form className="space-y-4" onSubmit={handleSubmit}>
             {auth.id == 2 && (
               <div className="">
@@ -418,7 +418,7 @@ const Transportistas = () => {
           </form>
         </div>
 
-        <div className=" rounded-lg lg:mx-auto max-h-36 md:w-full mx-5 lg:w-6/12 mt-5 lg:mt-0">
+        <div className=" rounded-lg lg:mx-auto max-h-36 md:w-full mx-5 lg:w-8/12 mt-5 lg:mt-0">
           <div className="lg:flex gap-4 ">
             <input
               name="busqueda"

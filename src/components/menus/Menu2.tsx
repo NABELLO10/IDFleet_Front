@@ -20,6 +20,8 @@ const pages = ["Products", "Pricing", "Blog"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 import useAuth from "../../hooks/useAuth";
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
+import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
+
 function Menu2() {
   const { auth, cerrarSesion } = useAuth();
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
@@ -76,14 +78,24 @@ function Menu2() {
             
             <Sidebar />
        
-
-            <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+       <div className="flex gap-2">
+       <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
               <Tooltip title="I N I C I O">
                 <Link to="/admin">
                   <HomeTwoToneIcon />
                 </Link>
               </Tooltip>
+            </div> 
+            <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+              <Tooltip title="W I A L O N">
+                <Link to="/admin/wialon">
+                  <GpsFixedTwoToneIcon />
+                </Link>
+              </Tooltip>
             </div>
+       </div>
+
+        
           </Box>
 
           <Typography

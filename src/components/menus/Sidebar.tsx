@@ -33,11 +33,12 @@ import ContactPageTwoToneIcon from '@mui/icons-material/ContactPageTwoTone';
 import ContactMailTwoToneIcon from '@mui/icons-material/ContactMailTwoTone';
 import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
 import RvHookupTwoToneIcon from '@mui/icons-material/RvHookupTwoTone';
+import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
 
 type Anchor = "left";
 
 const menuGlobal = [
-  { name: "Wialon Token", href: "/admin/wialon", icono: <KeyTwoToneIcon /> },
+  { name: "Wialon Token", href: "/admin/wialon", icono: <GpsFixedTwoToneIcon /> },
 ];
 
 const menuConfig = [
