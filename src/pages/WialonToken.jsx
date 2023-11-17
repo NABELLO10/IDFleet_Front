@@ -112,7 +112,7 @@ const asignarToken = async () => {
   const ListarUnidadesPY = async () => {
     setIsLoading(true);
   
-    try {
+  try { 
       const token = localStorage.getItem("token_emsegur");
 
       if (!token) {
@@ -126,6 +126,7 @@ const asignarToken = async () => {
           Authorization: `Bearer ${token}`,
         },
       };
+      
       const { data } = await clienteAxios.get(
         `/general/listarUnidadesPY`,
         config
@@ -137,7 +138,7 @@ const asignarToken = async () => {
 
     } catch (error) {
       msgError(error.response.data.msg);
-    }
+    } 
   };
 
   
@@ -259,12 +260,6 @@ const asignarToken = async () => {
   return (
     <>
       <div className="lg:flex lg:justify-between mb-5">
-        <h2 className="font-black text-cyan-900 text-2xl mx-4 ">
-          Tablero{" "}
-          <span className="font-black text-cyan-500 mb-10 text-center">
-            Wialon
-          </span>
-        </h2>
         <div className="flex items-center font-semibold text-sm gap-4">
           <button
             id="login"
@@ -314,7 +309,7 @@ const asignarToken = async () => {
 
       <div className=" lg:flex lg:justify-between gap-10">
         <div className="w-4/12 mb-10">
-        <div className="bg-gray-800 text-white shadow-xl rounded-lg p-6 w-full mx-auto max-w-md">
+          <div className="bg-gray-800 text-white shadow-xl rounded-lg p-6 w-full mx-auto max-w-md">
             {isLoading ? (
               <Box
                 sx={{
@@ -328,22 +323,28 @@ const asignarToken = async () => {
               </Box>
             ) : (
               <div>
-           <h2 className="text-xl font-semibold mb-4">
-                  {unidades.length} Unidades
-                </h2>
+                {unidades[0] !== "error" && (
+                  <div>
+                    <h2 className="text-xl font-semibold mb-4">
+                      {unidades.length} Unidades
+                    </h2>
 
-                <ul className="space-y-3">
-                  {unidades.map((r, index) => (
-                    <li
-                      key={index}
-                      className="flex items-center justify-between p-1 bg-gray-100 "
-                    >
-                      <span className="text-lg font-medium text-gray-600">
-                        {r.ID}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                    <ul className="space-y-3">
+                      {unidades.map((r, index) => (
+                        <li
+                          key={index}
+                          className="flex items-center justify-between p-1 bg-gray-100 "
+                        >
+                          <span className="text-lg font-medium text-gray-600">
+                            {r.Unidad.nm + " / " + r.Unidad.id}
+                          </span>
+                        </li>
+                      ))}
+                    </ul> 
+
+
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -364,38 +365,40 @@ const asignarToken = async () => {
               </Box>
             ) : (
               <div>
-                <h2 className="text-xl font-semibold mb-4">Sensores</h2>
-                <ul className="mb-3">
-                  {oxs.map((r, index) => (
-                    <div key={index}>
-                      <li className="">
-                        <strong>Patente: {r.Patente}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Velocidad: {r.Velocidad}</strong> km/h
-                      </li>
-                      <li className="">
-                        <strong>Latitud: {r.Latitud}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Longitud: {r.Longitud}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Curso: {r.Curso}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Altitud: {r.Altitud}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Oxigenación: {r.Oxigenacion}</strong>{" "}
-                      </li>
-                    </div>
-                  ))}
-                </ul>
-
                 {oxs.length > 0 && (
                   <div>
-                    <Mapa posiciones={oxs} />
+                    <h2 className="text-xl font-semibold mb-4">Sensores</h2>
+                    <ul className="mb-3">
+                      {oxs.map((r, index) => (
+                        <div key={index}>
+                          <li className="">
+                            <strong>Patente: {r.Patente}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Velocidad: {r.Velocidad}</strong> km/h
+                          </li>
+                          <li className="">
+                            <strong>Latitud: {r.Latitud}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Longitud: {r.Longitud}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Curso: {r.Curso}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Altitud: {r.Altitud}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Oxigenación: {r.Oxigenacion}</strong>{" "}
+                          </li>
+                        </div>
+                      ))}
+                    </ul>
+
+                    <div>
+                      <Mapa posiciones={oxs} />
+                    </div>
                   </div>
                 )}
               </div>
@@ -417,34 +420,37 @@ const asignarToken = async () => {
               </Box>
             ) : (
               <div>
-                <h2 className="text-xl font-semibold mb-4">Control Token</h2>
-                <ul className=" space-y-3 mb-8">
-                  {tControl.map((r, index) => (
-                    <div key={index}>
-                      <hr className=""></hr>
-                      <li className="">
-                        <strong>Patente: {r.Patente}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Velocidad: {r.Velocidad}</strong> km/h
-                      </li>
-                      <li className="">
-                        <strong>Latitud: {r.Latitud}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Longitud: {r.Longitud}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Curso: {r.Curso}</strong>{" "}
-                      </li>
-                      <li className="">
-                        <strong>Altitud: {r.Altitud}</strong>{" "}
-                      </li>
-                    </div>
-                  ))}
-                </ul>
                 {tControl.length > 0 && (
                   <div>
+                    <h2 className="text-xl font-semibold mb-4">
+                      Control Token
+                    </h2>
+                    <ul className=" space-y-3 mb-8">
+                      {tControl.map((r, index) => (
+                        <div key={index}>
+                          <hr className=""></hr>
+                          <li className="">
+                            <strong>Patente: {r.Patente}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Velocidad: {r.Velocidad}</strong> km/h
+                          </li>
+                          <li className="">
+                            <strong>Latitud: {r.Latitud}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Longitud: {r.Longitud}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Curso: {r.Curso}</strong>{" "}
+                          </li>
+                          <li className="">
+                            <strong>Altitud: {r.Altitud}</strong>{" "}
+                          </li>
+                        </div>
+                      ))}
+                    </ul>
+
                     <Mapa posiciones={tControl} />
                   </div>
                 )}

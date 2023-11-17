@@ -34,6 +34,7 @@ import ContactMailTwoToneIcon from '@mui/icons-material/ContactMailTwoTone';
 import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
 import RvHookupTwoToneIcon from '@mui/icons-material/RvHookupTwoTone';
 import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
+import EditNotificationsTwoToneIcon from '@mui/icons-material/EditNotificationsTwoTone';
 
 type Anchor = "left";
 
@@ -54,6 +55,7 @@ const menuCamiones = [
 ];
 
 const menuNotificaciones = [
+  { name: "Cat. Notificacion", href: "/admin/cat-not", icono: <EditNotificationsTwoToneIcon /> },
   { name: "Tipo Notificacion", href: "/admin/tipo-notificacion", icono: <NotificationsActiveTwoToneIcon /> },
   { name: "Notificaciones", href: "/admin/correos-notificacion", icono: <ContactMailTwoToneIcon /> },
 ];

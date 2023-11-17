@@ -22,7 +22,11 @@ import TablePagination from "@mui/material/TablePagination";
 const CorreosNotificaciones = () => {
   const { auth } = useAuth();
   const [id_empresa, setEmpresa] = useState(auth.id_empresa);
-  const [empresasListado, setEmpresasListado] = useState([]);
+  const [empresasGlobales, setEmpresasGlobales] = useState([]);
+
+  const [empresaSistema, setEmpresaSistema] = useState("");
+  const [empresasSistema, setEmpresasSistema] = useState([]);
+
   const [id_notificacion, setNotificacion] = useState("");
   const [transportistas, setTransportistas] = useState([]);
   const [info, setInfo] = useState({});
@@ -32,7 +36,7 @@ const CorreosNotificaciones = () => {
   const [asunto, setAsunto] = useState("");
   const [mensaje, setMensaje] = useState("");
 
-
+  
   const [busqueda, setBusqueda] = useState("");
   const [id, setID] = useState(null);
 
@@ -90,15 +94,34 @@ const CorreosNotificaciones = () => {
   };
 
   useEffect(() => {
-    obtenerTiposNot();
-    obtenerNotificaciones();
-    obtenerTransportistas();
-  }, [id_empresa]);
+    obtenerEmpresasGlobal();
+   }, []);
 
   useEffect(() => {
-    obtenerEmpresasListado();
+    if(empresaSistema > 0 && id_transportista > 0){
+      obtenerNotificaciones();   
+    }
+    
+   }, [empresaSistema, id_transportista]);
+
+  useEffect(() => { 
+    obtenerEmpresasSistema()
+  }, [id_empresa]);
+
+
+ useEffect(() => {   
+  if(empresaSistema > 0){
+    obtenerTransportistas()  
+    
+  }    
+}, [empresaSistema, id_empresa]);
+
+
+useEffect(() => {
+  if(id_transportista > 0){
     obtenerTiposNot();
-  }, []);
+  } 
+ }, [empresaSistema, id_transportista, id_empresa]);
 
   function invertirFecha(fecha) {
     return fecha.split("-").reverse().join("-");
@@ -120,7 +143,7 @@ const CorreosNotificaciones = () => {
   };
   /////////////////////////////////////////////////////
 
-  const obtenerEmpresasListado = async () => {
+  const obtenerEmpresasGlobal = async () => {
     const token = localStorage.getItem("token_emsegur");
 
     if (!token) return;
@@ -133,8 +156,25 @@ const CorreosNotificaciones = () => {
     };
 
     const { data } = await clienteAxios("/crud/obtener-empresas", config);
-    setEmpresasListado(data);
+    setEmpresasGlobales(data);
   };
+
+
+  const obtenerEmpresasSistema = async () =>{
+    const token = localStorage.getItem("token_emsegur")
+
+    if(!token) return
+
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        }
+    }                        
+ 
+    const {data} = await clienteAxios(`/crud/obtener-empresas-sistema/${id_empresa}`, config)           
+    setEmpresasSistema(data)
+}   
 
   const obtenerTiposNot = async () => {
     try {
@@ -150,9 +190,10 @@ const CorreosNotificaciones = () => {
       };
 
       const { data } = await clienteAxios(
-        `/crud/obtener-tipo-notificacion1/${id_empresa}`,
+        `/crud/obtener-tipo-notificacion/${empresaSistema}/${id_transportista}/${id_empresa}`,
         config
       );
+   
       setTipos(data);
     } catch (error) {
       console.log(error);
@@ -172,11 +213,12 @@ const CorreosNotificaciones = () => {
     };
 
     const { data } = await clienteAxios(
-      `/crud/obtener-transportistas1/${id_empresa}`,
+      `/crud/obtener-transportistas/${empresaSistema}/${id_empresa}`,
       config
     );
     setTransportistas(data);
-  };
+
+};
 
   const obtenerNotificaciones = async () => {
     const token = localStorage.getItem("token_emsegur");
@@ -191,16 +233,15 @@ const CorreosNotificaciones = () => {
     };
 
     const { data } = await clienteAxios(
-      `/crud/obtener-notificacion/${id_empresa}`,
+      `/crud/obtener-notificacion/${id_empresa}/${id_transportista}/${empresaSistema}`,
       config
-    );
- 
+    );      
+     console.log(data)
     setNotificaciones(data);
   };
 
   const limpiarFormulario = () => {
     setAsunto("");
-    setTransportista("");
     setEdit({});
     setID(null);
     setEstado(1);
@@ -209,8 +250,8 @@ const CorreosNotificaciones = () => {
     setNotificacion("");
     setCorreos([]);
     handleClose();
-    obtenerTransportistas();
-    obtenerNotificaciones();
+    obtenerNotificaciones()
+   
   };
 
   const setEdicion = (edit) => {
@@ -283,6 +324,7 @@ const CorreosNotificaciones = () => {
           asunto,
           mensaje,
           est_activo,
+          id_empresa_sistema : empresaSistema
         },
         config
       );
@@ -298,11 +340,13 @@ const CorreosNotificaciones = () => {
           mensaje,
           est_activo,
           id_empresa,
+          id_empresa_sistema : empresaSistema
         },
         config
       );
       msgOk(data.msg);
     }
+
     limpiarFormulario();
   };
 
@@ -322,9 +366,9 @@ const CorreosNotificaciones = () => {
       </h2>
 
       <div className="grid-cols-2 lg:flex mt-2 lg:gap-4">
-        <div className="shadow-lg  mx-6 lg:mx-auto lg:w-3/12 px-3 py-3 rounded bg-white">
+        <div className="shadow-lg  mx-6 lg:mx-auto lg:w-4/12 px-3 py-3 rounded bg-white">
           <form className="space-y-4" onSubmit={handleSubmit}>
-            {auth.id == 1 && (
+            {auth.id == 2 && (
               <div className="">
                 <label
                   htmlFor="empresa"
@@ -341,7 +385,7 @@ const CorreosNotificaciones = () => {
                   <option value={""} disabled hidden>
                     Seleccionar...
                   </option>
-                  {empresasListado.map((empresa) => (
+                  {empresasGlobales.map((empresa) => (
                     <option key={empresa.id} value={empresa.id}>
                       {empresa.nom_empresa}
                     </option>
@@ -350,32 +394,23 @@ const CorreosNotificaciones = () => {
               </div>
             )}
 
-            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+<div className="lg:flex gap-3 space-y-4 lg:space-y-0">
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Tipo Notificación
-                </InputLabel>
+                <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  value={id_notificacion}
-                  label="Tipo Notificación"
-                  onChange={(e) => setNotificacion(e.target.value)}
+                  value={empresaSistema}
+                  label="Empresa"
+                  onChange={(e) => setEmpresaSistema(e.target.value)}
                 >
-                  {tipos.map((tipo) => (
+                  {empresasSistema.map((tipo) => (
                     <MenuItem key={tipo.id} value={tipo.id}>
-                      {tipo.nom_tipo}
+                      {tipo.nom_empresa}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-
-              <FormControlLabel
-                id="est_activo"
-                control={<Checkbox checked={est_activo === 1} />}
-                onChange={(e) => setEstado(e.target.checked ? 1 : 0)}
-                label="Activo"
-              />
             </div>
 
             <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
@@ -398,6 +433,36 @@ const CorreosNotificaciones = () => {
                 </Select>
               </FormControl>
             </div>
+
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Tipo Notificación
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={id_notificacion}
+                  label="Tipo Notificación"
+                  onChange={(e) => setNotificacion(e.target.value)}
+                >
+                  {tipos.map((tipo) => (
+                    <MenuItem key={tipo.id} value={tipo.id}>
+                      {tipo.cat_notificacione.nom_tipo}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControlLabel
+                id="est_activo"
+                control={<Checkbox checked={est_activo === 1} />}
+                onChange={(e) => setEstado(e.target.checked ? 1 : 0)}
+                label="Activo"
+              />
+            </div>
+
+             
 
             <div className="lg:flex lg:gap-3 lg:space-y-0">
               <TextField
@@ -487,7 +552,7 @@ const CorreosNotificaciones = () => {
           </form>
         </div>
 
-        <div className=" rounded-lg lg:mx-auto max-h-36 md:w-full mx-5 lg:w-9/12 mt-5 lg:mt-0">
+        <div className=" rounded-lg lg:mx-auto max-h-36 md:w-full mx-5 lg:w-8/12 mt-5 lg:mt-0">
           <div className="lg:flex gap-4 ">
             <input
               name="busqueda"
@@ -538,12 +603,15 @@ const CorreosNotificaciones = () => {
                       >
                         <td className="px-6   py-1 text-sm text-gray-500">
                           <p className="font-bold">
-                            {r.mae_tipo_notificacion.nom_tipo}
+                            {r.mae_tipo_notificacion.cat_notificacione.nom_tipo}
                           </p>
                           <p>
                             {r.mae_transportista.nombre +
                               " " +
                               r.mae_transportista.ape_paterno}
+                          </p>
+                          <p className="text-cyan-600">
+                            {r.mae_empresas_sistema.nom_empresa}
                           </p>
                           {r.est_activo ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
@@ -599,7 +667,7 @@ const CorreosNotificaciones = () => {
                             className="py-1 "
                             onClick={() => {
                               setID(edit.id);
-                              setInfo(r);                              
+                              setInfo(r);
                               handleClickOpen();
                             }}
                           >

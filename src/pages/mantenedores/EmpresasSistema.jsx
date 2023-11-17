@@ -46,7 +46,7 @@ const EmpresasSistemas = () => {
       obtenerEmpresas()
     },[empresaAdmin])
 
-    console.log(empresas)
+
     
   const obtenerEmpresasAdmin = async () =>{
     try {

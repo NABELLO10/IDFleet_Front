@@ -93,9 +93,17 @@ const Camiones = () => {
   };
 
   useEffect(() => {      
-    obtenerEmpresas()   
-    obtenerArrastres()
+    obtenerEmpresas()     
  }, [id_empresa]);
+
+ useEffect(() => {      
+
+  if(empresaSistema > 0) {
+    obtenerArrastres()
+  }
+
+ }, [empresaSistema]);
+
 
 
   useEffect(() => {   
@@ -200,7 +208,7 @@ const obtenerCamiones = async () => {
       };
 
       const { data } = await clienteAxios(
-        `/crud/obtener-todosarrastres/${id_empresa}`,
+        `/crud/obtener-todosarrastres/${empresaSistema}`,
         config
       );    
       setArrastres(data);      
@@ -437,7 +445,11 @@ const obtenerCamiones = async () => {
                 >
                   {arrastres.map((tipo) => (
                     <MenuItem key={tipo.id} value={tipo.id}>
-                      {tipo.nom_patente + " / " + tipo.mae_transportista.nombre + " " + tipo.mae_transportista.ape_paterno }
+                      {tipo.nom_patente +
+                        " / " +
+                        tipo.mae_transportista.nombre +
+                        " " +
+                        tipo.mae_transportista.ape_paterno}
                     </MenuItem>
                   ))}
                 </Select>
@@ -503,16 +515,15 @@ const obtenerCamiones = async () => {
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="w-full lg:w-7/12 border shadow px-1 text-sky-500"
-              placeholder=" Buscar Camión..."
+              placeholder="Buscar Camión..."
             />
 
-            <Descargar data={camiones} nombrePdf={"Camiones"} item={1}/>
+            <Descargar data={camiones} nombrePdf={"Camiones"} item={1} />
           </div>
 
-          
           <div className="overflow-auto  rounded-lg md:w-full mt-2">
             {camiones.length > 0 ? (
-              <>              
+              <>
                 {" "}
                 <table
                   id="table"
@@ -545,141 +556,134 @@ const obtenerCamiones = async () => {
 
                       <th
                         scope="col"
-                        className="px-6 font-bold text-gray-900"
-                      ></th>
-                      <th
-                        scope="col"
-                        className="px-6 font-bold text-gray-900"
-                      ></th>
-                      <th
-                        scope="col"
                         className="px-6 font-medium text-gray-900"
                       ></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100  border-gray-100">
                     {paginatedCamiones.map((r) => (
-                        <tr
-                          className="whitespace-nowrap hover:bg-gray-200"
-                          key={r.id}
-                        >
-                          <td className="px-6  font-bold py-3 text-sm text-gray-500">
-                            <p>{r.nom_patente}</p>
-                          </td>
-                          <td className="px-6   text-sm text-gray-500">
-                            <p>
-                              {r.mae_transportista.nombre +
-                                " " +
-                                r.mae_transportista.ape_paterno}
-                            </p>
-                          </td>
-                          <td className="px-6   text-sm text-gray-500">
-                            <p>{r.mae_empresas_sistema.nom_empresa}</p>
-                          </td>
-                          <td className="px-6   text-sm text-gray-500">
-                            <p>{invertirFecha(r.fec_rev_tecnica)}</p>
-                          </td>
-                          <td className="px-6   text-sm text-gray-500">
-                            <p>{invertirFecha(r.fec_per_circulacion)}</p>
-                          </td>
-                          <td className="px-6   text-sm text-gray-500">
-                            <p>{invertirFecha(r.fec_seguro)}</p>
-                          </td>
+                      <tr
+                        className="whitespace-nowrap hover:bg-gray-200"
+                        key={r.id}
+                      >
+                        <td className="px-6  font-bold py-3 text-sm text-gray-500">
+                          <div className=" flex flex-col ">
+                            <div>{r.nom_patente}</div>
 
-                          <td className="px-6  text-sm text-gray-500">
-                            {" "}
-                            {r.est_activo ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-                                <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                                Activo
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-                                <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-                                Inactivo
-                              </span>
-                            )}
-                          </td>
+                            <div className="">
+                              {" "}
+                              {r.est_activo ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                                  Activo
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+                                  Inactivo
+                                </span>
+                              )}
+                            </div>
 
-                          <td className="px-6  text-sm text-gray-500">
-                            {" "}
-                            {r.est_asignado ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-                                <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-                                Asignado
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-                                <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                                Disponible
-                              </span>
-                            )}
-                          </td>
+                            <div>
+                              {" "}
+                              {r.est_asignado ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+                                  Asignado
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                                  Disponible
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6   text-sm text-gray-500">
+                          <p>
+                            {r.mae_transportista.nombre +
+                              " " +
+                              r.mae_transportista.ape_paterno}
+                          </p>
+                        </td>
+                        <td className="px-6   text-sm text-gray-500">
+                          <p>{r.mae_empresas_sistema.nom_empresa}</p>
+                        </td>
+                        <td className="px-6   text-sm text-gray-500">
+                          <p>{invertirFecha(r.fec_rev_tecnica)}</p>
+                        </td>
+                        <td className="px-6   text-sm text-gray-500">
+                          <p>{invertirFecha(r.fec_per_circulacion)}</p>
+                        </td>
+                        <td className="px-6   text-sm text-gray-500">
+                          <p>{invertirFecha(r.fec_seguro)}</p>
+                        </td>
 
-                          <td>
-                            <button
-                              type="button"
-                              onClick={() => setEdicion(r)}
-                              className="py-1 mx-2"
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => setEdicion(r)}
+                            className="py-1 mx-2"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-6 h-6 text-blue-400 hover:text-blue-800"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-6 h-6 text-blue-400 hover:text-blue-800"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                />
-                              </svg>
-                            </button>
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
 
-                            <button
-                              className="py-1 "
-                              onClick={() => {
-                                setID(edit.id);
-                                setEdicion(r);
-                                handleClickOpen();
-                              }}
+                          <button
+                            className="py-1 "
+                            onClick={() => {
+                              setID(edit.id);
+                              setEdicion(r);
+                              handleClickOpen();
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-6 h-6 text-red-500 hover:text-red-800"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-6 h-6 text-red-500 hover:text-red-800"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                />
-                              </svg>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
                 <div className="bg-gray-300">
-                <TablePagination
-            component="div"
-            count={camiones.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="Registros por página:"
-            className="bg-gray-300 w-full"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} de ${count}`
-            }
-        
+                  <TablePagination
+                    component="div"
+                    count={camiones.length}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    labelRowsPerPage="Registros por página:"
+                    className="bg-gray-300 w-full"
+                    labelDisplayedRows={({ from, to, count }) =>
+                      `${from}-${to} de ${count}`
+                    }
                   />
                 </div>
               </>

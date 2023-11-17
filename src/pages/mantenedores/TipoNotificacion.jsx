@@ -8,24 +8,40 @@ import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-
+import Select from "@mui/material/Select";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from '@mui/material/MenuItem';
 
 
 const TipoNotificacion = () => {
   const { auth } = useAuth();
   const [id_empresa, setEmpresa] = useState(auth.id_empresa);
+  const [empresasGlobales, setEmpresasGlobales] = useState([]);
 
+  const [empresaSistema, setEmpresaSistema] = useState("");
+  const [empresasSistema, setEmpresasSistema] = useState([]);
+
+  
   const [nombre, setNombre] = useState("");
-  const [empresasListado, setEmpresasListado] = useState([]);
+  const [val_min, setValMin] = useState("");
+  const [val_max, setValMax] = useState("");
+  const [obs, setObs] = useState("");
   const [est_activo, setEstado] = useState(1);
+  const [transportistas, setTransportistas] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [categoria, setCategoria] = useState("");  
+  const [transportista, setTransportista] = useState("");
+  const [info, setInfo] = useState({});
 
   //BUSQUEDA EN GRILLA
   const [busqueda, setBusqueda] = useState("");
   //LISTAR
-  const [tiposSeguros, setTiposSeguros] = useState([]);
+  const [tiposNotificaciones, setTiposNotificacion] = useState([]);
   //PARA EDICION
   const [id, setID] = useState(null);
   const [tipoEdit, setTipoEdit] = useState({});
+
 
   //----- MODAL ---------
   const [open, setOpen] = useState(false);
@@ -38,12 +54,32 @@ const TipoNotificacion = () => {
   };
   //----- MODAL ---------
 
+
   useEffect(() => {
-    obtenerEmpresas();
-    obtenerTipos();
+    obtenerEmpresasGlobal();
+    obtenerCatNot()
+   }, []);
+
+  useEffect(() => { 
+    obtenerEmpresasSistema()
   }, [id_empresa]);
 
-  const obtenerEmpresas = async () => {
+
+ useEffect(() => {   
+  if(empresaSistema > 0){
+    obtenerTransportistas()  
+  }    
+}, [empresaSistema, id_empresa]);
+
+
+useEffect(() => {
+  if(transportista > 0){
+    obtenerTiposNotificaciones();
+  } 
+ }, [empresaSistema, transportista, id_empresa]);
+
+
+  const obtenerEmpresasGlobal = async () => {
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -57,13 +93,76 @@ const TipoNotificacion = () => {
       };
 
       const { data } = await clienteAxios("/crud/obtener-empresas", config);
-      setEmpresasListado(data);
+      setEmpresasGlobales(data);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const obtenerTipos = async () => {
+  const obtenerEmpresasSistema = async () =>{
+
+    const token = localStorage.getItem("token_emsegur")
+
+    if(!token) return
+
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        }
+    }                        
+ 
+    const {data} = await clienteAxios(`/crud/obtener-empresas-sistema/${id_empresa}`, config)           
+    setEmpresasSistema(data)
+}   
+
+
+  const obtenerTransportistas = async () => {
+
+    const token = localStorage.getItem("token_emsegur");
+
+    if (!token) return;
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await clienteAxios(
+      `/crud/obtener-transportistas/${empresaSistema}/${id_empresa}`,
+      config
+    );
+    setTransportistas(data);
+
+};
+
+const obtenerCatNot = async () => {
+  try {
+    const token = localStorage.getItem("token_emsegur");
+
+    if (!token) return;
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await clienteAxios(
+      `/crud/cat-not/${id_empresa}`,
+      config
+    );
+    setCategorias(data);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  const obtenerTiposNotificaciones = async () => {
     try {
       const token = localStorage.getItem("token_emsegur");
 
@@ -77,31 +176,42 @@ const TipoNotificacion = () => {
       };
 
       const { data } = await clienteAxios(
-        `/crud/obtener-tipo-notificacion/${id_empresa}`,
+        `/crud/obtener-tipo-notificacion/${empresaSistema}/${transportista}/${id_empresa}`,
         config
       );
-      setTiposSeguros(data);
+      
+      console.log(data)
+
+      setTiposNotificacion(data);
     } catch (error) {
       console.log(error);
     }
   };
 
+
+
   const limpiarFormulario = () => {
-    setNombre("");
+    setCategoria("");
+    setValMin("");
+    setValMax("");
+    setObs("");
     setTipoEdit({});
-    obtenerTipos();
-    handleClose();
+    obtenerTiposNotificaciones()
+    handleClose(); 
   };
 
   const setEdicion = (tipo) => {
     setTipoEdit(tipo);
     setEstado(tipo.est_activo);
-    setNombre(tipo.nom_tipo);
+    setCategoria(tipo.id_cat_not);
+    setValMin(tipo.val_min);
+    setValMax(tipo.val_max);
+    setObs(tipo.obs);
   };
 
   const registrar = async () => {
-    if ([nombre].includes("")) {
-      msgError("Ingrese Nombre");
+    if ([categoria, val_min, val_max].includes("")) {
+      msgError("Ingrese categoria y valores");
       return;
     }
 
@@ -124,9 +234,11 @@ const TipoNotificacion = () => {
         const { data } = await clienteAxios.put(
           `/crud/tipo-notificacion/${tipoEdit.id}`,
           {
-            nom_tipo: nombre,
+            id_cat_not: categoria,
             est_activo,
-            id_empresa,
+            val_min, val_max, obs,          
+            id_empresa_sistema : empresaSistema, 
+            id_transportista : transportista
           },
           config
         );
@@ -136,9 +248,12 @@ const TipoNotificacion = () => {
         const { data } = await clienteAxios.post(
           "/crud/tipo-notificacion",
           {
-            nom_tipo: nombre,
+            id_cat_not: categoria,
             est_activo,
+            val_min, val_max, obs,
             id_empresa,
+            id_empresa_sistema : empresaSistema, 
+            id_transportista : transportista
           },
           config
         );
@@ -194,8 +309,8 @@ const TipoNotificacion = () => {
       </h2>
 
       <div className="grid-cols-2 lg:flex mt-4">
-        <div className="shadow-lg  mx-6 lg:mx-auto lg:w-5/12 px-8  py-5 rounded-xl bg-white">
-          <form onSubmit={handleSubmit}>
+        <div className="shadow-lg   mx-6 lg:mx-auto lg:w-5/12 px-8  py-5 rounded-xl bg-white">
+          <form className="space-y-3" onSubmit={handleSubmit}>
             {auth.id == 2 && (
               <div className="mb-3">
                 <label
@@ -213,7 +328,7 @@ const TipoNotificacion = () => {
                   <option value={""} disabled hidden>
                     Seleccionar...
                   </option>
-                  {empresasListado.map((empresa) => (
+                  {empresasGlobales.map((empresa) => (
                     <option key={empresa.id} value={empresa.id}>
                       {empresa.nom_empresa}
                     </option>
@@ -222,21 +337,104 @@ const TipoNotificacion = () => {
               </div>
             )}
 
-            <div className="md:flex gap-2 first-letter:py-3 relative">
-              <TextField
-                id="nombre"
-                className="peer pt-3 pb-2 block w-full"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                label="Tipo Notificacion"
-                variant="outlined"
-              />
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={empresaSistema}
+                  label="Empresa"
+                  onChange={(e) => setEmpresaSistema(e.target.value)}
+                >
+                  {empresasSistema.map((tipo) => (
+                    <MenuItem key={tipo.id} value={tipo.id}>
+                      {tipo.nom_empresa}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Transportista
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={transportista}
+                  label="Transportista"
+                  onChange={(e) => setTransportista(e.target.value)}
+                >
+                  {transportistas.map((tipo) => (
+                    <MenuItem key={tipo.id} value={tipo.id}>
+                      {tipo.nombre + " " + tipo.ape_paterno}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div className="md:flex gap-2 relative">
+            <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                Categoria
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={categoria}
+                  label="Categoria"
+                  onChange={(e) => setCategoria(e.target.value)}
+                >
+                  {categorias.map((tipo) => (
+                    <MenuItem key={tipo.id} value={tipo.id}>
+                      {tipo.nom_tipo}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
               <FormControlLabel
                 id="est_activo"
                 control={<Checkbox checked={est_activo === 1} />}
                 onChange={(e) => setEstado(e.target.checked ? 1 : 0)}
                 label="Activo"
+              />
+            </div>
+
+            <div className="md:flex gap-2 relative">
+              <TextField
+                id="valor"
+                className="peer pt-3 pb-2 w-full"
+                value={val_min}
+                onChange={(e) => setValMin(e.target.value)}
+                label="Valor min"
+                variant="outlined"
+              />
+
+              <TextField
+                id="valor"
+                className="peer pt-3 pb-2 w-full"
+                value={val_max}
+                onChange={(e) => setValMax(e.target.value)}
+                label="Valor max"
+                variant="outlined"
+              />
+            </div>
+
+            <div className="md:flex gap-2 relative">
+              <TextField
+                id="obs"
+                className="peer pt-3 pb-2 block w-full"
+                value={obs}
+                onChange={(e) => setObs(e.target.value)}
+                label="Observación"
+                variant="outlined"
+                multiline
+                rows={3}
               />
             </div>
 
@@ -280,14 +478,30 @@ const TipoNotificacion = () => {
                   >
                     Tipo
                   </th>
-
-                  <th scope="col" className="px-6 font-bold text-gray-900"></th>
+                  <th
+                    scope="col"
+                    className="px-6 py-1  font-bold text-gray-900"
+                  >
+                    Valor Min
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-1  font-bold text-gray-900"
+                  >
+                    Valor Max
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-1  font-bold text-gray-900"
+                  >
+                    Obs
+                  </th>
 
                   <th scope="col" className="px-6 font-bold text-gray-900"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100  border-gray-100">
-                {tiposSeguros
+                {tiposNotificaciones
                   .filter((val) => {
                     if (busqueda == "") {
                       return val;
@@ -304,23 +518,30 @@ const TipoNotificacion = () => {
                       className="whitespace-nowrap hover:bg-gray-200"
                       key={tipo.id}
                     >
-                      <td className="px-6 py-4  text-sm text-gray-500">
-                        {tipo.nom_tipo}
+                      <td className="px-3 py-2   text-sm text-gray-500">
+                        <div>{tipo.cat_notificacione.nom_tipo}</div>
+                        <div>
+                          {tipo.est_activo ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-green-50   text-xs font-semibold text-green-600">
+                              <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                              Activo
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-red-50 text-xs font-semibold text-red-600">
+                              <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+                              Inactivo
+                            </span>
+                          )}
+                        </div>
                       </td>
-
-                      <td className="px-6  text-sm text-gray-500">
-                        {" "}
-                        {tipo.est_activo ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-                            <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                            Activo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-                            <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-                            Inactivo
-                          </span>
-                        )}
+                      <td className="px-6 py-4  text-sm text-gray-500">
+                        {tipo.val_min}
+                      </td>
+                      <td className="px-6 py-4  text-sm text-gray-500">
+                        {tipo.val_max}
+                      </td>
+                      <td className="px-6 py-4  text-sm text-gray-500">
+                        {tipo.obs}
                       </td>
 
                       <td>
@@ -348,8 +569,7 @@ const TipoNotificacion = () => {
                         <button
                           className="py-1 "
                           onClick={() => {
-                            setID(tipoEdit.id);
-                            setEdicion(tipo);
+                            setID(tipo.id);                    
                             handleClickOpen();
                           }}
                         >
@@ -387,7 +607,7 @@ const TipoNotificacion = () => {
             <div className="p-0.5 rounded-lg">
               <div className="">
                 <div className="modal-body relative p-4">
-                  <p>¿Realmente desea el Tipo: {tipoEdit.nom_tipo}?</p>
+                  <p>¿Realmente desea el Tipo: {info.nom_tipo}?</p>
                 </div>
               </div>
             </div>
@@ -401,7 +621,7 @@ const TipoNotificacion = () => {
             </button>
             <button
               type="button"
-              onClick={() => eliminarTipo(tipoEdit.id)}
+              onClick={() => eliminarTipo(id)}
               className="inline-block px-6 py-2.5 bg-red-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out ml-1"
             >
               Eliminar

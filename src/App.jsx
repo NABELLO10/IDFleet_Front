@@ -16,10 +16,13 @@ import Perfiles from "./pages/mantenedores/Perfiles"
 import EmpresasSistemas from "./pages/mantenedores/EmpresasSistema"
 import Camiones from "./pages/mantenedores/Camiones"
 import Arrastres from "./pages/mantenedores/Arrastres"
+import CatNotificacion from "./pages/mantenedores/CatNotificacion"
 
 import Transportistas from "./pages/mantenedores/Transportistas"
 import TipoNotificacion from "./pages/mantenedores/TipoNotificacion"
 import CorreosNotificaciones from "./pages/mantenedores/CorreosNotificaciones"
+import TableroWialon from "./pages/procesos/TableroWialon"
+
 
 function App() {
   return (
@@ -46,9 +49,11 @@ function App() {
               <Route path="transportistas" element={<Transportistas />} />
               <Route path="camiones" element={<Camiones />} />
               <Route path="arrastres" element={<Arrastres />} />
+              <Route path="cat-not" element={<CatNotificacion />} />
 
               <Route path="tipo-notificacion" element={<TipoNotificacion />} />
               <Route path="correos-notificacion" element={<CorreosNotificaciones />} />
+              <Route path="tablero-wialon" element={<TableroWialon />} />
 
               <Route path="wialon" element={<WialonToken />} />
             </Route>
