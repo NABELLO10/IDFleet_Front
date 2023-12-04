@@ -286,7 +286,7 @@ const EmpresasSistemas = () => {
       <div className="mt-4 mx-4 lg:mx-0 lg:flex justify-start">
         <div className="shadow-lg h-full  lg:w-4/12 px-8 py-5 rounded-xl bg-white">
           <form className="" onSubmit={handleSubmit}>
-            {auth.id == 1 && (
+            {auth.id == 2 && (
               <div className="">
                 <label
                   htmlFor="empresa"

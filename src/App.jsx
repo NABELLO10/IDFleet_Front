@@ -22,6 +22,8 @@ import Transportistas from "./pages/mantenedores/Transportistas"
 import TipoNotificacion from "./pages/mantenedores/TipoNotificacion"
 import CorreosNotificaciones from "./pages/mantenedores/CorreosNotificaciones"
 import TableroWialon from "./pages/procesos/TableroWialon"
+import TabletoTablet from "./pages/procesos/TabletoTablet"
+import Turnos from "./pages/procesos/Turnos"
 
 
 function App() {
@@ -54,8 +56,10 @@ function App() {
               <Route path="tipo-notificacion" element={<TipoNotificacion />} />
               <Route path="correos-notificacion" element={<CorreosNotificaciones />} />
               <Route path="tablero-wialon" element={<TableroWialon />} />
+              <Route path="tablero-wialon" element={<TableroWialon />} />
 
-              <Route path="wialon" element={<WialonToken />} />
+              <Route path="tablero-tablet" element={<TabletoTablet />} />
+              <Route path="turnos" element={<Turnos />} />
             </Route>
           </Routes>
         </AdicionalesProvider>

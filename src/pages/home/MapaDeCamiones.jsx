@@ -18,7 +18,7 @@ const MapaDeCamiones = ({ camiones, centroMapa, camionSeleccionado }) => {
   return (
     <MapContainer
       center={centroMapa || [-37.46973, -72.35366]}
-      zoom={13}
+      zoom={11}
       style={{ height: "100vh", width: "100%" }}
       ref={mapRef}
     >
@@ -39,9 +39,9 @@ const MapaDeCamiones = ({ camiones, centroMapa, camionSeleccionado }) => {
           // Aquí puedes configurar el ícono y otras opciones del marcador
         >
           <Popup>
-            Patente: {camion.patente} <br />
-        {/*     Hora Actual: {camion.horaActual} <br />
-            Hora de Salida: {camion.horaSalida} */}
+            {camion.patente} <br />    
+  
+  
           </Popup>
         </Marker>
       ))}

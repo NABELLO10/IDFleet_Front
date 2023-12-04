@@ -201,7 +201,7 @@ const Perfiles = () => {
       <div className="grid-cols-2 lg:flex mt-4">
         <div className="shadow-lg  mx-6 lg:mx-auto lg:w-5/12 px-8  py-5 rounded-xl bg-white">
           <form onSubmit={handleSubmit}>
-            {auth.id == 1 && (
+            {auth.id == 2 && (
               <div className="mb-3">
                 <label
                   htmlFor="empresa"

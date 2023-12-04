@@ -22,6 +22,7 @@ import useAuth from "../../hooks/useAuth";
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
 import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
 import ShareLocationTwoToneIcon from '@mui/icons-material/ShareLocationTwoTone';
+import TaxiAlertTwoToneIcon from '@mui/icons-material/TaxiAlertTwoTone';
 
 function Menu2() {
   const { auth, cerrarSesion } = useAuth();
@@ -98,6 +99,14 @@ function Menu2() {
               <Tooltip title="TABLERO WIALON">
                 <Link to="/admin/tablero-wialon">
                   <ShareLocationTwoToneIcon />
+                </Link>
+              </Tooltip>
+            </div>
+
+            <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+              <Tooltip title="TABLERO WIALON">
+                <Link to="/admin/tablero-tablet">
+                  <TaxiAlertTwoToneIcon />
                 </Link>
               </Tooltip>
             </div>

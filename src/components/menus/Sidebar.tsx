@@ -22,13 +22,11 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 
-import HomeIcon from "@mui/icons-material/Home";
+
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import TuneIcon from '@mui/icons-material/Tune';
 import ApartmentTwoToneIcon from '@mui/icons-material/ApartmentTwoTone';
-import KeyTwoToneIcon from '@mui/icons-material/KeyTwoTone';
 import LocalShippingTwoToneIcon from '@mui/icons-material/LocalShippingTwoTone';
-import CommuteTwoToneIcon from '@mui/icons-material/CommuteTwoTone';
 import ContactPageTwoToneIcon from '@mui/icons-material/ContactPageTwoTone';
 import ContactMailTwoToneIcon from '@mui/icons-material/ContactMailTwoTone';
 import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
@@ -40,6 +38,7 @@ type Anchor = "left";
 
 const menuGlobal = [
   { name: "Wialon Token", href: "/admin/wialon", icono: <GpsFixedTwoToneIcon /> },
+  { name: "Turnos", href: "/admin/turnos", icono: <GpsFixedTwoToneIcon /> },
 ];
 
 const menuConfig = [
