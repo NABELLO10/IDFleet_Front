@@ -95,14 +95,14 @@ function Menu2() {
                 </Link>
               </Tooltip>
             </div> */}
-            <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+           {/*  <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
               <Tooltip title="TABLERO WIALON">
                 <Link to="/admin/tablero-wialon">
                   <ShareLocationTwoToneIcon />
                 </Link>
               </Tooltip>
             </div>
-
+ */}
             <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
               <Tooltip title="TABLERO WIALON">
                 <Link to="/admin/tablero-tablet">

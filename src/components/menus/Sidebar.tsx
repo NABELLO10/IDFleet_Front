@@ -33,6 +33,7 @@ import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsAct
 import RvHookupTwoToneIcon from '@mui/icons-material/RvHookupTwoTone';
 import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
 import EditNotificationsTwoToneIcon from '@mui/icons-material/EditNotificationsTwoTone';
+import BadgeTwoToneIcon from '@mui/icons-material/BadgeTwoTone';
 
 type Anchor = "left";
 
@@ -49,6 +50,7 @@ const menuConfig = [
 
 const menuCamiones = [
   { name: "Transportistas", href: "/admin/transportistas", icono: <ContactPageTwoToneIcon /> },
+  { name: "Conductores", href: "/admin/conductores", icono: <BadgeTwoToneIcon /> },
   { name: "Camiones", href: "/admin/camiones", icono: <LocalShippingTwoToneIcon /> },
   { name: "Arrastres", href: "/admin/arrastres", icono: <RvHookupTwoToneIcon /> },
 ];
@@ -58,7 +60,6 @@ const menuNotificaciones = [
   { name: "Tipo Notificacion", href: "/admin/tipo-notificacion", icono: <NotificationsActiveTwoToneIcon /> },
   { name: "Notificaciones", href: "/admin/correos-notificacion", icono: <ContactMailTwoToneIcon /> },
 ];
-
 
 
 const Accordion = styled((props: AccordionProps) => (

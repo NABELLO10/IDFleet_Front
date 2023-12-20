@@ -33,9 +33,7 @@ const Inicio = () => {
     obtenerEmpresasGlobal();
     asignarToken();
     obtenerEmpresasSistema();
-    obtenerResumenGPS();
-
-    
+    obtenerResumenGPS();    
   }, []);
 
   
@@ -401,7 +399,9 @@ const Inicio = () => {
         </div>
         
       </div>
-      <Home className="shadow-lg" camiones={oxs} notActiva={notActiva} notTemp={notTemp} />
+
+      {id_transportista ?  <Home className="shadow-lg" ventana={"Inicio"} camiones={oxs} notActiva={notActiva} notTemp={notTemp} /> : <span className="flex mt-20 text-cyan-900 font-bold text-2xl justify-center">Seleccione Transportista</span>}
+     
     </>
   );
 };

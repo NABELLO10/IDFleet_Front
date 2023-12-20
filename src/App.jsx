@@ -19,6 +19,7 @@ import Arrastres from "./pages/mantenedores/Arrastres"
 import CatNotificacion from "./pages/mantenedores/CatNotificacion"
 
 import Transportistas from "./pages/mantenedores/Transportistas"
+import Conductores from "./pages/mantenedores/Conductores"
 import TipoNotificacion from "./pages/mantenedores/TipoNotificacion"
 import CorreosNotificaciones from "./pages/mantenedores/CorreosNotificaciones"
 import TableroWialon from "./pages/procesos/TableroWialon"
@@ -45,10 +46,12 @@ function App() {
             <Route path="/admin" element={<RutaProtegida />}>
               <Route index element={<Inicio />} />
               <Route path="actualizar-password" element={<CambiarPassword />} />
+              <Route path="wialon" element={<WialonToken />} />
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="perfil" element={<Perfiles />} />
               <Route path="empresas" element={<EmpresasSistemas />} />
               <Route path="transportistas" element={<Transportistas />} />
+              <Route path="conductores" element={<Conductores />} />
               <Route path="camiones" element={<Camiones />} />
               <Route path="arrastres" element={<Arrastres />} />
               <Route path="cat-not" element={<CatNotificacion />} />

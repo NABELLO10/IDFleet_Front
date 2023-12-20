@@ -33,6 +33,7 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import useAuth from "../../hooks/useAuth";
 
+
 const TableroWialon = () => {
   const { auth } = useAuth();
   const [id_empresa, setEmpresa] = useState(auth.id_empresa);

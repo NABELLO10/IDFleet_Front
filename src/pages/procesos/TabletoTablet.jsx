@@ -18,32 +18,24 @@ const TableroTablet = () => {
   const [id_transportista, setTransportista] = useState("");
   const [transportistas, setTransportistas] = useState([]);
 
-  
-  const [notActiva, setNotActiva] = useState({});
-  const [notTemp, setNotTemp] = useState({});
-
   const [oxs, setOX] = useState([]);
   const [isLoading2, setIsLoading2] = useState(false);
- 
 
   useEffect(() => {
     obtenerEmpresasGlobal();
     obtenerEmpresasSistema();
-    obtenerDatosTablet()
-   // obtenerResumenGPS();    
+    obtenerDatosTablet();
+    // obtenerResumenGPS();
   }, []);
 
-  
   // Ejecutar la función cada 10 s
   useEffect(() => {
     const interval = setInterval(() => {
-        obtenerDatosTablet();
+      obtenerDatosTablet();
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);     
-
-
+  }, []);
 
   useEffect(() => {
     obtenerEmpresasSistema();
@@ -52,16 +44,15 @@ const TableroTablet = () => {
   useEffect(() => {
     if (empresaSistema > 0) {
       obtenerTransportistas();
-    }   
+    }
   }, [empresaSistema, id_empresa]);
 
-  
+  /*   
   useEffect(() => {
     if (empresaSistema > 0 &&  id_transportista > 0) {
       obtenerValoresOX(1);
     }
-  }, [id_transportista]);
-
+  }, [id_transportista]); */
 
   const obtenerEmpresasGlobal = async () => {
     const token = localStorage.getItem("token_emsegur");
@@ -117,8 +108,6 @@ const TableroTablet = () => {
     setEmpresasSistema(data);
   };
 
-
-
   const obtenerDatosTablet = async () => {
     setIsLoading2(true);
     try {
@@ -139,37 +128,26 @@ const TableroTablet = () => {
 
       setIsLoading2(false);
       setOX(data);
-      console.log(data)
 
-       // Oxigenacion, envir otro id para otro sensor
-
+      // Oxigenacion, envir otro id para otro sensor
     } catch (error) {
       msgError(error.response.data.msg);
     }
   };
 
-
-
-  const limpiarFormulario = () =>{
-    setEmpresaSistema("")
-    setTransportista("")
-  //  obtenerResumenGPS();   
-  obtenerDatosTablet()
-  }
-
-
-
-  
+  const limpiarFormulario = () => {
+    setEmpresaSistema("");
+    setTransportista("");
+    //  obtenerResumenGPS();
+    obtenerDatosTablet();
+  };
 
   return (
     <>
       <div className="lg:flex items-center gap-2 mb-2">
         <div className=" lg:w-2/12">
           <h2 className="font-black  text-cyan-900 text-lg ">
-            Tablero{" "}
-            <span className="font-black text-cyan-500">
-              Tablet
-            </span>
+            Tablero <span className="font-black text-cyan-500">Tablet</span>
           </h2>
         </div>
 
@@ -201,7 +179,7 @@ const TableroTablet = () => {
           )}
 
           <div className="w-2/12">
-          <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
+            <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
@@ -221,7 +199,7 @@ const TableroTablet = () => {
           </div>
 
           <div className="w-2/12">
-          <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
+            <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">
                 Transportista
               </InputLabel>
@@ -230,7 +208,6 @@ const TableroTablet = () => {
                 id="demo-simple-select"
                 value={id_transportista}
                 label="Transportista"
-              
                 onChange={(e) => setTransportista(e.target.value)}
               >
                 {transportistas.map((tipo) => (
@@ -253,9 +230,14 @@ const TableroTablet = () => {
             </button>
           </div>
         </div>
-        
       </div>
-      <Home className="shadow-lg" camiones={oxs} notActiva={notActiva} notTemp={notTemp} />
+      {id_transportista ? (
+        <Home ventana={"Tablet"} camiones={oxs} />
+      ) : (
+        <span className="flex mt-20 text-cyan-900 font-bold text-2xl justify-center">
+          Seleccione Transportista
+        </span>
+      )}
     </>
   );
 };
