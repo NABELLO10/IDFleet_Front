@@ -30,7 +30,7 @@ const MapaDeCamiones = ({ camiones, centroMapa, camionSeleccionado,  ventana }) 
 
           {camiones.map((camion, index) => (
             <Marker
-              key={camion.patente}
+              key={index}
               position={[camion.latitud, camion.longitud]}
               ref={(ref) => {
                 if (ref) {
@@ -61,7 +61,7 @@ const MapaDeCamiones = ({ camiones, centroMapa, camionSeleccionado,  ventana }) 
 
           {camiones.map((camion, index) => (
             <Marker
-              key={camion.patente}
+              key={camion.index}
               position={[
                 camion.lat_tablet ? camion.lat_tablet : -37.46973,
                 camion.lon_tablet ? camion.lon_tablet : -72.35366,

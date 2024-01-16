@@ -5,8 +5,8 @@ import DashboardUnidades from './procesos/TabletoComponents/DashboardUnidades';
 import DashboardUnidadesTablet from './procesos/TabletoComponents/DashboardUnidadesTablet';
 import ListadoUnidades from './procesos/TabletoComponents/ListadoUnidades';
 
-const Home = ({camiones, notActiva, notTemp, ventana}) => {
-      
+const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistema, id_transportista, tiposNotificaciones}) => {
+    
   const [info, setInfo] = useState({}); // info = itemes[index
 
   const [open, setOpen] = useState(false);
@@ -18,7 +18,6 @@ const Home = ({camiones, notActiva, notTemp, ventana}) => {
     setInfo(item);
   }
      
-
   const handleClose = () => {
     setOpen(false);
   };
@@ -43,8 +42,8 @@ const Home = ({camiones, notActiva, notTemp, ventana}) => {
 
 
   return (
-    <div className="flex flex-row">
-      <div className="w-5/12 pr-4">
+    <div className="lg:flex lg:flex-row ">
+      <div className="lg:w-5/12 lg:pr-4 w-full">
         {ventana == "Inicio" && (
           <ListadoUnidades
             open={open}
@@ -56,8 +55,10 @@ const Home = ({camiones, notActiva, notTemp, ventana}) => {
             handleCloseAlerta={handleCloseAlerta}
             handleClickOpen={handleClickOpen}
             camiones={camiones}
+            setCamiones={setCamiones}
             onCamionClick={handleCamionClick}
             notActiva={notActiva}
+         
           />
         )}
 
@@ -72,16 +73,18 @@ const Home = ({camiones, notActiva, notTemp, ventana}) => {
           handleCloseAlerta={handleCloseAlerta}
           handleClickOpen={handleClickOpen}
           camiones={camiones}
+          setCamiones={setCamiones}
           onCamionClick={handleCamionClick}
           notActiva={notActiva}
           />
         )}
       </div>
 
-      {/*      {Object.keys(notActiva).length > 0 &&  */}
-      <div className="w-7/12">
-        {ventana == "Inicio" && (
+
+      <div className="lg:w-7/12 w-full">
+       {ventana == "Inicio" && camiones.length > 0 && (
           <DashboardUnidades
+          setInfo={setInfo}
             open={open}
             handleClose={handleClose}
             info={info}
@@ -95,13 +98,17 @@ const Home = ({camiones, notActiva, notTemp, ventana}) => {
             handleDiv={handleDiv}
             handleClickOpen={handleClickOpen}
             handleClickOpenAlerta={handleClickOpenAlerta}
+            id_transportista={id_transportista}
+            tiposNotificaciones={tiposNotificaciones}
           />
-        )}
+        )} 
 
-        {ventana == "Tablet" && (
+        {ventana == "Tablet" && camiones.length > 0 && (
           <DashboardUnidadesTablet
+          ventana = {ventana}
           open={open}
           handleClose={handleClose}
+          setInfo={setInfo}
           info={info}
           notActiva={notActiva}
           notTemp={notTemp}
@@ -113,6 +120,7 @@ const Home = ({camiones, notActiva, notTemp, ventana}) => {
           handleDiv={handleDiv}
           handleClickOpen={handleClickOpen}
           handleClickOpenAlerta={handleClickOpenAlerta}
+          id_transportista={id_transportista}
         />
         )}
       </div>

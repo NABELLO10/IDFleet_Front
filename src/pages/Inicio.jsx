@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import clienteAxios from "../config/axios";
-import { msgError} from "../components/Alertas";
+import { msgError } from "../components/Alertas";
 import Home from "./Home";
 
 import Select from "@mui/material/Select";
@@ -17,7 +17,7 @@ const Inicio = () => {
   const [empresasSistema, setEmpresasSistema] = useState([]);
   const [id_transportista, setTransportista] = useState("");
   const [transportistas, setTransportistas] = useState([]);
-
+  const [camionesSistema, setCamionesSistema] = useState([]);
   const [tokenExiste, setTokenExiste] = useState(false);
   const [usuario, setUsuario] = useState("");
   const [tokenBD, setTokenBD] = useState("");
@@ -27,26 +27,23 @@ const Inicio = () => {
   const [oxs, setOX] = useState([]);
   const [token1, setToken] = useState("");
   const [isLoading2, setIsLoading2] = useState(false);
- 
+  const [tiposNotificaciones, setTiposNotificacion] = useState([]);
 
   useEffect(() => {
     obtenerEmpresasGlobal();
     asignarToken();
     obtenerEmpresasSistema();
-    obtenerResumenGPS();    
+    obtenerResumenGPS();
   }, []);
 
-  
   // Ejecutar la función cada 10 s
-  useEffect(() => {
+  /*   useEffect(() => {
     const interval = setInterval(() => {
       obtenerResumenGPS();
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);     
-
-
+  }, []);     */
 
   useEffect(() => {
     obtenerEmpresasSistema();
@@ -55,16 +52,14 @@ const Inicio = () => {
   useEffect(() => {
     if (empresaSistema > 0) {
       obtenerTransportistas();
-    }   
+    }
   }, [empresaSistema, id_empresa]);
 
-  
   useEffect(() => {
-    if (empresaSistema > 0 &&  id_transportista > 0) {
+    if (empresaSistema > 0 && id_transportista > 0) {
       obtenerValoresOX(1);
     }
   }, [id_transportista]);
-
 
   const obtenerTokenWialon = async () => {
     try {
@@ -147,7 +142,6 @@ const Inicio = () => {
     setInicioToken(tokenWialon.fec_add);
   };
 
-  
   const obtenerValoresOX = async (sensor) => {
     try {
       const token = localStorage.getItem("token_emsegur");
@@ -166,20 +160,20 @@ const Inicio = () => {
         config
       );
 
+
       if (data.length === 0) {
         setNotActiva({});
         setNotTemp({});
       } else {
-        setNotActiva(data.find((na) => na.id_cat_not === 1)); //sensor oxigeno
-        setNotTemp(data.find((na) => na.id_cat_not === 2)); // sensor tempetaura
-      }
+        setNotActiva(data.find((na) => na.id_cat_not === 1) ? data.find((na) => na.id_cat_not === 1) : {}); //sensor oxigeno
 
+        setNotTemp(data.find((na) => na.id_cat_not === 2) ? data.find((na) => na.id_cat_not === 2) : {}); // sensor tempetaura
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  
   const obtenerResumenGPS = async () => {
     setIsLoading2(true);
     try {
@@ -201,14 +195,74 @@ const Inicio = () => {
       setIsLoading2(false);
       setOX(data);
 
-       // Oxigenacion, envir otro id para otro sensor
-
+      // Oxigenacion, envir otro id para otro sensor
     } catch (error) {
       msgError(error.response.data.msg);
     }
   };
 
+  useEffect(() => {
+    if (empresaSistema > 0 && id_transportista > 0) {
+      obtenerUnidadesSistema();
+      obtenerTiposNotificaciones()
+    }
+  }, [id_transportista, empresaSistema]);
 
+  
+  const obtenerUnidadesSistema = async () => {
+    const token = localStorage.getItem("token_emsegur");
+
+    if (!token) return;
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await clienteAxios(
+      `/crud/obtener-camiones/${empresaSistema}/${id_empresa}`,
+      config
+    );
+
+    if (id_transportista > 0) {
+      const camionesTransportistas = data.filter(
+        (r) => r.id_transportista == id_transportista
+      );
+      setCamionesSistema(camionesTransportistas);
+    } else {
+      setCamionesSistema(data);
+    }
+  };
+
+
+
+  const obtenerTiposNotificaciones = async () => {
+    try {
+      const token = localStorage.getItem("token_emsegur");
+
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios(
+        `/crud/obtener-tipo-notificacion/${empresaSistema}/${id_transportista}/${id_empresa}`,
+        config
+      );     
+
+
+      setTiposNotificacion(data);
+
+    } catch (error) {
+      console.log(error);
+    }
+  };
   // Wialon site dns
   var dns = "https://hosting.wialon.com";
 
@@ -286,36 +340,14 @@ const Inicio = () => {
     }
   };
 
-
-  const limpiarFormulario = () =>{
-    setEmpresaSistema("")
-    setTransportista("")
-  }
-
   return (
     <>
       <div className="lg:flex items-center gap-2 mb-2">
         <div className=" lg:w-2/12">
           <h2 className="font-black  text-cyan-900 text-lg ">
-            Tablero{" "}
-            <span className="font-black text-cyan-500">
-              General
-            </span>
+            Tablero <span className="font-black text-cyan-500">Wialon</span>
           </h2>
         </div>
-
-        {/* 
-        <div className="flex items-center font-semibold text-sm gap-4">
-          <button
-            id="login"
-            className="bg-cyan-600 hover:bg-cyan-800 transition cursor-pointer rounded  p-1 text-white font-bold  "
-            value="Nuevo Token"
-            onClick={getToken}
-          >
-            Nuevo Token
-          </button>
-          Token Actual: {tokenBD ? tokenBD : token1} / {inicioToken}
-        </div> */}
 
         <div className="flex w-full justify-end gap-2">
           {auth.id == 1 && (
@@ -344,8 +376,8 @@ const Inicio = () => {
             </div>
           )}
 
-          <div className="w-2/12">
-          <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
+          <div className="w-4/12">
+            <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
@@ -353,7 +385,10 @@ const Inicio = () => {
                 value={empresaSistema}
                 label="Empresa"
                 size="small"
-                onChange={(e) => setEmpresaSistema(e.target.value)}
+                onChange={(e) => {
+                  setEmpresaSistema(e.target.value);
+                  setTransportista("");
+                }}
               >
                 {empresasSistema.map((tipo) => (
                   <MenuItem key={tipo.id} value={tipo.id}>
@@ -364,8 +399,8 @@ const Inicio = () => {
             </FormControl>
           </div>
 
-          <div className="w-2/12">
-          <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
+          <div className="w-4/12">
+            <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">
                 Transportista
               </InputLabel>
@@ -374,19 +409,22 @@ const Inicio = () => {
                 id="demo-simple-select"
                 value={id_transportista}
                 label="Transportista"
-              
                 onChange={(e) => setTransportista(e.target.value)}
               >
                 {transportistas.map((tipo) => (
                   <MenuItem key={tipo.id} value={tipo.id}>
-                    {tipo.nombre + " " + tipo.ape_paterno}
+                    {tipo.nombre +
+                      " " +
+                      tipo.ape_paterno +
+                      " " +
+                      tipo.ape_materno}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </div>
 
-          <div className="">
+          {/*   <div className="">
             <button
               id="todos"
               className="bg-cyan-600 hover:bg-cyan-800 transition cursor-pointer rounded  p-2 text-white font-bold  "
@@ -395,13 +433,32 @@ const Inicio = () => {
             >
               Todos
             </button>
-          </div>
+          </div> */}
         </div>
-        
       </div>
 
-      {id_transportista ?  <Home className="shadow-lg" ventana={"Inicio"} camiones={oxs} notActiva={notActiva} notTemp={notTemp} /> : <span className="flex mt-20 text-cyan-900 font-bold text-2xl justify-center">Seleccione Transportista</span>}
-     
+      {/*  <Home className="shadow-lg" id_transportista={id_transportista}  empresaSistema={empresaSistema} ventana={"Inicio"} camiones={oxs} setCamiones={setOX} notActiva={notActiva} notTemp={notTemp} />
+       */}
+      {id_transportista ? (
+        <Home
+          className="shadow-lg"
+          id_transportista={id_transportista}
+          empresaSistema={empresaSistema}
+          ventana={"Inicio"}
+          camiones={oxs.filter((camionSistema) =>
+            camionesSistema.some(
+              (dataItem) => dataItem.id_wialon === camionSistema.id_wialon
+            )
+          )}
+          tiposNotificaciones={tiposNotificaciones}
+          notActiva={notActiva}
+          notTemp={notTemp}
+        />
+      ) : (
+        <span className="flex mt-20 text-cyan-900 font-bold text-2xl justify-center">
+          Seleccione Transportista
+        </span>
+      )}
     </>
   );
 };

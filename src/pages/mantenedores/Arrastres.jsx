@@ -239,10 +239,12 @@ const obtenerTransportistas = async () => {
 
   const registrar = async () => {
 
-    if ([id_transportista, nom_patente].includes("")) {
+ /*    if ([id_transportista, nom_patente].includes("")) {
       msgError("Ingrese transportista y patente");
       return;
-    }
+    } */
+
+    console.log(id_transportista, nom_patente, fec_rev_tecnica, fec_per_circulacion, fec_seguro, estado, id_empresa)
 
       const token = localStorage.getItem("token_emsegur");
 
@@ -258,6 +260,8 @@ const obtenerTransportistas = async () => {
         },
       };
      
+      try {
+    
 
       if (edit.id) {      
         const { data } = await clienteAxios.put(
@@ -276,24 +280,29 @@ const obtenerTransportistas = async () => {
         msgOk(data.msg);
         
       } else {
-  
         const { data } = await clienteAxios.post(
-          "/crud/arrastre",
+          "/crud/registrarArrastre",
           {
             id_transportista,
             nom_patente,
             fec_rev_tecnica,
             fec_per_circulacion,
             fec_seguro,
-            est_activo : estado,
+            est_activo: estado,
             id_empresa: empresaSistema,
             id_empresa_global: id_empresa,
-            est_asignado : 0
+            est_asignado: 0,
           },
           config
         );
+
         msgOk(data.msg);
       }
+
+          
+    } catch (error) {
+      msgError(error.response.data.msg);
+    }
 
       obtenerArrastres();
       limpiarFormulario();
@@ -500,14 +509,7 @@ const obtenerTransportistas = async () => {
                         scope="col"
                         className="px-6 font-bold text-gray-900"
                       ></th>
-                      <th
-                        scope="col"
-                        className="px-6 font-bold text-gray-900"
-                      ></th>
-                      <th
-                        scope="col"
-                        className="px-6 font-medium text-gray-900"
-                      ></th>
+                   
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100  border-gray-100">
@@ -518,6 +520,18 @@ const obtenerTransportistas = async () => {
                         >
                           <td className="px-6  font-bold py-3 text-sm text-gray-500">
                             <p>{r.nom_patente}</p>
+                            {" "}
+                            {r.est_activo ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+                                <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                                Activo
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+                                <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+                                Inactivo
+                              </span>
+                            )}
                           </td>
                           <td className="px-6   text-sm text-gray-500">
                             <p>
@@ -539,22 +553,8 @@ const obtenerTransportistas = async () => {
                             <p>{invertirFecha(r.fec_seguro)}</p>
                           </td>
 
-                          <td className="px-6  text-sm text-gray-500">
-                            {" "}
-                            {r.est_activo ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-                                <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                                Activo
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-                                <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-                                Inactivo
-                              </span>
-                            )}
-                          </td>
 
-                          <td className="px-6  text-sm text-gray-500">
+                      {/*     <td className="px-6  text-sm text-gray-500">
                             {" "}
                             {r.est_asignado ? (
                               <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
@@ -567,7 +567,7 @@ const obtenerTransportistas = async () => {
                                 Disponible
                               </span>
                             )}
-                          </td>
+                          </td> */}
 
                           <td>
                             <button

@@ -35,11 +35,12 @@ import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
 import EditNotificationsTwoToneIcon from '@mui/icons-material/EditNotificationsTwoTone';
 import BadgeTwoToneIcon from '@mui/icons-material/BadgeTwoTone';
 
+
 type Anchor = "left";
 
 const menuGlobal = [
   { name: "Wialon Token", href: "/admin/wialon", icono: <GpsFixedTwoToneIcon /> },
-  { name: "Turnos", href: "/admin/turnos", icono: <GpsFixedTwoToneIcon /> },
+/*   { name: "Turnos", href: "/admin/turnos", icono: <GpsFixedTwoToneIcon /> }, */
 ];
 
 const menuConfig = [
@@ -51,7 +52,7 @@ const menuConfig = [
 const menuCamiones = [
   { name: "Transportistas", href: "/admin/transportistas", icono: <ContactPageTwoToneIcon /> },
   { name: "Conductores", href: "/admin/conductores", icono: <BadgeTwoToneIcon /> },
-  { name: "Camiones", href: "/admin/camiones", icono: <LocalShippingTwoToneIcon /> },
+  { name: "Unidades", href: "/admin/camiones", icono: <LocalShippingTwoToneIcon /> },
   { name: "Arrastres", href: "/admin/arrastres", icono: <RvHookupTwoToneIcon /> },
 ];
 

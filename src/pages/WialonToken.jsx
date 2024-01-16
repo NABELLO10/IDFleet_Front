@@ -135,6 +135,7 @@ const asignarToken = async () => {
       setIsLoading(false);
 
       setUnidades(data)
+      console.log(data)
 
     } catch (error) {
       msgError(error.response.data.msg);
@@ -205,7 +206,7 @@ const asignarToken = async () => {
     url += "?client_id=" + "App"; // your application name
     url += "&access_type=" + 0x100; // access level, 0x100 = "Online tracking only"
     url += "&activation_time=" + 0; // activation time, 0 = immediately; you can pass any UNIX time value
-    url += "&duration=" + 604800; // duration, 604800 = one week in seconds
+    url += "&duration=" + 0; // duration, 604800 = one week in seconds
     url += "&flags=" + 0x1; // options, 0x1 = add username in response
 
     url += "&redirect_uri=" + dns + "/post_token.html"; // if login succeed - redirect to this page
@@ -336,7 +337,7 @@ const asignarToken = async () => {
                           className="flex items-center justify-between p-1 bg-gray-100 "
                         >
                           <span className="text-lg font-medium text-gray-600">
-                            {r.Unidad.nm + " / " + r.Unidad.id}
+                            {r.nm + " / " + r.id}
                           </span>
                         </li>
                       ))}

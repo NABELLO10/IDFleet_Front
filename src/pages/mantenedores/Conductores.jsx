@@ -40,7 +40,7 @@ const Conductores = () => {
   const [id, setID] = useState(null);
 
   //Lista de Conductores registrados
-  const [transportistas, setConductores] = useState([]);
+  const [conductores, setConductores] = useState([]);
 
 
   //PARA EDICION de un edit
@@ -428,14 +428,14 @@ const Conductores = () => {
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               className="w-full lg:w-7/12 border shadow px-1 text-sky-500"
-              placeholder=" Buscar Transportista..."
+              placeholder=" Buscar Conductor..."
             />
 
-            <Descargar data={transportistas} nombrePdf={"Conductores"} />
+            <Descargar data={conductores} nombrePdf={"Conductores"} />
           </div>
 
           <div className="overflow-auto  rounded-lg  h-96 md:w-full mt-2">
-            {transportistas.length > 0 ? (
+            {conductores.length > 0 ? (
 
               <>
                <table
@@ -465,7 +465,7 @@ const Conductores = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100  border-gray-100">
-                  {transportistas
+                  {conductores
                     .filter((val) => {
                       if (busqueda == "") {
                         return val;
@@ -575,7 +575,7 @@ const Conductores = () => {
               <div className="bg-gray-300 shadow">
                 <TablePagination
                   component="div"
-                  count={transportistas.length}
+                  count={conductores.length}
                   page={page}
                   onPageChange={handleChangePage}
                   rowsPerPage={rowsPerPage}

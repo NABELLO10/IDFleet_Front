@@ -17,7 +17,7 @@ const TableroTablet = () => {
   const [empresasSistema, setEmpresasSistema] = useState([]);
   const [id_transportista, setTransportista] = useState("");
   const [transportistas, setTransportistas] = useState([]);
-
+  const [camionesSistema, setCamionesSistema] = useState([]);
   const [oxs, setOX] = useState([]);
   const [isLoading2, setIsLoading2] = useState(false);
 
@@ -25,18 +25,17 @@ const TableroTablet = () => {
     obtenerEmpresasGlobal();
     obtenerEmpresasSistema();
     obtenerDatosTablet();
-    // obtenerResumenGPS();
   }, []);
 
   // Ejecutar la función cada 10 s
-  useEffect(() => {
+   useEffect(() => {
     const interval = setInterval(() => {
       obtenerDatosTablet();
     }, 10000);
 
     return () => clearInterval(interval);
   }, []);
-
+ 
   useEffect(() => {
     obtenerEmpresasSistema();
   }, [id_empresa]);
@@ -47,12 +46,7 @@ const TableroTablet = () => {
     }
   }, [empresaSistema, id_empresa]);
 
-  /*   
-  useEffect(() => {
-    if (empresaSistema > 0 &&  id_transportista > 0) {
-      obtenerValoresOX(1);
-    }
-  }, [id_transportista]); */
+
 
   const obtenerEmpresasGlobal = async () => {
     const token = localStorage.getItem("token_emsegur");
@@ -108,6 +102,40 @@ const TableroTablet = () => {
     setEmpresasSistema(data);
   };
 
+  useEffect(() => {
+    if (empresaSistema > 0 && id_transportista > 0) {
+      obtenerUnidadesSistema();
+    }
+  }, [id_transportista, empresaSistema]);
+
+
+  const obtenerUnidadesSistema = async () => {
+    const token = localStorage.getItem("token_emsegur");
+
+    if (!token) return;
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await clienteAxios(
+      `/crud/obtener-camiones/${empresaSistema}/${id_empresa}`,
+      config
+    );
+
+    if (id_transportista > 0) {
+      const camionesTransportistas = data.filter(
+        (r) => r.id_transportista == id_transportista
+      );
+      setCamionesSistema(camionesTransportistas);
+    } else {
+      setCamionesSistema(data);
+    }
+  };
+
   const obtenerDatosTablet = async () => {
     setIsLoading2(true);
     try {
@@ -126,10 +154,9 @@ const TableroTablet = () => {
       };
       const { data } = await clienteAxios.get(`/general/datos-school`, config);
 
-      setIsLoading2(false);
+      setIsLoading2(false); 
       setOX(data);
-
-      // Oxigenacion, envir otro id para otro sensor
+    
     } catch (error) {
       msgError(error.response.data.msg);
     }
@@ -138,13 +165,12 @@ const TableroTablet = () => {
   const limpiarFormulario = () => {
     setEmpresaSistema("");
     setTransportista("");
-    //  obtenerResumenGPS();
     obtenerDatosTablet();
   };
 
   return (
     <>
-      <div className="lg:flex items-center gap-2 mb-2">
+        <div className="lg:flex items-center gap-2 mb-2">
         <div className=" lg:w-2/12">
           <h2 className="font-black  text-cyan-900 text-lg ">
             Tablero <span className="font-black text-cyan-500">Tablet</span>
@@ -178,7 +204,7 @@ const TableroTablet = () => {
             </div>
           )}
 
-          <div className="w-2/12">
+          <div className="w-4/12">
             <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
               <Select
@@ -187,7 +213,10 @@ const TableroTablet = () => {
                 value={empresaSistema}
                 label="Empresa"
                 size="small"
-                onChange={(e) => setEmpresaSistema(e.target.value)}
+                onChange={(e) => {
+                  setEmpresaSistema(e.target.value);
+                  setTransportista("");
+                }}
               >
                 {empresasSistema.map((tipo) => (
                   <MenuItem key={tipo.id} value={tipo.id}>
@@ -198,7 +227,7 @@ const TableroTablet = () => {
             </FormControl>
           </div>
 
-          <div className="w-2/12">
+          <div className="w-4/12">
             <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">
                 Transportista
@@ -212,27 +241,25 @@ const TableroTablet = () => {
               >
                 {transportistas.map((tipo) => (
                   <MenuItem key={tipo.id} value={tipo.id}>
-                    {tipo.nombre + " " + tipo.ape_paterno}
+                    {tipo.nombre +
+                      " " +
+                      tipo.ape_paterno +
+                      " " +
+                      tipo.ape_materno}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </div>
 
-          <div className="">
-            <button
-              id="todos"
-              className="bg-cyan-600 hover:bg-cyan-800 transition cursor-pointer rounded  p-2 text-white font-bold  "
-              value="todos"
-              onClick={limpiarFormulario}
-            >
-              Todos
-            </button>
-          </div>
         </div>
       </div>
       {id_transportista ? (
-        <Home ventana={"Tablet"} camiones={oxs} />
+        <Home ventana={"Tablet"} camiones={oxs.filter((camionSistema) =>
+          camionesSistema.some((dataItem) => 
+            dataItem.nom_patente.replace(/[\-\.]/g, '') === camionSistema.PATENTE.replace(/[\-\.]/g, '')
+          )
+        )}  />
       ) : (
         <span className="flex mt-20 text-cyan-900 font-bold text-2xl justify-center">
           Seleccione Transportista

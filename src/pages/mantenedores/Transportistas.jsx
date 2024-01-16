@@ -150,8 +150,7 @@ const Transportistas = () => {
     setApeMaterno("")
     setFono("")
     setEdit({});
-    setID(null);
-    setEmpresaSistema("")
+    setID(null);   
     setEstado(1)
     setRut("")
     handleClose()
@@ -201,7 +200,7 @@ const Transportistas = () => {
   };
 
   const registrar = async () => {
-    if ([empresaSistema, rut, nombre, ape_paterno, ape_materno, email, fono].includes("")) {
+    if ([empresaSistema, rut, nombre, email].includes("")) {
       msgError("Ingrese todos los campos");
       return;
     }

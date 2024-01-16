@@ -23,6 +23,10 @@ import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
 import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
 import ShareLocationTwoToneIcon from '@mui/icons-material/ShareLocationTwoTone';
 import TaxiAlertTwoToneIcon from '@mui/icons-material/TaxiAlertTwoTone';
+import PhonelinkRingTwoToneIcon from '@mui/icons-material/PhonelinkRingTwoTone';
+import ModeOfTravelTwoToneIcon from '@mui/icons-material/ModeOfTravelTwoTone';
+import LocalShippingTwoToneIcon from '@mui/icons-material/LocalShippingTwoTone';
+
 
 function Menu2() {
   const { auth, cerrarSesion } = useAuth();
@@ -82,31 +86,24 @@ function Menu2() {
        
        <div className="flex gap-2">
        <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
-              <Tooltip title="I N I C I O">
+              <Tooltip title="TABLERO GENERAL">
                 <Link to="/admin">
-                  <HomeTwoToneIcon />
+                  <ModeOfTravelTwoToneIcon />
                 </Link>
               </Tooltip>
             </div> 
-        {/*     <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
-              <Tooltip title="W I A L O N">
-                <Link to="/admin/wialon">
-                  <GpsFixedTwoToneIcon />
-                </Link>
-              </Tooltip>
-            </div> */}
-           {/*  <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
-              <Tooltip title="TABLERO WIALON">
-                <Link to="/admin/tablero-wialon">
-                  <ShareLocationTwoToneIcon />
+            <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+              <Tooltip title="TABLERO TABLET">
+                <Link to="/admin/tablero-tablet">
+                  <PhonelinkRingTwoToneIcon />
                 </Link>
               </Tooltip>
             </div>
- */}
+
             <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
-              <Tooltip title="TABLERO WIALON">
-                <Link to="/admin/tablero-tablet">
-                  <TaxiAlertTwoToneIcon />
+              <Tooltip title="UNIDADES">
+                <Link to="/admin/camiones">
+                  <LocalShippingTwoToneIcon />
                 </Link>
               </Tooltip>
             </div>
@@ -129,7 +126,7 @@ function Menu2() {
           </Typography>
 
           <Typography
-            variant="h5"
+            variant="h6"
             noWrap
             sx={{
               mr: 2,
@@ -142,7 +139,7 @@ function Menu2() {
               textDecoration: "none",
             }}
           >
-            IDFleet
+            
           </Typography>
 
           <Box sx={{ flexGrow: 0 }}>

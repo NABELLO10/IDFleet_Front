@@ -6,12 +6,36 @@ import ModalesNotificaciones from '../procesos/TabletoComponents/ModalesNotifica
 
 const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, camiones, onCamionClick, notActiva, notTemp }) => {
 
-  return (
+  const [busqueda, setBusqueda] = useState("");
+
+  return (  
     <div
-      className="container mx-auto space-y-2"
+      className="w-full mx-auto space-y-2"
       style={{ maxHeight: 700, overflowY: "auto" }}
     >
-      {camiones.map((item, index) => (
+         <div className="lg:flex mr-3 items-center">
+        <input
+          name="busqueda"
+          id="busqueda"
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className="lg:w-6/12  p-1.5 mb-2 border border-gray-400 shadow "
+          placeholder=" Buscar unidad..."
+        />
+
+   
+      </div>
+
+      {camiones.filter((val) => {
+            if (busqueda == "") {
+              return val;
+            } else if (
+              val.PATENTE.toLowerCase().includes(busqueda.toLowerCase())              
+            ) {
+              return val;
+            }
+          }).map((item, index) => (
         <div
           onClick={() => {
             onCamionClick(item);
@@ -22,14 +46,14 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
             info.PATENTE == item.PATENTE ? "bg-gray-300" : "bg-white" // Si `info.patente` es igual a `item.patente`, se aplica la clase de color de fondo azul, de lo contrario, blanco
           } shadow-md border border-gray-300 rounded-lg p-0 mr-3 hover:bg-gray-100 cursor-pointer`}
         >       
-          <div className="">
+          <div className="w-full ">
           <li
               key={index}
               className={`p-3 flex justify-between items-center `}
            
             >
               <div className=''>
-                <div className="flex items-center space-x-4 justify-between">
+                <div className="lg:flex items-center space-x-4 justify-between">
                   <span className="font-bold text-black text-lg">{item.PATENTE}</span>
                   <span
                     className={`text-sm ${
@@ -43,7 +67,7 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
                 </div>
 
                 <div
-                  className={`flex gap-1 ${
+                  className={`lg:flex gap-1 ${
                     item.O1 != "" ? "block" : "hidden"
                   }`}
                 >

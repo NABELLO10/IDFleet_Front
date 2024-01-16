@@ -178,9 +178,8 @@ const obtenerCatNot = async () => {
       const { data } = await clienteAxios(
         `/crud/obtener-tipo-notificacion/${empresaSistema}/${transportista}/${id_empresa}`,
         config
-      );
-      
-      console.log(data)
+      );     
+
 
       setTiposNotificacion(data);
     } catch (error) {

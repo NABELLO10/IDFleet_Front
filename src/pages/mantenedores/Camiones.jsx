@@ -15,7 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Descargar from "../../components/datos/Descargar"
-
+import Autocomplete from "@mui/material/Autocomplete";
 import TablePagination from '@mui/material/TablePagination';
 
 const Camiones = () => {
@@ -23,6 +23,8 @@ const Camiones = () => {
   const [id_empresa, setEmpresa] = useState(auth.id_empresa);
   const [empresasListado, setEmpresasListado] = useState([]);
   const [empresas, setEmpresas] = useState([]);
+  const [unidadesWialon, setUnidadesWialon] = useState([]);
+  const [unidad, setUnidad] = useState(0);
   const [empresaSistema, setEmpresaSistema] = useState("");
 
   const [transportistas, setTransportistas] = useState([]);
@@ -33,6 +35,7 @@ const Camiones = () => {
 
 
   const [estado, setEstado] = useState(1);
+  const [est_ox, setEstadoOx] = useState(0);
   const [nom_patente, setPatente] = useState("");
   const [fec_rev_tecnica, setFecRev] = useState(format(new Date(), "yyyy-MM-dd"));
   const [fec_per_circulacion, setPermiso] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -109,6 +112,7 @@ const Camiones = () => {
   useEffect(() => {   
      obtenerEmpresasListado()
      obtenerEmpresas()   
+     obtenerUnidadesWialon()
   }, []);
 
   useEffect(() => {  
@@ -176,6 +180,26 @@ const obtenerTransportistas = async () => {
   setTransportistas(data);
 };
 
+
+const obtenerUnidadesWialon = async () => {
+  const token = localStorage.getItem("token_emsegur");
+
+  if (!token) return;
+
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const { data } = await clienteAxios(
+    `/crud/unidades-wialon`,
+    config
+  );
+  setUnidadesWialon(data);
+};
+
 const obtenerCamiones = async () => {
       const token = localStorage.getItem("token_emsegur");
 
@@ -217,11 +241,13 @@ const obtenerCamiones = async () => {
 
   const limpiarFormulario = () => {
     setPatente("");   
-  
+    setArrastre("");   
+  setUnidad("")
     setTransportista("")
     setEdit({});
     setID(null);    
-    setEstado(1)  
+    setEstado(0)  
+    setEstadoOx(0)  
     handleClose()
     obtenerTransportistas()
     obtenerArrastres()
@@ -231,6 +257,7 @@ const obtenerCamiones = async () => {
   const setEdicion = (edit) => {
     setEdit(edit);
     setPatente(edit.nom_patente);  
+    setUnidad(edit.id_wialon)
     setArrastre(edit.id_arrastre);  
     setTransportista(edit.id_transportista)
     setEmpresaSistema(edit.id_empresa);
@@ -238,6 +265,7 @@ const obtenerCamiones = async () => {
     setSeguro(edit.fec_seguro);
     setPermiso(edit.fec_per_circulacion);
     setEstado(edit.est_activo)
+    setEstadoOx(edit.est_ox)
     setID(edit.id);
   };
  
@@ -273,8 +301,8 @@ const obtenerCamiones = async () => {
 
   const registrar = async () => {
 
-    if ([id_transportista, nom_patente, arrastre].includes("")) {
-      msgError("Ingrese transportista, patente y arrastre");
+    if ([id_transportista, nom_patente, arrastre, unidad].includes("")) {
+      msgError("Ingrese transportista, patente y unidad wialon");
       return;
     }
 
@@ -292,6 +320,9 @@ const obtenerCamiones = async () => {
         },
       };
      
+try {
+  
+
 
       if (edit.id) {      
         const { data } = await clienteAxios.put(
@@ -305,6 +336,8 @@ const obtenerCamiones = async () => {
             fec_seguro,
             est_activo : estado,        
             id_empresa: empresaSistema,
+            id_wialon : unidad,
+            est_ox
           },
           config
         );
@@ -324,13 +357,20 @@ const obtenerCamiones = async () => {
             est_activo : estado,
             id_empresa: empresaSistema,
             id_empresa_global: id_empresa,
-            est_asignado : 0
+            est_asignado : 0,
+            id_wialon : unidad,
+            est_ox
           },
           config
         );
         msgOk(data.msg);
       }
+      
       limpiarFormulario();
+
+    } catch (error) {
+      msgError(error.response.data.msg);
+    }
  
   };
 
@@ -339,12 +379,24 @@ const obtenerCamiones = async () => {
     await registrar();
   };
 
+
+  const handleChange = (event, newValue) => {
+    setUnidad(newValue ? newValue.id_wialon : null);
+    setPatente(newValue ? newValue.nm : "null");
+  };
+
+  const handlePatenteChange = (event) => {
+    // Eliminar guiones y puntos del valor ingresado
+    const valorFiltrado = event.target.value.replace(/[-.]/g, '').toUpperCase();
+    setPatente(valorFiltrado);
+  };
+
   return (
     <>
       <h2 className="font-black text-cyan-900 text-2xl mx-4 ">
         Registrar{" "}
         <span className="font-black text-cyan-500 mb-10 text-center">
-          Camiones
+          Unidades
         </span>
       </h2>
 
@@ -404,33 +456,68 @@ const obtenerCamiones = async () => {
             </div>
 
             <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
-                  Transportista
-                </InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={id_transportista}
-                  label="Transportista"
-                  onChange={(e) => setTransportista(e.target.value)}
-                >
-                  {transportistas.map((tipo) => (
-                    <MenuItem key={tipo.id} value={tipo.id}>
-                      {tipo.nombre + " " + tipo.ape_paterno}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <TextField
-                id="nom_patente"
-                className="peer pt-3 pb-2 block"
-                value={nom_patente}
-                onChange={(e) => setPatente(e.target.value)}
-                label="Patente"
-                variant="outlined"
+              <div className="lg:w-3/12 w-full">
+                <TextField
+                  id="nom_patente"
+                  className="peer pt-3 pb-2 block"
+                  value={nom_patente}
+                  onChange={handlePatenteChange}
+                  label="Patente"
+                  inputProps={{ maxLength: 6 }}
+                  variant="outlined"
+                />
+              </div>
+              <div className="lg:w-9/12 w-full">
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">
+                    Transportista
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={id_transportista}
+                    label="Transportista"
+                    onChange={(e) => setTransportista(e.target.value)}
+                  >
+                    {transportistas.map((tipo) => (
+                      <MenuItem key={tipo.id} value={tipo.id}>
+                        {tipo.nombre + " " + tipo.ape_paterno}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </div>
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <div className="w-11/12">
+                <Autocomplete
+                  options={unidadesWialon}
+                  getOptionLabel={(option) =>
+                    option.nm + " / " + option.id_wialon
+                  }
+                  value={
+                    unidadesWialon.find(
+                      (r) => r.id_wialon === unidad
+                    ) || null
+                  } // Asegura un valor controlado
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Unidad wialon"
+                      variant="outlined"
+                    />
+                  )}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+              <FormControlLabel
+                id="est_ox"
+                control={<Checkbox checked={est_ox === 1} />}
+                onChange={(e) => setEstadoOx(e.target.checked ? 1 : 0)}
+                label="OX"
               />
+              </div>
             </div>
 
             <div className="lg:flex lg:gap-3 lg:space-y-0">
@@ -536,23 +623,18 @@ const obtenerCamiones = async () => {
                         className="px-6 py-2 font-bold text-gray-900"
                       >
                         Patente
+                      </th>     <th scope="col" className="px-6 font-bold text-gray-900">
+                        Wialon
                       </th>
 
                       <th scope="col" className="px-6 font-bold text-gray-900">
-                        Transportista
+                        Informacion
                       </th>
+
                       <th scope="col" className="px-6 font-bold text-gray-900">
-                        Empresa
+                        Documentos
                       </th>
-                      <th scope="col" className="px-6 font-bold text-gray-900">
-                        Rev. Tecnica
-                      </th>
-                      <th scope="col" className="px-6 font-bold text-gray-900">
-                        Per. Circulación
-                      </th>
-                      <th scope="col" className="px-6 font-bold text-gray-900">
-                        Seguro
-                      </th>
+                 
 
                       <th
                         scope="col"
@@ -568,7 +650,7 @@ const obtenerCamiones = async () => {
                       >
                         <td className="px-6  font-bold py-3 text-sm text-gray-500">
                           <div className=" flex flex-col ">
-                            <div>{r.nom_patente}</div>
+                            <div className={`${r.est_ox == 1 ? "text-blue-600" : "text-gray-500"}`}>{r.nom_patente}</div>
 
                             <div className="">
                               {" "}
@@ -584,42 +666,35 @@ const obtenerCamiones = async () => {
                                 </span>
                               )}
                             </div>
-
-                            <div>
-                              {" "}
-                              {r.est_asignado ? (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-                                  <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-                                  Asignado
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-                                  <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                                  Disponible
-                                </span>
-                              )}
-                            </div>
                           </div>
                         </td>
+
+                        <td className="px-6  text-sm text-gray-600">
+                          {unidadesWialon
+                            .filter((u) => u.id_wialon == r.id_wialon)
+                            .map((r) => (
+                              <div className="font-bold">
+                                <p>ID: {r.id_wialon}</p>
+                                <p>NM: {r.nm}</p>
+                              </div>
+                            ))}
+                        </td>
+
                         <td className="px-6   text-sm text-gray-500">
                           <p>
                             {r.mae_transportista.nombre +
                               " " +
                               r.mae_transportista.ape_paterno}
                           </p>
-                        </td>
-                        <td className="px-6   text-sm text-gray-500">
                           <p>{r.mae_empresas_sistema.nom_empresa}</p>
                         </td>
+
                         <td className="px-6   text-sm text-gray-500">
-                          <p>{invertirFecha(r.fec_rev_tecnica)}</p>
+                          <p>RT: {invertirFecha(r.fec_rev_tecnica)}</p>
+                          <p>SEG: {invertirFecha(r.fec_seguro)}</p>
+                          <p>PC: {invertirFecha(r.fec_per_circulacion)}</p>
                         </td>
-                        <td className="px-6   text-sm text-gray-500">
-                          <p>{invertirFecha(r.fec_per_circulacion)}</p>
-                        </td>
-                        <td className="px-6   text-sm text-gray-500">
-                          <p>{invertirFecha(r.fec_seguro)}</p>
-                        </td>
+                   
 
                         <td>
                           <button

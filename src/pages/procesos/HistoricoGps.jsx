@@ -19,9 +19,7 @@ import { styled } from "@mui/system";
 const HistoricoGps = ({patente, notActiva, notTemp}) => {   
 
     const [oxs, setOX] = useState([]);
-
     const [isLoading2, setIsLoading2] = useState(false);
-
     const theme = useTheme();
     
     useEffect(() => {
@@ -78,6 +76,8 @@ const HistoricoGps = ({patente, notActiva, notTemp}) => {
           <CircularProgress />
         </Box>
       ) : oxs.length > 0 ? (
+       
+        
         <TableContainer
           className="bg-white"
           style={{ maxHeight: 680, overflowY: "auto" }}
@@ -180,10 +180,10 @@ const HistoricoGps = ({patente, notActiva, notTemp}) => {
                     <div className="flex flex-col">
                       <span className="font-bold">{t.patente}</span>
                       <span className="text-xs">
-                        {"GPS: " + moment(t.fechaGPS).format('DD-MM-YYYY HH:mm:ss')}
+                        {"Fecha GPS: " + moment(t.fechaGPS).format('DD-MM-YYYY HH:mm:ss')}
                       </span>
-                      <span className="text-xs">
-                        {"Fecha: " + t.fecha + " " + t.time}
+                      <span className="text-xs">                      
+                        {"Fecha Registro: " + moment(t.fechaRegistro).format('DD-MM-YYYY HH:mm:ss')}
                       </span>
                     </div>
                   </TableCell>
@@ -364,6 +364,8 @@ const HistoricoGps = ({patente, notActiva, notTemp}) => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        
       ) : (
         <h1 className=" text-center mt-5 text-cyan-700 font-bold">
           Sin registros
