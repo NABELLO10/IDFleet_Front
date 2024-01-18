@@ -3,28 +3,63 @@ import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
 import Tooltip from "@mui/material/Tooltip";
 import SimCardAlertTwoToneIcon from '@mui/icons-material/SimCardAlertTwoTone';
 import ModalesNotificaciones from '../procesos/TabletoComponents/ModalesNotificaciones';
+import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
+import NorthTwoToneIcon from '@mui/icons-material/NorthTwoTone';
+import SouthTwoToneIcon from '@mui/icons-material/SouthTwoTone';
+
+
+
 
 const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, camiones, onCamionClick, notActiva, notTemp }) => {
 
   const [busqueda, setBusqueda] = useState("");
+  const [orden, setOrden] = useState(true);
+  const [alerta, setAlerta] = useState(true);
 
   return (  
     <div
-      className="w-full mx-auto space-y-2"
+      className="w-full  mx-auto space-y-2"
       style={{ maxHeight: 700, overflowY: "auto" }}
     >
-         <div className="lg:flex mr-3 items-center">
-        <input
-          name="busqueda"
-          id="busqueda"
-          type="text"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="lg:w-6/12  p-1.5 mb-2 border border-gray-400 shadow "
-          placeholder=" Buscar unidad..."
-        />
+         <div className="lg:flex mb-2 gap-2  items-center">
+        <div className="lg:flex justify-start w-full  gap-2  items-center">
+          <input
+            name="busqueda"
+            id="busqueda"
+            type="text"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className=" p-2 border border-gray-400 shadow "
+            placeholder=" Buscar unidad..."
+          />
+          <Tooltip
+            title={`${
+              alerta ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS"
+            }`}
+          >
+            <button
+              onClick={() => setAlerta(!alerta)}
+              className={` ${
+                alerta
+                  ? "bg-red-900 hover:bg-red-800 "
+                  : "bg-blue-900 hover:bg-blue-800 "
+              } p-2 rounded text-white `}
+            >
+              <NotificationsActiveTwoToneIcon />
+            </button>
+          </Tooltip>
+        </div>
 
-   
+        <div className="lg:flex justify-end  w-full gap-1 mr-3">
+          <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
+            <button
+              onClick={() => setOrden(!orden)}
+              className="bg-gray-900 p-2 rounded text-white hover:bg-gray-500"
+            >
+              {orden ? <SouthTwoToneIcon /> : <NorthTwoToneIcon />}
+            </button>
+          </Tooltip>
+        </div>
       </div>
 
       {camiones.filter((val) => {
@@ -34,6 +69,20 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
               val.PATENTE.toLowerCase().includes(busqueda.toLowerCase())              
             ) {
               return val;
+            }
+          }).filter((val) => {
+            // Filtrar por alertas
+            if (alerta) {
+              return val; // Si alerta es false, mostrar todos
+            } else {
+              return val.est_alerta; // Si alerta es true, mostrar solo los que tienen est_alerta
+            }
+          })
+          .sort((a, b) => {
+            if (orden) {
+              return a.PATENTE.localeCompare(b.PATENTE); // Orden ascendente
+            } else {
+              return b.PATENTE.localeCompare(a.PATENTE); // Orden descendente
             }
           }).map((item, index) => (
         <div

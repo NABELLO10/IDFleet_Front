@@ -13,8 +13,9 @@ import WialonToken from "./pages/WialonToken"
 import CambiarPassword from "./pages/auth/CambiarPassword"
 import Usuarios from "./pages/mantenedores/Usuarios"
 import Perfiles from "./pages/mantenedores/Perfiles"
-import EmpresasSistemas from "./pages/mantenedores/EmpresasSistema"
 import Camiones from "./pages/mantenedores/Camiones"
+import EmpresasSistemas from "./pages/mantenedores/EmpresasSistema"
+import Empresas from "./pages/mantenedores/Empresas"
 import Arrastres from "./pages/mantenedores/Arrastres"
 import CatNotificacion from "./pages/mantenedores/CatNotificacion"
 
@@ -50,6 +51,7 @@ function App() {
               <Route path="usuarios" element={<Usuarios />} />
               <Route path="perfil" element={<Perfiles />} />
               <Route path="empresas" element={<EmpresasSistemas />} />
+              <Route path="empresaGlobal" element={<Empresas />} />
               <Route path="transportistas" element={<Transportistas />} />
               <Route path="conductores" element={<Conductores />} />
               <Route path="camiones" element={<Camiones />} />

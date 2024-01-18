@@ -5,7 +5,7 @@ import DialogContent from "@mui/material/DialogContent";
 import HistoricoGps from '../HistoricoGps';
 import HistoricoAlertas from '../HistoricoAlertas';
 
-const ModalesNotificaciones = ({open,handleClose, ventana,info,notActiva, notTemp, openAlerta, handleCloseAlerta }) => {
+const ModalesNotificaciones = ({open,handleClose, ventana,info,notActiva, notTemp, openAlerta, handleCloseAlerta, id_transportista }) => {
 
   return (
     <div>
@@ -20,6 +20,7 @@ const ModalesNotificaciones = ({open,handleClose, ventana,info,notActiva, notTem
         <DialogContent>
           <div className=" rounded-lg">
             <HistoricoGps
+            id_transportista={id_transportista}
               patente={info.PATENTE ? info.PATENTE : info.patente}
               notActiva={notActiva}
               notTemp={notTemp}
@@ -47,7 +48,7 @@ const ModalesNotificaciones = ({open,handleClose, ventana,info,notActiva, notTem
         <DialogContent>
           <div className=" rounded-lg">
             <div className="">
-              <HistoricoAlertas ventana={ventana} patente={info.PATENTE ? info.PATENTE : info.patente} />
+              <HistoricoAlertas id_transportista={id_transportista} ventana={ventana} patente={info.PATENTE ? info.PATENTE : info.patente} />
             </div>
           </div>
         </DialogContent>

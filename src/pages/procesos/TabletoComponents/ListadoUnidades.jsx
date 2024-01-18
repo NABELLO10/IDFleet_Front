@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import ModalesNotificaciones from './ModalesNotificaciones';
+import NorthTwoToneIcon from '@mui/icons-material/NorthTwoTone';
+import SouthTwoToneIcon from '@mui/icons-material/SouthTwoTone';
+import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
 
-
+import Tooltip from "@mui/material/Tooltip";
 const ListadoUnidades = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, camiones, onCamionClick, notActiva, notTemp}) => {
  
   const [busqueda, setBusqueda] = useState("");
+  const [orden, setOrden] = useState(true);
+  const [alerta, setAlerta] = useState(true);
+
 
 function esMenorA20Minutos(fechaStr) {
   const fecha = new Date(fechaStr);
@@ -31,32 +37,74 @@ function esFechaValida(valor) {
 
   return (
     <>
-      <div className="lg:flex mr-3 items-center">
-        <input
-          name="busqueda"
-          id="busqueda"
-          type="text"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="lg:w-6/12  p-1.5 mb-2 border border-gray-400 shadow "
-          placeholder=" Buscar unidad..."
-        />
+      <div className="lg:flex mb-2 gap-2  items-center">
+        <div className="lg:flex justify-start w-full  gap-2  items-center">
+          <input
+            name="busqueda"
+            id="busqueda"
+            type="text"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className=" p-2 border border-gray-400 shadow "
+            placeholder=" Buscar unidad..."
+          />
+          <Tooltip
+            title={`${
+              alerta ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS"
+            }`}
+          >
+            <button
+              onClick={() => setAlerta(!alerta)}
+              className={` ${
+                !alerta
+                  ? "bg-red-900 hover:bg-red-800 "
+                  : "bg-blue-900 hover:bg-blue-800 "
+              } p-2 rounded text-white `}
+            >
+              <NotificationsActiveTwoToneIcon />
+            </button>
+          </Tooltip>
+        </div>
 
-   
+        <div className="lg:flex justify-end  w-full gap-1 mr-3">
+          <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
+            <button
+              onClick={() => setOrden(!orden)}
+              className="bg-gray-900 p-2 rounded text-white hover:bg-gray-500"
+            >
+              {orden ? <SouthTwoToneIcon /> : <NorthTwoToneIcon />}
+            </button>
+          </Tooltip>
+        </div>
       </div>
 
       <div
         className="container mx-auto space-y-2"
         style={{ maxHeight: 560, overflowY: "auto" }}
       >
-        {camiones   
+        {camiones
           .filter((val) => {
             if (busqueda == "") {
               return val;
             } else if (
-              val.patente.toLowerCase().includes(busqueda.toLowerCase())              
+              val.patente.toLowerCase().includes(busqueda.toLowerCase())
             ) {
               return val;
+            }
+          })
+          .filter((val) => {
+            // Filtrar por alertas
+            if (alerta) {
+              return val; // Si alerta es false, mostrar todos
+            } else {
+              return val.est_alerta; // Si alerta es true, mostrar solo los que tienen est_alerta
+            }
+          })
+          .sort((a, b) => {
+            if (orden) {
+              return a.patente.localeCompare(b.patente); // Orden ascendente
+            } else {
+              return b.patente.localeCompare(a.patente); // Orden descendente
             }
           })
           .map((item, index) => (
@@ -70,14 +118,23 @@ function esFechaValida(valor) {
                 info.patente === item.patente ? "bg-gray-300" : "bg-white" // Si `info.patente` es igual a `item.patente`, se aplica la clase de color de fondo azul, de lo contrario, blanco
               } shadow-md border border-gray-300 rounded-lg p-2 mr-3 hover:bg-gray-100 cursor-pointer`}
             >
-      
               <div className="flex items-center justify-between">
                 <span className="text-md font-bold text-black">
                   {item.patente}
                 </span>
-                <span className={`${esMenorA20Minutos(item.fechaGPS) ? 'text-red-500' : 'text-green-600'}`}> {esFechaValida(item.fechaGPS) ? formatearFecha(item.fechaGPS) : item.fechaGPS}</span>
+                <span
+                  className={`${
+                    esMenorA20Minutos(item.fechaGPS)
+                      ? "text-red-500"
+                      : "text-green-600"
+                  }`}
+                >
+                  {" "}
+                  {esFechaValida(item.fechaGPS)
+                    ? formatearFecha(item.fechaGPS)
+                    : item.fechaGPS}
+                </span>
               </div>
-
 
               <div className="mt-2 ">
                 <li key={index} className={`flex justify-between items-center`}>
@@ -94,7 +151,7 @@ function esFechaValida(valor) {
                         className={`${
                           (notActiva &&
                             parseInt(item.ox1) > parseInt(notActiva.val_max)) ||
-                            parseInt(item.ox1) < parseInt(notActiva.val_min)
+                          parseInt(item.ox1) < parseInt(notActiva.val_min)
                             ? "text-red-400 text-md animate-bounce font-bold "
                             : "text-gray-500 text-sm"
                         }`}
@@ -230,7 +287,6 @@ function esFechaValida(valor) {
                       </span>
                     </div>
                   </div>
-               
                 </li>
               </div>
             </div>

@@ -34,7 +34,7 @@ import RvHookupTwoToneIcon from '@mui/icons-material/RvHookupTwoTone';
 import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
 import EditNotificationsTwoToneIcon from '@mui/icons-material/EditNotificationsTwoTone';
 import BadgeTwoToneIcon from '@mui/icons-material/BadgeTwoTone';
-
+import AccountBalanceTwoToneIcon from '@mui/icons-material/AccountBalanceTwoTone';
 
 type Anchor = "left";
 
@@ -44,6 +44,7 @@ const menuGlobal = [
 ];
 
 const menuConfig = [
+  { name: "Empresas Gral.", href: "/admin/empresaGlobal", icono: <AccountBalanceTwoToneIcon /> },
   { name: "Perfiles", href: "/admin/perfil", icono: <TuneIcon /> },
   { name: "Usuarios", href: "/admin/usuarios", icono: <PeopleAltIcon /> }, 
   { name: "Empresas", href: "/admin/empresas", icono: <ApartmentTwoToneIcon /> },
@@ -57,7 +58,7 @@ const menuCamiones = [
 ];
 
 const menuNotificaciones = [
-  { name: "Cat. Notificacion", href: "/admin/cat-not", icono: <EditNotificationsTwoToneIcon /> },
+/*   { name: "Cat. Notificacion", href: "/admin/cat-not", icono: <EditNotificationsTwoToneIcon /> }, */
   { name: "Tipo Notificacion", href: "/admin/tipo-notificacion", icono: <NotificationsActiveTwoToneIcon /> },
   { name: "Notificaciones", href: "/admin/correos-notificacion", icono: <ContactMailTwoToneIcon /> },
 ];

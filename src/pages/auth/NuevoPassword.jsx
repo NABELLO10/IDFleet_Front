@@ -132,7 +132,7 @@ const NuevoPassword = () => {
 
                   {passwordModificado && (
                     <Link
-                      className="block text-center my-5 text-2xl py-2  bg-cyan-900 rounded-xl text-white hover:bg-cyan-200 transition duration-300"
+                      className="block text-center my-5 text-2xl py-2  bg-cyan-900 rounded-xl text-white hover:bg-cyan-600 transition duration-300"
                       to="/"
                     >
                       Inicia Sesión

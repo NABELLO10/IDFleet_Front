@@ -1,6 +1,7 @@
 import React from 'react';
 import MapaDeCamiones from '../../home/MapaDeCamiones';
 import ModalesNotificaciones from './ModalesNotificaciones';
+import moment from 'moment';
 
 const DashboardUnidadesTablet = ({setInfo,  handleClickOpenAlerta, handleClickOpen, ventana, open,handleClose, info,notActiva, notTemp, openAlerta, handleCloseAlerta, camiones,centroMapa, camionSeleccionado }) => {
 
@@ -38,11 +39,11 @@ const DashboardUnidadesTablet = ({setInfo,  handleClickOpenAlerta, handleClickOp
           <h2 className="text-lg font-semibold mb-2">GPS</h2>
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">Ultimo registro GPS:</span>
-            <span className="text-sm font-medium text-gray-500">{camionSeleccionado.DATE + " " + camionSeleccionado.TIME}</span>
+            <span className="text-sm font-medium text-gray-500">{moment(camionSeleccionado.DATE + " " + camionSeleccionado.TIME).format('DD-MM-YYYY HH:mm:ss')}</span>
           </div>
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">Ultimo Dato Add:</span>
-            <span className="text-sm font-medium text-gray-500">{camionSeleccionado.fec_add}</span>
+            <span className="text-sm font-medium text-gray-500">  {moment(camionSeleccionado.fec_add).format('DD-MM-YYYY HH:mm:ss')}</span>
           </div>       
         </div>
 

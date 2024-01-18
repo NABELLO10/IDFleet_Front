@@ -188,7 +188,7 @@ const obtenerTransportistas = async () => {
     setTransportista("")
     setEdit({});
     setID(null);
-    setEmpresaSistema("")
+   
     setEstado(1)  
     handleClose()
   };
@@ -239,10 +239,10 @@ const obtenerTransportistas = async () => {
 
   const registrar = async () => {
 
- /*    if ([id_transportista, nom_patente].includes("")) {
+     if ([id_transportista, nom_patente].includes("")) {
       msgError("Ingrese transportista y patente");
       return;
-    } */
+    } 
 
     console.log(id_transportista, nom_patente, fec_rev_tecnica, fec_per_circulacion, fec_seguro, estado, id_empresa)
 

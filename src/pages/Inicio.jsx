@@ -29,7 +29,7 @@ const Inicio = () => {
   const [isLoading2, setIsLoading2] = useState(false);
   const [tiposNotificaciones, setTiposNotificacion] = useState([]);
 
-  useEffect(() => {
+  useEffect(() => { 569
     obtenerEmpresasGlobal();
     asignarToken();
     obtenerEmpresasSistema();
@@ -37,13 +37,13 @@ const Inicio = () => {
   }, []);
 
   // Ejecutar la función cada 10 s
-  /*   useEffect(() => {
+     useEffect(() => {
     const interval = setInterval(() => {
       obtenerResumenGPS();
     }, 10000);
 
     return () => clearInterval(interval);
-  }, []);     */
+  }, []);     
 
   useEffect(() => {
     obtenerEmpresasSistema();

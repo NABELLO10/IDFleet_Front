@@ -3,7 +3,7 @@ import MapaDeCamiones from '../../home/MapaDeCamiones';
 import ModalesNotificaciones from './ModalesNotificaciones';
 import moment from 'moment';
 
-const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, open,handleClose, info,notActiva, notTemp, openAlerta, handleCloseAlerta, camiones,centroMapa, camionSeleccionado, tiposNotificaciones }) => {
+const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, open,handleClose, info,notActiva, notTemp, openAlerta, handleCloseAlerta, camiones,centroMapa, camionSeleccionado, id_transportista, tiposNotificaciones }) => {
 
   return (
     <div className="bg-white shadow-xl border border-gray-300 p-4">
@@ -124,6 +124,7 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, op
         notActiva={notActiva}
         notTemp={notTemp}
         openAlerta={openAlerta}
+        id_transportista={id_transportista}
         handleCloseAlerta={handleCloseAlerta}
       />
     </div>

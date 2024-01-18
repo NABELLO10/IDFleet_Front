@@ -15,7 +15,7 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { styled } from "@mui/system";
 
-const HistoricoAlertas = ({ patente, ventana }) => {
+const HistoricoAlertas = ({ patente, ventana, id_transportista }) => {
   const [oxs, setOX] = useState([]);
 
   const [isLoading2, setIsLoading2] = useState(false);
@@ -28,42 +28,45 @@ const HistoricoAlertas = ({ patente, ventana }) => {
 
   const HistorialAlertas = async () => {
     setIsLoading2(true);
-    /*    try {  */
-    const token = localStorage.getItem("token_emsegur");
+    /*   try { */
+        const token = localStorage.getItem("token_emsegur");
 
-    if (!token) {
-      msgError("Token no valido");
-      return;
-    }
+        if (!token) {
+          msgError("Token no valido");
+          return;
+        }
 
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    };
+        const config = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        };
 
-    let resultado;
+        let resultado;
 
-    if (ventana == "Tablet") {
-      const patenteClean = patente.replace(/[-.]/g, "");
-      resultado = await clienteAxios.get(
-        `/general/alertas/${patenteClean}`,
-        config
-      );
-      setOX(resultado.data);
-    } else {
-      resultado = await clienteAxios.get(`/general/alertas/${patente}`, config);
-      setOX(resultado.data);
-    }
-    console.log(resultado);
+        if (ventana == "Tablet") {
+          const patenteClean = patente.replace(/[-.]/g, "");
+          resultado = await clienteAxios.get(
+            `/general/alertas/${patenteClean}`,
+            config
+          );
+          setOX(resultado.data);
+        } else {
+          resultado = await clienteAxios.get(
+            `/general/alertas/${patente}`,
+            config
+          );
 
-    setIsLoading2(false);
+          setOX(resultado.data);
+        }
+        
+        console.log(resultado.data.filter(r => r.id_transportista == id_transportista ));
 
-    /* 
-     } catch (error) {
-      msgError(error.response.resultado.msg);
-    }  */
+        setIsLoading2(false);
+/*       } catch (error) {
+        msgError(error.response.resultado.msg);
+      }   */
   };
 
   const parseDetalle = (detalleString) => {

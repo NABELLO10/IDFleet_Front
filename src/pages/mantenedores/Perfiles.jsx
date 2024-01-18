@@ -359,7 +359,7 @@ const Perfiles = () => {
                         </svg>
                       </button>
 
-                      {/* <button
+                      <button
                         className="py-1 "
                         onClick={() => {
                           setID(perfilEdit.id);
@@ -380,7 +380,7 @@ const Perfiles = () => {
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                           />
                         </svg>
-                      </button> */}
+                      </button> 
                     </td>
                   </tr>
                 ))}
@@ -390,7 +390,7 @@ const Perfiles = () => {
         </div>
       </div>
 
-      {/* <Dialog
+       <Dialog
         fullWidth={true}
         maxWidth={"md"}
         open={open}
@@ -402,7 +402,7 @@ const Perfiles = () => {
           <div className="p-0.5 rounded-lg">
             <div className="">
               <div className="modal-body relative p-4">
-                <p>¿Realmente desea eliminar este perfilEdit?</p>
+                <p>¿Realmente desea eliminar este perfil?</p>
               </div>
             </div>
           </div>
@@ -422,7 +422,7 @@ const Perfiles = () => {
             Eliminar
           </button>
         </DialogActions>
-      </Dialog> */}
+      </Dialog> 
     </>
   );
 };

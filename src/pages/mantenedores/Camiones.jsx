@@ -99,13 +99,12 @@ const Camiones = () => {
     obtenerEmpresas()     
  }, [id_empresa]);
 
+ 
  useEffect(() => {      
-
-  if(empresaSistema > 0) {
-    obtenerArrastres()
+  if(empresaSistema > 0 && id_transportista > 0) {
+    obtenerArrastres(id_transportista)
   }
-
- }, [empresaSistema]);
+ }, [empresaSistema, id_transportista]);
 
 
 
@@ -219,7 +218,7 @@ const obtenerCamiones = async () => {
       setCamiones(data);      
   };
 
-  const obtenerArrastres = async () => {
+  const obtenerArrastres = async (transportista) => {
       const token = localStorage.getItem("token_emsegur");
 
       if (!token) return;
@@ -234,8 +233,11 @@ const obtenerCamiones = async () => {
       const { data } = await clienteAxios(
         `/crud/obtener-todosarrastres/${empresaSistema}`,
         config
-      );    
-      setArrastres(data);      
+      );  
+
+      const arrastres = data.filter((r) => r.id_transportista == transportista)
+
+      setArrastres(arrastres);      
   };
   
 
@@ -246,7 +248,7 @@ const obtenerCamiones = async () => {
     setTransportista("")
     setEdit({});
     setID(null);    
-    setEstado(0)  
+    setEstado(1)  
     setEstadoOx(0)  
     handleClose()
     obtenerTransportistas()
@@ -269,8 +271,6 @@ const obtenerCamiones = async () => {
     setID(edit.id);
   };
  
-
-
   const eliminarCamion = async (id) => {
     try {
       const token = localStorage.getItem("token_emsegur");
@@ -320,54 +320,48 @@ const obtenerCamiones = async () => {
         },
       };
      
-try {
-  
-
-
-      if (edit.id) {      
+    try {
+      if (edit.id) {
         const { data } = await clienteAxios.put(
           `/crud/camion/${edit.id}`,
           {
             id_transportista,
-            id_arrastre : arrastre,
+            id_arrastre: arrastre,
             nom_patente,
             fec_rev_tecnica,
             fec_per_circulacion,
             fec_seguro,
-            est_activo : estado,        
+            est_activo: estado,
             id_empresa: empresaSistema,
-            id_wialon : unidad,
-            est_ox
+            id_wialon: unidad,
+            est_ox,
           },
           config
         );
         msgOk(data.msg);
-        
       } else {
-  
         const { data } = await clienteAxios.post(
           "/crud/camion",
           {
             id_transportista,
-            id_arrastre : arrastre,
+            id_arrastre: arrastre,
             nom_patente,
             fec_rev_tecnica,
             fec_per_circulacion,
             fec_seguro,
-            est_activo : estado,
+            est_activo: estado,
             id_empresa: empresaSistema,
             id_empresa_global: id_empresa,
-            est_asignado : 0,
-            id_wialon : unidad,
-            est_ox
+            est_asignado: 0,
+            id_wialon: unidad,
+            est_ox,
           },
           config
         );
         msgOk(data.msg);
       }
-      
-      limpiarFormulario();
 
+      limpiarFormulario();
     } catch (error) {
       msgError(error.response.data.msg);
     }
@@ -454,6 +448,37 @@ try {
                 label="Activo"
               />
             </div>
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <div className="w-11/12">
+                <Autocomplete
+                  options={unidadesWialon}
+                  getOptionLabel={(option) =>
+                    option.nm + " / " + option.id_wialon
+                  }
+                  value={
+                    unidadesWialon.find(
+                      (r) => r.id_wialon === unidad
+                    ) || null
+                  } // Asegura un valor controlado
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Unidad wialon"
+                      variant="outlined"
+                    />
+                  )}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+              <FormControlLabel
+                id="est_ox"
+                control={<Checkbox checked={est_ox === 1} />}
+                onChange={(e) => setEstadoOx(e.target.checked ? 1 : 0)}
+                label="OX"
+              />
+              </div>
+            </div>
 
             <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
               <div className="lg:w-3/12 w-full">
@@ -488,38 +513,7 @@ try {
                 </FormControl>
               </div>
             </div>
-            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
-              <div className="w-11/12">
-                <Autocomplete
-                  options={unidadesWialon}
-                  getOptionLabel={(option) =>
-                    option.nm + " / " + option.id_wialon
-                  }
-                  value={
-                    unidadesWialon.find(
-                      (r) => r.id_wialon === unidad
-                    ) || null
-                  } // Asegura un valor controlado
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Unidad wialon"
-                      variant="outlined"
-                    />
-                  )}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-              <FormControlLabel
-                id="est_ox"
-                control={<Checkbox checked={est_ox === 1} />}
-                onChange={(e) => setEstadoOx(e.target.checked ? 1 : 0)}
-                label="OX"
-              />
-              </div>
-            </div>
-
+         
             <div className="lg:flex lg:gap-3 lg:space-y-0">
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Arrastre</InputLabel>
