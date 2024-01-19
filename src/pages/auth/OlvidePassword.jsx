@@ -34,14 +34,14 @@ const OlvidePassword = () => {
       <div className="md:w-1/2 items-center  justify-center  md:block hidden animate-pulse">
         <img
           className="object-cover w-7/12  mx-auto"
-          src="../../../public/logo.png"
+          src="logo.png"
         />
       </div>
 
       <div className="md:hidden block mb-6 md:mb-0 animate-pulse">
         <img
           className="object-cover px-10 w-full h-full mx-auto"
-          src="../../../public/logo.png"
+          src="logo.png"
         />
       </div>
         
