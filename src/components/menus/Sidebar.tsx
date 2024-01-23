@@ -40,11 +40,11 @@ type Anchor = "left";
 
 const menuGlobal = [
   { name: "Wialon Token", href: "/admin/wialon", icono: <GpsFixedTwoToneIcon /> },
+  { name: "Empresas Gral.", href: "/admin/empresaGlobal", icono: <AccountBalanceTwoToneIcon /> },
 /*   { name: "Turnos", href: "/admin/turnos", icono: <GpsFixedTwoToneIcon /> }, */
 ];
 
-const menuConfig = [
-  { name: "Empresas Gral.", href: "/admin/empresaGlobal", icono: <AccountBalanceTwoToneIcon /> },
+const menuConfig = [ 
   { name: "Perfiles", href: "/admin/perfil", icono: <TuneIcon /> },
   { name: "Usuarios", href: "/admin/usuarios", icono: <PeopleAltIcon /> }, 
   { name: "Empresas", href: "/admin/empresas", icono: <ApartmentTwoToneIcon /> },

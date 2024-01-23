@@ -143,7 +143,7 @@ const Empresas = () => {
     // }
 
     const registrar = async () =>{
-        if([rut_empresa, nom_empresa, cod_ciudad, direccion].includes('')){
+        if([rut_empresa, nom_empresa].includes('')){
             msgError("Ingrese todos los campos")
             return
         } 
