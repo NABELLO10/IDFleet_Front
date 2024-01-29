@@ -5,7 +5,7 @@ import DashboardUnidades from './procesos/TabletoComponents/DashboardUnidades';
 import DashboardUnidadesTablet from './procesos/TabletoComponents/DashboardUnidadesTablet';
 import ListadoUnidades from './procesos/TabletoComponents/ListadoUnidades';
 
-const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistema, id_transportista, tiposNotificaciones}) => {
+const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistema, id_transportista, tiposNotificaciones, verFormulario}) => {
     
   const [info, setInfo] = useState({}); // info = itemes[index
 
@@ -31,7 +31,6 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
     setOpenAlerta(false);
   };
 
-
   const [centroMapa, setCentroMapa] = useState(null);
   const [camionSeleccionado, setCamionSeleccionado] = useState({});
 
@@ -42,8 +41,11 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
 
 
   return (
-    <div className="lg:flex lg:flex-row ">
-      <div className="lg:w-5/12 lg:pr-4 w-full">
+    <>   
+     <div className="lg:flex lg:flex-row ">    
+
+      <div className={` ${verFormulario ? 'lg:w-5/12 lg:pr-4 w-full' : 'hidden'}`}>
+    
         {ventana == "Inicio" && (
           <ListadoUnidades
             open={open}
@@ -79,9 +81,10 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
           />
         )}
       </div>
+   
 
 
-      <div className="lg:w-7/12 w-full">
+      <div className={` ${verFormulario ? 'lg:w-7/12 lg:pr-4 w-full' : 'w-full'}`}>
        {ventana == "Inicio" && camiones.length > 0 && (
           <DashboardUnidades
           setInfo={setInfo}
@@ -125,6 +128,8 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
         )}
       </div>
     </div>
+    </>
+   
   );
 };
 

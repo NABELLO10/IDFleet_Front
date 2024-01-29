@@ -20,6 +20,7 @@ const TableroTablet = () => {
   const [camionesSistema, setCamionesSistema] = useState([]);
   const [oxs, setOX] = useState([]);
   const [isLoading2, setIsLoading2] = useState(false);
+  const [verFormulario, setVerFormulario] = useState(true);
 
   useEffect(() => {
     obtenerEmpresasGlobal();
@@ -172,12 +173,12 @@ const TableroTablet = () => {
     <>
         <div className="lg:flex items-center gap-2 mb-2">
         <div className=" lg:w-2/12">
-          <h2 className="font-black  text-cyan-900 text-lg ">
-            Tablero <span className="font-black text-cyan-500">Tablet</span>
+          <h2 className="font-black  text-cyan-900 lg:text-lg ">
+            Tablero <span className="font-black text-cyan-500">TABLET</span>
           </h2>
         </div>
 
-        <div className="flex w-full justify-end gap-2">
+        <div className="flex w-full justify-end gap-2 lg:mt-0 mt-2">
           {auth.id == 1 && (
             <div className="lg:w-10/12">
               <label
@@ -204,7 +205,7 @@ const TableroTablet = () => {
             </div>
           )}
 
-          <div className="w-4/12">
+          <div className="lg:w-4/12 w-6/12">
             <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
               <Select
@@ -227,7 +228,7 @@ const TableroTablet = () => {
             </FormControl>
           </div>
 
-          <div className="w-4/12">
+          <div className="lg:w-4/12 w-6/12">
             <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">
                 Transportista
@@ -252,10 +253,18 @@ const TableroTablet = () => {
             </FormControl>
           </div>
 
+          <div className=" bg-cyan-900 text-white rounded-sm hover:bg-cyan-600 text-sm lg:flex  mb-3 text-center lg:mb-0  items-center px-3">
+            <button
+              onClick={() => setVerFormulario(!verFormulario)}
+              className=""
+            >
+              {verFormulario ? "Ocultar" : "Mostrar"} Unidades
+            </button>
+          </div>
         </div>
       </div>
       {id_transportista ? (
-        <Home ventana={"Tablet"} camiones={oxs.filter((camionSistema) =>
+        <Home ventana={"Tablet"} verFormulario={verFormulario} camiones={oxs.filter((camionSistema) =>
           camionesSistema.some((dataItem) => 
             dataItem.nom_patente.replace(/[\-\.]/g, '') === camionSistema.PATENTE.replace(/[\-\.]/g, '')
           )

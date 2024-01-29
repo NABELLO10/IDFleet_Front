@@ -28,6 +28,7 @@ const Inicio = () => {
   const [token1, setToken] = useState("");
   const [isLoading2, setIsLoading2] = useState(false);
   const [tiposNotificaciones, setTiposNotificacion] = useState([]);
+  const [verFormulario, setVerFormulario] = useState(true);
 
   useEffect(() => { 569
     obtenerEmpresasGlobal();
@@ -344,12 +345,12 @@ const Inicio = () => {
     <>
       <div className="lg:flex items-center gap-2 mb-2">
         <div className=" lg:w-2/12">
-          <h2 className="font-black  text-cyan-900 text-lg ">
-            Tablero <span className="font-black text-cyan-500">Wialon</span>
+          <h2 className="font-black  text-cyan-900 lg:text-lg ">
+            Tablero <span className="font-black text-cyan-500">WIALON</span>
           </h2>
         </div>
 
-        <div className="flex w-full justify-end gap-2">
+        <div className="lg:flex w-full justify-end lg:gap-2  lg:mt-0 mt-2">
           {auth.id == 1 && (
             <div className="lg:w-10/12">
               <label
@@ -376,7 +377,8 @@ const Inicio = () => {
             </div>
           )}
 
-          <div className="w-4/12">
+
+          <div className="lg:w-4/12 w-full lg:mb-0 mb-3">
             <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
               <Select
@@ -399,7 +401,7 @@ const Inicio = () => {
             </FormControl>
           </div>
 
-          <div className="w-4/12">
+          <div className="lg:w-4/12 w-full  lg:mb-0 mb-3">
             <FormControl fullWidth sx={{ m: 0, minWidth: 120 }} size="small">
               <InputLabel id="demo-simple-select-label">
                 Transportista
@@ -424,6 +426,15 @@ const Inicio = () => {
             </FormControl>
           </div>
 
+          <div className=" bg-cyan-900 text-white rounded-sm hover:bg-cyan-600 text-sm lg:flex  mb-3 text-center lg:mb-0  items-center px-3">
+            <button
+              onClick={() => setVerFormulario(!verFormulario)}
+              className=""
+            >
+              {verFormulario ? "Ocultar" : "Mostrar"} Unidades
+            </button>
+          </div>
+
           {/*   <div className="">
             <button
               id="todos"
@@ -442,6 +453,7 @@ const Inicio = () => {
       {id_transportista ? (
         <Home
           className="shadow-lg"
+          verFormulario={verFormulario}
           id_transportista={id_transportista}
           empresaSistema={empresaSistema}
           ventana={"Inicio"}

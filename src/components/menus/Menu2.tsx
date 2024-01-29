@@ -102,7 +102,7 @@ function Menu2() {
 
             <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
               <Tooltip title="UNIDADES">
-                <Link to="/admin/camiones">
+                <Link  to="/admin/camiones">
                   <LocalShippingTwoToneIcon />
                 </Link>
               </Tooltip>

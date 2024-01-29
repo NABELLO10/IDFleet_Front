@@ -20,7 +20,7 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, op
           GPS
         </button>
         {camionSeleccionado && (
-          <h1 className="text-xl font-semibold">
+          <h1 className="lg:text-xl text-md font-semibold">
             UNIDAD: {camionSeleccionado.patente}
           </h1>
         )}
@@ -48,39 +48,44 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, op
 
       <div className="w-full gap-4 mb-2 ">
         {/* Indicador de Cumplimiento */}
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300">
-          <h2 className="text-lg font-semibold mb-2">Tipo Notificaciones</h2>
+        <div className="bg-white lg:p-4  rounded-lg shadow-lg border border-gray-300">
+          <h2 className="text-lg font-semibold mb-2 p-2  border-b-2">Tipo Notificaciones</h2>
 
           {tiposNotificaciones.map((n) => (
-            <div key={n.id} className="flex border border-gray-200 px-2 gap-12  mb-1">
+            <div key={n.id} className="flex px-2 gap-12  mb-3">
               
-              <div className='w-3/12'>
+              <div className='lg:w-3/12 '>
                 <span className="text-sm font-medium">
                   {" "}
-                  {n.cat_notificacione.nom_tipo}
+                  {n.cat_notificacione.nom_tipo + ":"}
                 </span>
               </div>
 
-              <div className='w-2/12'>
+              <div className='lg:flex  w-full '>
+              <div className='lg:w-2/12 '>
                 <span className="text-sm font-medium ">Min : {n.val_min}</span>
               </div>
-              <div className='w-2/12'>
+              <div className='lg:w-2/12'>
                 {" "}
                 <span className="text-sm font-medium ">Max : {n.val_max}</span>
               </div>
 
-              <div className='w-4/12'>
+              <div className='lg:w-5/12 w-full'>
                 <span className="text-sm font-medium ">Obs : {n.obs}</span>
               </div>
+
+              </div>
+
+             
             </div>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="lg:grid lg:grid-cols-2 gap-4 mb-2">
         {/* Indicador de Cumplimiento */}
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300">
-          <h2 className="text-lg font-semibold mb-2">GPS</h2>
+        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300 mb-2">
+          <h2 className="text-lg font-semibold mb-2 border-b-2">GPS</h2>
           {/* Indicadores */}
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">Ultimo registro GPS:</span>
@@ -89,7 +94,7 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, op
             </span>
           </div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-medium">Ultimo Dato Add:</span>
+            <span className="text-sm font-medium">Fecha Registro:</span>
             <span className="text-sm font-medium text-gray-500">      
               {moment(camionSeleccionado.fechaRegistro).format('DD-MM-YYYY HH:mm:ss')}
             </span>
@@ -98,7 +103,7 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, op
 
         {/* Otros Indicadores */}
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300">
-          <h2 className="text-lg font-semibold mb-2">Otros Indicadores</h2>
+          <h2 className="text-lg font-semibold mb-2 border-b-2">Otros Indicadores</h2>
           {/* Porcentaje de cumplimiento */}
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">Velocidad:</span>

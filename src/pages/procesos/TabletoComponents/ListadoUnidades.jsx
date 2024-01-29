@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModalesNotificaciones from './ModalesNotificaciones';
 import NorthTwoToneIcon from '@mui/icons-material/NorthTwoTone';
 import SouthTwoToneIcon from '@mui/icons-material/SouthTwoTone';
@@ -10,6 +10,7 @@ const ListadoUnidades = ({open,handleClose, info, setInfo, openAlerta, handleClo
   const [busqueda, setBusqueda] = useState("");
   const [orden, setOrden] = useState(true);
   const [alerta, setAlerta] = useState(true);
+
 
 
 function esMenorA20Minutos(fechaStr) {
@@ -35,10 +36,25 @@ function esFechaValida(valor) {
   return !isNaN(fecha.getTime());
 }
 
+const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024); // 1024px es el breakpoint 'lg' por defecto en Tailwind
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsLargeScreen(window.innerWidth >= 1024);
+  };
+
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+}, []);
+
+
   return (
     <>
-      <div className="lg:flex mb-2 gap-2  items-center">
-        <div className="lg:flex justify-start w-full  gap-2  items-center">
+      
+        <div className="flex justify-start w-full  gap-2  items-center">
           <input
             name="busqueda"
             id="busqueda"
@@ -64,9 +80,7 @@ function esFechaValida(valor) {
               <NotificationsActiveTwoToneIcon />
             </button>
           </Tooltip>
-        </div>
 
-        <div className="lg:flex justify-end  w-full gap-1 mr-3">
           <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
             <button
               onClick={() => setOrden(!orden)}
@@ -76,11 +90,17 @@ function esFechaValida(valor) {
             </button>
           </Tooltip>
         </div>
-      </div>
+
+       
+ 
+
 
       <div
-        className="container mx-auto space-y-2"
-        style={{ maxHeight: 560, overflowY: "auto" }}
+        className={`container mx-auto space-y-1 mt-1 mb-2 bg-blue-100 `}
+        style={{
+          maxHeight: isLargeScreen ? 560 : '23vh',
+          overflowY: 'auto',
+        }}
       >
         {camiones
           .filter((val) => {
@@ -116,7 +136,7 @@ function esFechaValida(valor) {
               key={index}
               className={`${
                 info.patente === item.patente ? "bg-gray-300" : "bg-white" // Si `info.patente` es igual a `item.patente`, se aplica la clase de color de fondo azul, de lo contrario, blanco
-              } shadow-md border border-gray-300 rounded-lg p-2 mr-3 hover:bg-gray-100 cursor-pointer`}
+              } shadow-md border border-gray-300 rounded p-2  hover:bg-gray-100 cursor-pointer`}
             >
               <div className="flex items-center justify-between">
                 <span className="text-md font-bold text-black">
@@ -136,11 +156,11 @@ function esFechaValida(valor) {
                 </span>
               </div>
 
-              <div className="mt-2 ">
-                <li key={index} className={`flex justify-between items-center`}>
+           
+             
                   <div className="">
                     <div
-                      className={`flex gap-1 ${
+                      className={`flex flex-wrap gap-1 ${
                         item.ox1 > 0 ? "block" : "hidden"
                       }`}
                     >
@@ -287,8 +307,8 @@ function esFechaValida(valor) {
                       </span>
                     </div>
                   </div>
-                </li>
-              </div>
+         
+
             </div>
           ))}
 

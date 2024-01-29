@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 const myIcon = new L.Icon({
-    iconUrl: '../../public/icoMapa.png',
+    iconUrl: 'icoMapa.png',
     iconSize: [30, 31],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -23,7 +23,7 @@ function Mapa({ lat, lon, info  }) {
             <Marker 
                 key={lat}
                 position={[lat, lon]}
-                icon={myIcon}>
+               >
                 <Popup>
                     {info}
                 </Popup>

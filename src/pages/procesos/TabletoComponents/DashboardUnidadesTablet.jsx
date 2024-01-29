@@ -9,7 +9,7 @@ const DashboardUnidadesTablet = ({setInfo,  handleClickOpenAlerta, handleClickOp
   return (
     <div className="bg-white shadow-xl border border-gray-300 p-4">
 
-      <div className="mb-4 lg:flex justify-between items-center">
+      <div className="mb-4 flex justify-between items-center">
    
      {/*    <button onClick={() => {
                       handleClickOpen();
@@ -36,7 +36,7 @@ const DashboardUnidadesTablet = ({setInfo,  handleClickOpenAlerta, handleClickOp
       
        <div className="lg:grid lg:grid-cols-2 lg:gap-4">
         <div className="bg-white p-4 rounded-lg shadow-lg border mb-2 lg:mb-0 border-gray-300">
-          <h2 className="text-lg font-semibold mb-2">GPS</h2>
+          <h2 className="text-lg font-semibold mb-2 border-b-2">GPS</h2>
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">Ultimo registro GPS:</span>
             <span className="text-sm font-medium text-gray-500">{moment(camionSeleccionado.DATE + " " + camionSeleccionado.TIME).format('DD-MM-YYYY HH:mm:ss')}</span>
@@ -49,7 +49,7 @@ const DashboardUnidadesTablet = ({setInfo,  handleClickOpenAlerta, handleClickOp
 
       
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300">
-          <h2 className="text-lg font-semibold mb-2">Otros Indicadores</h2>        
+          <h2 className="text-lg font-semibold mb-2 border-b-2">Otros Indicadores</h2>        
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">RA:</span>
             <span className="text-sm font-medium text-gray-500">{camionSeleccionado.RA}</span>
