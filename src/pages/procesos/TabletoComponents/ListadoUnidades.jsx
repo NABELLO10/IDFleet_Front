@@ -3,15 +3,21 @@ import ModalesNotificaciones from './ModalesNotificaciones';
 import NorthTwoToneIcon from '@mui/icons-material/NorthTwoTone';
 import SouthTwoToneIcon from '@mui/icons-material/SouthTwoTone';
 import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
+import AccessAlarmsTwoToneIcon from '@mui/icons-material/AccessAlarmsTwoTone';
+import UpdateTwoToneIcon from '@mui/icons-material/UpdateTwoTone';
+import HistoryTwoToneIcon from '@mui/icons-material/HistoryTwoTone';
 
 import Tooltip from "@mui/material/Tooltip";
-const ListadoUnidades = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, camiones, onCamionClick, notActiva, notTemp}) => {
+const ListadoUnidades = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, camiones, onCamionClick, id_transportista, notActiva, notTemp}) => {
  
   const [busqueda, setBusqueda] = useState("");
   const [orden, setOrden] = useState(true);
-  const [alerta, setAlerta] = useState(true);
+  const [ordenTime, setOrdenTime] = useState(true);
+  const [alertaOX, setAlertaOX] = useState(true);
+  const [alertaTemp, setAlertaTemp] = useState(true);
+  const [camionesOrdenados, setCamionesOrdenados] = useState([]);
 
-
+  const [tipoOrdenamiento, setTipoOrdenamiento] = useState(null);
 
 function esMenorA20Minutos(fechaStr) {
   const fecha = new Date(fechaStr);
@@ -19,6 +25,7 @@ function esMenorA20Minutos(fechaStr) {
   const diferencia = ahora - fecha;
   return diferencia >= 20 * 60 * 1000; 
 }
+
 
 function formatearFecha(fechaStr) {
   var fecha = new Date(fechaStr);
@@ -39,6 +46,10 @@ function esFechaValida(valor) {
 const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024); // 1024px es el breakpoint 'lg' por defecto en Tailwind
 
 useEffect(() => {
+  setInfo({})
+},[id_transportista])
+
+useEffect(() => {
   const handleResize = () => {
     setIsLargeScreen(window.innerWidth >= 1024);
   };
@@ -51,276 +62,292 @@ useEffect(() => {
 }, []);
 
 
+const ordenarPorPatente = (a, b) => a.patente.localeCompare(b.patente);
+const ordenarPorFechaGPS = (a, b) => new Date(a.fechaGPS) - new Date(b.fechaGPS);
+
+useEffect(() => {
+  let resultadoOrdenado = [...camiones]
+    .filter(val => busqueda === "" || val.patente.toLowerCase().includes(busqueda.toLowerCase()))
+    .filter(val => alertaOX ? true : val.est_alerta_ox)
+    .filter(val => alertaTemp ? true : val.est_alerta_temp);
+
+  // Aplicar el ordenamiento basado en tipoOrdenamiento
+  if (tipoOrdenamiento === 'patente') {
+    resultadoOrdenado.sort(ordenarPorPatente);
+  } else if (tipoOrdenamiento === 'fecha') {
+    resultadoOrdenado.sort(ordenarPorFechaGPS);
+  }
+
+  setCamionesOrdenados(resultadoOrdenado);
+}, [tipoOrdenamiento, camiones, busqueda, alertaOX, alertaTemp]);
+
+
   return (
     <>
+      <div className="flex justify-start w-full  gap-2  items-center">
       
-        <div className="flex justify-start w-full  gap-2  items-center">
-          <input
-            name="busqueda"
-            id="busqueda"
-            type="text"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className=" p-2 border border-gray-400 shadow "
-            placeholder=" Buscar unidad..."
-          />
-          <Tooltip
-            title={`${
-              alerta ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS"
-            }`}
+        <input
+          name="busqueda"
+          id="busqueda"
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className=" p-2 border border-gray-400 shadow "
+          placeholder=" Buscar unidad..."
+        />
+
+
+
+        <Tooltip
+          title={`${alertaOX ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS OX"}`}
+        >
+          <button
+            onClick={() => setAlertaOX(!alertaOX)}
+            className={`${
+              !alertaOX
+                ? "bg-red-900 hover:bg-red-800 "
+                : "bg-blue-900 hover:bg-blue-800 "
+            } p-2 rounded text-white `}
           >
-            <button
-              onClick={() => setAlerta(!alerta)}
-              className={` ${
-                !alerta
-                  ? "bg-red-900 hover:bg-red-800 "
-                  : "bg-blue-900 hover:bg-blue-800 "
-              } p-2 rounded text-white `}
-            >
-              <NotificationsActiveTwoToneIcon />
-            </button>
-          </Tooltip>
+                  OX
+          </button>
+        </Tooltip>
+     
+        <Tooltip
+          title={`${alertaTemp ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS TEMP"}`}
+        >
+          <button
+            onClick={() => setAlertaTemp(!alertaTemp)}
+            className={`px-3 ${
+              !alertaTemp
+                ? "bg-red-900 hover:bg-red-800 "
+                : "bg-blue-900 hover:bg-blue-800 "
+            } p-2 rounded text-white `}
+          >
+      T°
+          </button>
+        </Tooltip>
 
-          <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
-            <button
-              onClick={() => setOrden(!orden)}
-              className="bg-gray-900 p-2 rounded text-white hover:bg-gray-500"
-            >
-              {orden ? <SouthTwoToneIcon /> : <NorthTwoToneIcon />}
-            </button>
-          </Tooltip>
-        </div>
-
+        <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
+          <button
+            onClick={() => setTipoOrdenamiento(tipoOrdenamiento === 'patente' ? null : 'patente')}
+            className="bg-gray-900 p-2 rounded text-white hover:bg-gray-500"
+          >
+            {orden ? 'A-Z' : 'Z-A'}
+          </button>
+        </Tooltip>
        
- 
+        <Tooltip title={`${ordenTime ? "Mayor Tiempo" : "Menor Tiempo"}`}>
+          <button
+            onClick={() =>setTipoOrdenamiento(tipoOrdenamiento === 'fecha' ? null : 'fecha')}
+            className="bg-cyan-900 p-2 rounded text-white hover:bg-cyan-600"
+          >
+            {ordenTime ? <UpdateTwoToneIcon/> : <HistoryTwoToneIcon/>}
+          </button>
+        </Tooltip>
+      </div>
 
+      <div className='text-cyan-700 font-bold text-md mt-2 text-end'>{camionesOrdenados.length} Unidades</div>
 
-      <div
-        className={`container mx-auto space-y-1 mt-1 mb-2 bg-blue-100 `}
-        style={{
-          maxHeight: isLargeScreen ? 560 : '23vh',
-          overflowY: 'auto',
-        }}
-      >
-        {camiones
-          .filter((val) => {
-            if (busqueda == "") {
-              return val;
-            } else if (
-              val.patente.toLowerCase().includes(busqueda.toLowerCase())
-            ) {
-              return val;
-            }
-          })
-          .filter((val) => {
-            // Filtrar por alertas
-            if (alerta) {
-              return val; // Si alerta es false, mostrar todos
-            } else {
-              return val.est_alerta; // Si alerta es true, mostrar solo los que tienen est_alerta
-            }
-          })
-          .sort((a, b) => {
-            if (orden) {
-              return a.patente.localeCompare(b.patente); // Orden ascendente
-            } else {
-              return b.patente.localeCompare(a.patente); // Orden descendente
-            }
-          })
-          .map((item, index) => (
-            <div
-              onClick={() => {
-                onCamionClick(item);
-                setInfo(item); // Esto establece el estado `info` al `item` clickeado
-              }}
-              key={index}
-              className={`${
-                info.patente === item.patente ? "bg-gray-300" : "bg-white" // Si `info.patente` es igual a `item.patente`, se aplica la clase de color de fondo azul, de lo contrario, blanco
-              } shadow-md border border-gray-300 rounded p-2  hover:bg-gray-100 cursor-pointer`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-md font-bold text-black">
-                  {item.patente}
-                </span>
-                <span
-                  className={`${
-                    esMenorA20Minutos(item.fechaGPS)
-                      ? "text-red-500"
-                      : "text-green-600"
-                  }`}
-                >
-                  {" "}
-                  {esFechaValida(item.fechaGPS)
-                    ? formatearFecha(item.fechaGPS)
-                    : item.fechaGPS}
-                </span>
-              </div>
-
+      <div className='border-gray-400 opacity-80 shadow-lg p-1 border-4 bg-gray-400 rounded-md '>
+        <div
+          className={`container mx-auto space-y-1 mt-1 custom-scrollbar`}
+          style={{
+            maxHeight: isLargeScreen ? 960 : "23vh",
+            overflowY: "auto",
+          }}
+        >
            
-             
-                  <div className="">
-                    <div
-                      className={`flex flex-wrap gap-1 ${
-                        item.ox1 > 0 ? "block" : "hidden"
+
+          {camionesOrdenados.map((item, index) => (
+              <div
+                onClick={() => {
+                  onCamionClick(item);
+                  setInfo(item); // Esto establece el estado `info` al `item` clickeado
+                }}
+                key={index}
+                className={`${
+                  info.patente === item.patente ? "bg-gray-300" : "bg-white" // Si `info.patente` es igual a `item.patente`, se aplica la clase de color de fondo azul, de lo contrario, blanco
+                } shadow-md border border-gray-300 rounded p-2  hover:bg-gray-100 mb-2 cursor-pointer`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-md font-bold text-black">
+                    {item.patente}
+                  </span>
+                  <span
+                    className={`${
+                      esMenorA20Minutos(item.fechaGPS)
+                        ? "text-red-500"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {" "}
+                    {esFechaValida(item.fechaGPS)
+                      ? formatearFecha(item.fechaGPS)
+                      : item.fechaGPS}
+                  </span>
+                </div>
+
+                <div className="">
+                  <div
+                    className={`flex flex-wrap gap-1 ${
+                      item.est_ox == 1 ? "block" : "hidden"
+                    }`}
+                  >
+                    <span className="text-sm font-bold text-gray-500">E1:</span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox1) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox1) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold "
+                          : "text-gray-500 text-sm"
                       }`}
                     >
-                      <span className="text-sm font-bold text-gray-500">
-                        E1:
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox1) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox1) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold "
-                            : "text-gray-500 text-sm"
-                        }`}
-                      >
-                        {item.ox1}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E2:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox2) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox2) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        } `}
-                      >
-                        {item.ox2}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E3:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox3) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox3) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        }`}
-                      >
-                        {item.ox3}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E4:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox4) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox4) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        }`}
-                      >
-                        {item.ox4}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E5:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox5) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox5) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        } `}
-                      >
-                        {item.ox5}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E6:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox6) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox6) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        } `}
-                      >
-                        {item.ox6}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E7:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox7) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox7) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        } `}
-                      >
-                        {item.ox7}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E8:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox8) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox8) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        }`}
-                      >
-                        {item.ox8}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        E9:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notActiva &&
-                            parseInt(item.ox9) > parseInt(notActiva.val_max)) ||
-                          parseInt(item.ox9) < parseInt(notActiva.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        } `}
-                      >
-                        {item.ox9}
-                      </span>
-                      <span className="text-sm font-bold text-gray-500">
-                        {" "}
-                        T°:{" "}
-                      </span>{" "}
-                      <span
-                        className={`${
-                          (notTemp &&
-                            parseInt(item.temp) > parseInt(notTemp.val_max)) ||
-                          parseInt(item.temp) < parseInt(notTemp.val_min)
-                            ? "text-red-400 text-md animate-bounce font-bold"
-                            : "text-gray-500 text-sm"
-                        } `}
-                      >
-                        {item.temp}
-                      </span>
-                    </div>
+                      {item.ox1}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E2:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox2) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox2) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      } `}
+                    >
+                      {item.ox2}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E3:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox3) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox3) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      }`}
+                    >
+                      {item.ox3}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E4:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox4) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox4) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      }`}
+                    >
+                      {item.ox4}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E5:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox5) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox5) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      } `}
+                    >
+                      {item.ox5}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E6:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox6) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox6) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      } `}
+                    >
+                      {item.ox6}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E7:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox7) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox7) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      } `}
+                    >
+                      {item.ox7}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E8:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox8) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox8) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      }`}
+                    >
+                      {item.ox8}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E9:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox9) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox9) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      } `}
+                    >
+                      {item.ox9}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      {" "}
+                      T°:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notTemp &&
+                          parseInt(item.temp) > parseInt(notTemp.val_max)) ||
+                        parseInt(item.temp) < parseInt(notTemp.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      } `}
+                    >
+                      {item.temp}
+                    </span>
                   </div>
-         
+                </div>
+              </div>
+            ))}
 
-            </div>
-          ))}
-
-        <ModalesNotificaciones
-          open={open}
-          handleClose={handleClose}
-          info={info}
-          notActiva={notActiva}
-          notTemp={notTemp}
-          openAlerta={openAlerta}
-          handleCloseAlerta={handleCloseAlerta}
-        />
+          <ModalesNotificaciones
+            open={open}
+            handleClose={handleClose}
+            info={info}
+            notActiva={notActiva}
+            notTemp={notTemp}
+            openAlerta={openAlerta}
+            handleCloseAlerta={handleCloseAlerta}
+          />
+        </div>
       </div>
     </>
   );

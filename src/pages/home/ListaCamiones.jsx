@@ -6,16 +6,19 @@ import ModalesNotificaciones from '../procesos/TabletoComponents/ModalesNotifica
 import NotificationsActiveTwoToneIcon from '@mui/icons-material/NotificationsActiveTwoTone';
 import NorthTwoToneIcon from '@mui/icons-material/NorthTwoTone';
 import SouthTwoToneIcon from '@mui/icons-material/SouthTwoTone';
+import UpdateTwoToneIcon from '@mui/icons-material/UpdateTwoTone';
+import HistoryTwoToneIcon from '@mui/icons-material/HistoryTwoTone';
 
 
 
-
-const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, camiones, onCamionClick, notActiva, notTemp }) => {
+const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, id_transportista, camiones, onCamionClick, notActiva, notTemp }) => {
 
   const [busqueda, setBusqueda] = useState("");
   const [orden, setOrden] = useState(true);
+  const [ordenTime, setOrdenTime] = useState(true);
   const [alerta, setAlerta] = useState(true);
   const [verFormulario, setVerFormulario] = useState(true);
+  const [camionesOrdenados, setCamionesOrdenados] = useState([]);
   const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024);
 
   useEffect(() => {
@@ -31,54 +34,86 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
   }, []);
 
 
+  useEffect(() => {
+    setInfo({})
+  },[id_transportista])
+
+  
+  useEffect(() => {
+    const ordenarCamiones = () => {
+      let resultadoOrdenado = [...camiones]
+        .filter(val => busqueda === "" || val.patente.toLowerCase().includes(busqueda.toLowerCase()))
+        .filter(val => alerta ? true : val.est_alerta);
+  
+      // Ordena por patente si 'orden' es true, de lo contrario no aplica este ordenamiento
+      if (!ordenTime) { // Asumiendo que quieres ordenar por patente cuando ordenTime no esté activo
+        resultadoOrdenado.sort((a, b) => orden ? a.PATENTE.localeCompare(b.PATENTE) : b.PATENTE.localeCompare(a.PATENTE));
+      }
+  
+      // Si ordenTime está activo, ordena por fecha independientemente del orden de patente
+      if (ordenTime) {
+        resultadoOrdenado.sort((a, b) => {
+          const fechaA = new Date(a.DATE + " " + a.TIME);
+          const fechaB = new Date(b.fechaGPS);
+          return fechaA - fechaB; // Ordena de más antiguo a más reciente
+        });
+      }
+  
+      setCamionesOrdenados(resultadoOrdenado);
+    };
+  
+    ordenarCamiones();
+  }, [orden, ordenTime, camiones, busqueda, alerta]);
  
 
   return (
     <>    
   
-      <div className={`flex mb-2 gap-2  items-center ${verFormulario ? 'block' : 'hidden'}`}>
-        <div className="flex justify-start w-full  gap-2  items-center">
-          <input
-            name="busqueda"
-            id="busqueda"
-            type="text"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className=" p-2 border border-gray-400 shadow "
-            placeholder=" Buscar unidad..."
-          />
-          <Tooltip
-            title={`${
-              alerta ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS"
-            }`}
+  <div className="flex justify-start w-full  gap-2  items-center">
+        <input
+          name="busqueda"
+          id="busqueda"
+          type="text"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          className=" p-2 border border-gray-400 shadow "
+          placeholder=" Buscar unidad..."
+        />
+        <Tooltip
+          title={`${alerta ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS"}`}
+        >
+          <button
+            onClick={() => setAlerta(!alerta)}
+            className={` ${
+              !alerta
+                ? "bg-red-900 hover:bg-red-800 "
+                : "bg-blue-900 hover:bg-blue-800 "
+            } p-2 rounded text-white `}
           >
-            <button
-              onClick={() => setAlerta(!alerta)}
-              className={` ${
-                !alerta
-                  ? "bg-red-900 hover:bg-red-800 "
-                  : "bg-blue-900 hover:bg-blue-800 "
-              } p-2 rounded text-white `}
-            >
-              <NotificationsActiveTwoToneIcon />
-            </button>
-          </Tooltip>
-        </div>
+            <NotificationsActiveTwoToneIcon />
+          </button>
+        </Tooltip>
 
-        <div className="flex justify-end  w-full gap-1 mr-3">
-          <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
-            <button
-              onClick={() => setOrden(!orden)}
-              className="bg-gray-900 p-2 rounded text-white hover:bg-gray-500"
-            >
-              {orden ? <SouthTwoToneIcon /> : <NorthTwoToneIcon />}
-            </button>
-          </Tooltip>
-        </div>
+        <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
+          <button
+            onClick={() => setOrden(!orden)}
+            className="bg-gray-900 p-2 rounded text-white hover:bg-gray-500"
+          >
+            {orden ? 'A-Z' : 'Z-A'}
+          </button>
+        </Tooltip>
+       
+        <Tooltip title={`${ordenTime ? "Mayor Tiempo" : "Menor Tiempo"}`}>
+          <button
+            onClick={() => setOrdenTime(!ordenTime)}
+            className="bg-cyan-900 p-2 rounded text-white hover:bg-cyan-600"
+          >
+            {ordenTime ? <UpdateTwoToneIcon/> : <HistoryTwoToneIcon/>}
+          </button>
+        </Tooltip>
       </div>
-   
 
-
+      <div className='border-gray-400 opacity-80 shadow-lg mt-2 mb-2 p-1 border-4 bg-gray-400 rounded-md '>
       <div className={`container mx-auto space-y-1 ${verFormulario ? 'block' : 'hidden'}`}
         style={{
           maxHeight: isLargeScreen ? 560 : '24vh',
@@ -86,33 +121,7 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
         }}
       >
      
-
-      {camiones
-        .filter((val) => {
-          if (busqueda == "") {
-            return val;
-          } else if (
-            val.PATENTE.toLowerCase().includes(busqueda.toLowerCase())
-          ) {
-            return val;
-          }
-        })
-        .filter((val) => {
-          // Filtrar por alertas
-          if (alerta) {
-            return val; // Si alerta es false, mostrar todos
-          } else {
-            return val.est_alerta; // Si alerta es true, mostrar solo los que tienen est_alerta
-          }
-        })
-        .sort((a, b) => {
-          if (orden) {
-            return a.PATENTE.localeCompare(b.PATENTE); // Orden ascendente
-          } else {
-            return b.PATENTE.localeCompare(a.PATENTE); // Orden descendente
-          }
-        })
-        .map((item, index) => (
+      {camionesOrdenados.map((item, index) => (
           <div
             onClick={() => {
               onCamionClick(item);
@@ -121,7 +130,7 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
             key={index}
             className={`${
               info.PATENTE == item.PATENTE ? "bg-gray-300" : "bg-white" // Si `info.patente` es igual a `item.patente`, se aplica la clase de color de fondo azul, de lo contrario, blanco
-            } shadow-md border border-gray-300 rounded-lg p-0 hover:bg-gray-100 mb-2 cursor-pointer`}
+            } shadow-md border border-gray-300 rounded-lg  hover:bg-gray-100 mt-1 cursor-pointer`}
           >
             <div className="w-full ">
               <li
@@ -129,8 +138,8 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
                 className={`p-2 flex justify-between items-center `}
               >
                 <div className="">
-                  <div className="flex items-center space-x-4 justify-between">
-                    <span className="font-bold text-black text-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-md font-bold text-black">
                       {item.PATENTE}
                     </span>
                     <span
@@ -308,6 +317,7 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
         openAlerta={openAlerta}
         handleCloseAlerta={handleCloseAlerta}
       />
+    </div>
     </div>
     </>
     

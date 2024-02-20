@@ -17,6 +17,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Descargar from "../../components/datos/Descargar"
 import Autocomplete from "@mui/material/Autocomplete";
 import TablePagination from '@mui/material/TablePagination';
+import AssignmentIndTwoToneIcon from '@mui/icons-material/AssignmentIndTwoTone';
 
 const Camiones = () => {
   const { auth } = useAuth();  
@@ -29,6 +30,9 @@ const Camiones = () => {
 
   const [transportistas, setTransportistas] = useState([]);
   const [id_transportista, setTransportista] = useState("");
+  
+  const [conductores, setConductores] = useState([]);
+  const [id_conductor, setConductor] = useState("");
 
   const [arrastres, setArrastres] = useState([]);
   const [arrastre, setArrastre] = useState("");
@@ -36,6 +40,7 @@ const Camiones = () => {
 
   const [estado, setEstado] = useState(1);
   const [est_ox, setEstadoOx] = useState(0);
+  const [est_temp, setEstadoTemp] = useState(0);
   const [nom_patente, setPatente] = useState("");
   const [fec_rev_tecnica, setFecRev] = useState(format(new Date(), "yyyy-MM-dd"));
   const [fec_per_circulacion, setPermiso] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -84,6 +89,7 @@ const Camiones = () => {
 
  /////////////////////////////////////////////////////////////////////////////////////
   //PARA EDICION de un edit
+
   const [edit, setEdit] = useState({});
 
   const [open, setOpen] = useState(false);
@@ -106,8 +112,6 @@ const Camiones = () => {
   }
  }, [empresaSistema, id_transportista]);
 
-
-
   useEffect(() => {   
      obtenerEmpresasListado()
      obtenerEmpresas()   
@@ -118,6 +122,7 @@ const Camiones = () => {
     if(empresaSistema){
       obtenerCamiones()  
       obtenerTransportistas()
+      obtenerConductores()
 
     }
   }, [empresaSistema, id_empresa]);
@@ -215,6 +220,7 @@ const obtenerCamiones = async () => {
         `/crud/obtener-camiones/${empresaSistema}/${id_empresa}`,
         config
       );    
+    
       setCamiones(data);      
   };
 
@@ -244,12 +250,13 @@ const obtenerCamiones = async () => {
   const limpiarFormulario = () => {
     setPatente("");   
     setArrastre("");   
-  setUnidad("")
+    setUnidad("")
     setTransportista("")
     setEdit({});
     setID(null);    
     setEstado(1)  
     setEstadoOx(0)  
+    setEstadoTemp(0)  
     handleClose()
     obtenerTransportistas()
     obtenerArrastres()
@@ -268,7 +275,9 @@ const obtenerCamiones = async () => {
     setPermiso(edit.fec_per_circulacion);
     setEstado(edit.est_activo)
     setEstadoOx(edit.est_ox)
+    setEstadoTemp(edit.est_temp)
     setID(edit.id);
+    setConductor(edit.id_conductor)
   };
  
   const eliminarCamion = async (id) => {
@@ -301,8 +310,8 @@ const obtenerCamiones = async () => {
 
   const registrar = async () => {
 
-    if ([id_transportista, nom_patente, arrastre, unidad].includes("")) {
-      msgError("Ingrese transportista, patente y unidad wialon");
+    if ([id_transportista, nom_patente, arrastre, id_conductor].includes("")) {
+      msgError("Ingrese transportista, patente, arrastre y conductor");
       return;
     }
 
@@ -330,11 +339,13 @@ const obtenerCamiones = async () => {
             nom_patente,
             fec_rev_tecnica,
             fec_per_circulacion,
+            id_conductor,
             fec_seguro,
             est_activo: estado,
             id_empresa: empresaSistema,
-            id_wialon: unidad,
+            id_wialon: unidad ? unidad : 0,
             est_ox,
+            est_temp,
           },
           config
         );
@@ -349,12 +360,14 @@ const obtenerCamiones = async () => {
             fec_rev_tecnica,
             fec_per_circulacion,
             fec_seguro,
+            id_conductor,
             est_activo: estado,
             id_empresa: empresaSistema,
             id_empresa_global: id_empresa,
             est_asignado: 0,
-            id_wialon: unidad,
+            id_wialon: unidad ? unidad : 0,
             est_ox,
+            est_temp
           },
           config
         );
@@ -368,6 +381,25 @@ const obtenerCamiones = async () => {
  
   };
 
+  const obtenerConductores = async () => {
+    const token = localStorage.getItem("token_emsegur");
+
+    if (!token) return;
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await clienteAxios(
+      `/crud/obtener-conductores/${empresaSistema}/${id_empresa}`,
+      config
+    );
+    setConductores(data);
+};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     await registrar();
@@ -377,6 +409,10 @@ const obtenerCamiones = async () => {
   const handleChange = (event, newValue) => {
     setUnidad(newValue ? newValue.id_wialon : null);
     setPatente(newValue ? newValue.nm : "null");
+  };
+
+  const handleChangeConductor = (event, newValue) => {
+    setConductor(newValue ? newValue.id : null);
   };
 
   const handlePatenteChange = (event) => {
@@ -454,6 +490,13 @@ const obtenerCamiones = async () => {
                 onChange={(e) => setEstadoOx(e.target.checked ? 1 : 0)}
                 label="OX"
               />
+             
+              <FormControlLabel
+                id="est_temp"
+                control={<Checkbox checked={est_temp === 1} />}
+                onChange={(e) => setEstadoTemp(e.target.checked ? 1 : 0)}
+                label="T°"
+              />
             </div>
             <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
               <div className="w-full">
@@ -483,9 +526,9 @@ const obtenerCamiones = async () => {
                   id="nom_patente"
                   className="peer pt-3 pb-2 block"
                   value={nom_patente}
-                  onChange={handlePatenteChange}
+                  onChange={(e) => setPatente(e.target.value)}
                   label="Patente"
-                  inputProps={{ maxLength: 6 }}
+                  inputProps={{ maxLength: 7 }}
                   variant="outlined"
                 />
               </div>
@@ -508,6 +551,26 @@ const obtenerCamiones = async () => {
                     ))}
                   </Select>
                 </FormControl>
+              </div>
+            </div>
+
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+              <div className="w-full">
+                <Autocomplete
+                  options={conductores}
+                  getOptionLabel={(option) =>
+                    option.nombre + " " + option.ape_paterno
+                  }
+                  value={conductores.find((r) => r.id === id_conductor) || null} // Asegura un valor controlado
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Conductor"
+                      variant="outlined"
+                    />
+                  )}
+                  onChange={handleChangeConductor}
+                />
               </div>
             </div>
 
@@ -672,6 +735,8 @@ const obtenerCamiones = async () => {
                                     </span>
                                   )}
                                 </div>
+
+                               
                               </div>
                             </td>
 
@@ -688,11 +753,19 @@ const obtenerCamiones = async () => {
 
                             <td className="px-6   text-sm text-gray-500">
                               <p>
-                                {r.mae_transportista.nombre +
+                                {"Transportista: " +r.mae_transportista.nombre +
                                   " " +
                                   r.mae_transportista.ape_paterno}
                               </p>
-                              <p>{r.mae_empresas_sistema.nom_empresa}</p>
+                              <p>{"Empresa: " + r.mae_empresas_sistema.nom_empresa}</p>
+                              {r.mae_conductore && (
+                                  <div className="font-semibold text-xs flex items-center text-cyan-700">
+                                    <AssignmentIndTwoToneIcon />
+                                    {r.mae_conductore.nombre +
+                                      " " +
+                                      r.mae_conductore.ape_paterno}
+                                  </div>
+                                )}
                             </td>
 
                             <td className="px-6   text-sm text-gray-500">
@@ -755,7 +828,6 @@ const obtenerCamiones = async () => {
 
                   <div className="bg-gray-300 w-full">
                     <TablePagination
-                      
                       count={camiones.length}
                       page={page}
                       onPageChange={handleChangePage}

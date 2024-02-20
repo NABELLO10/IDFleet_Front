@@ -61,7 +61,7 @@ const HistoricoAlertas = ({ patente, ventana, id_transportista }) => {
           setOX(resultado.data);
         }
         
-        console.log(resultado.data.filter(r => r.id_transportista == id_transportista ));
+       // console.log(resultado.data.filter(r => r.id_transportista == id_transportista ));
 
         setIsLoading2(false);
 /*       } catch (error) {

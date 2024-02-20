@@ -52,6 +52,7 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
             handleClose={handleClose}
             info={info}
             setInfo={setInfo}
+            id_transportista={id_transportista}
             notTemp={notTemp}
             openAlerta={openAlerta}
             handleCloseAlerta={handleCloseAlerta}
@@ -59,8 +60,7 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
             camiones={camiones}
             setCamiones={setCamiones}
             onCamionClick={handleCamionClick}
-            notActiva={notActiva}
-         
+            notActiva={notActiva}         
           />
         )}
 
@@ -70,6 +70,7 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
           handleClose={handleClose}
           info={info}
           setInfo={setInfo}
+          id_transportista={id_transportista}
           notTemp={notTemp}
           openAlerta={openAlerta}
           handleCloseAlerta={handleCloseAlerta}
@@ -86,6 +87,7 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
 
       <div className={` ${verFormulario ? 'lg:w-7/12 lg:pr-4 w-full' : 'w-full'}`}>
        {ventana == "Inicio" && camiones.length > 0 && (
+        info.patente ? 
           <DashboardUnidades
           setInfo={setInfo}
             open={open}
@@ -103,10 +105,11 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
             handleClickOpenAlerta={handleClickOpenAlerta}
             id_transportista={id_transportista}
             tiposNotificaciones={tiposNotificaciones}
-          />
+          /> : <div className='text-center mt-40 text-lg font-bold text-cyan-800'>Seleccione Unidad</div>
         )} 
 
         {ventana == "Tablet" && camiones.length > 0 && (
+               info.PATENTE ? 
           <DashboardUnidadesTablet
           ventana = {ventana}
           open={open}
@@ -124,7 +127,7 @@ const Home = ({camiones, setCamiones, notActiva, notTemp, ventana, empresaSistem
           handleClickOpen={handleClickOpen}
           handleClickOpenAlerta={handleClickOpenAlerta}
           id_transportista={id_transportista}
-        />
+          /> : <div className='text-center mt-40 text-lg font-bold text-cyan-800'>Seleccione Unidad</div>
         )}
       </div>
     </div>

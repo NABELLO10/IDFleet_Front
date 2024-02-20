@@ -8,14 +8,19 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import useAuth from "../hooks/useAuth";
+import useAdicionales from "../hooks/useAdicionales";
+import PhonelinkRingTwoToneIcon from '@mui/icons-material/PhonelinkRingTwoTone';
+import ModeOfTravelTwoToneIcon from '@mui/icons-material/ModeOfTravelTwoTone';
 
 const Inicio = () => {
   const { auth } = useAuth();
+  const { empresaSistema, setEmpresaSistema, id_transportista, setTransportista } = useAdicionales();
+
   const [id_empresa, setEmpresa] = useState(auth.id_empresa);
   const [empresasGlobales, setEmpresasGlobales] = useState([]);
-  const [empresaSistema, setEmpresaSistema] = useState("");
+  //const [empresaSistema, setEmpresaSistema] = useState("");
   const [empresasSistema, setEmpresasSistema] = useState([]);
-  const [id_transportista, setTransportista] = useState("");
+  //const [id_transportista, setTransportista] = useState("");
   const [transportistas, setTransportistas] = useState([]);
   const [camionesSistema, setCamionesSistema] = useState([]);
   const [tokenExiste, setTokenExiste] = useState(false);
@@ -30,7 +35,7 @@ const Inicio = () => {
   const [tiposNotificaciones, setTiposNotificacion] = useState([]);
   const [verFormulario, setVerFormulario] = useState(true);
 
-  useEffect(() => { 569
+  useEffect(() => { 
     obtenerEmpresasGlobal();
     asignarToken();
     obtenerEmpresasSistema();
@@ -41,8 +46,9 @@ const Inicio = () => {
      useEffect(() => {
     const interval = setInterval(() => {
       obtenerResumenGPS();
-    }, 10000);
+    }, 60000);
 
+    
     return () => clearInterval(interval);
   }, []);     
 
@@ -344,10 +350,12 @@ const Inicio = () => {
   return (
     <>
       <div className="lg:flex items-center gap-2 mb-2">
-        <div className=" lg:w-2/12">
+        <div className=" lg:w-2/12 flex gap-1">
+        <ModeOfTravelTwoToneIcon/>
           <h2 className="font-black  text-cyan-900 lg:text-lg ">
-            Tablero <span className="font-black text-cyan-500">WIALON</span>
+            Tablero <span className="font-black text-cyan-500">OX-GPS </span>
           </h2>
+        
         </div>
 
         <div className="lg:flex w-full justify-end lg:gap-2  lg:mt-0 mt-2">
@@ -450,6 +458,7 @@ const Inicio = () => {
 
       {/*  <Home className="shadow-lg" id_transportista={id_transportista}  empresaSistema={empresaSistema} ventana={"Inicio"} camiones={oxs} setCamiones={setOX} notActiva={notActiva} notTemp={notTemp} />
        */}
+
       {id_transportista ? (
         <Home
           className="shadow-lg"

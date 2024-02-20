@@ -2,20 +2,24 @@ import React, { useState, useEffect } from "react";
 import clienteAxios from "../../config/axios";
 import { msgError} from "../../components/Alertas";
 import Home from "../Home";
-
 import Select from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import useAuth from "../../hooks/useAuth";
+import useAdicionales from "../../hooks/useAdicionales";
+import PhonelinkRingTwoToneIcon from '@mui/icons-material/PhonelinkRingTwoTone';
+import ModeOfTravelTwoToneIcon from '@mui/icons-material/ModeOfTravelTwoTone';
 
 const TableroTablet = () => {
   const { auth } = useAuth();
+  const { empresaSistema, setEmpresaSistema, id_transportista, setTransportista } = useAdicionales();
+
   const [id_empresa, setEmpresa] = useState(auth.id_empresa);
   const [empresasGlobales, setEmpresasGlobales] = useState([]);
-  const [empresaSistema, setEmpresaSistema] = useState("");
+
   const [empresasSistema, setEmpresasSistema] = useState([]);
-  const [id_transportista, setTransportista] = useState("");
+ 
   const [transportistas, setTransportistas] = useState([]);
   const [camionesSistema, setCamionesSistema] = useState([]);
   const [oxs, setOX] = useState([]);
@@ -131,11 +135,15 @@ const TableroTablet = () => {
       const camionesTransportistas = data.filter(
         (r) => r.id_transportista == id_transportista
       );
+   
       setCamionesSistema(camionesTransportistas);
     } else {
+    
       setCamionesSistema(data);
     }
   };
+
+
 
   const obtenerDatosTablet = async () => {
     setIsLoading2(true);
@@ -153,7 +161,7 @@ const TableroTablet = () => {
           Authorization: `Bearer ${token}`,
         },
       };
-      const { data } = await clienteAxios.get(`/general/datos-school`, config);
+      const { data } = await clienteAxios.get(`/general/datos-tablet`, config);
 
       setIsLoading2(false); 
       setOX(data);
@@ -172,7 +180,8 @@ const TableroTablet = () => {
   return (
     <>
         <div className="lg:flex items-center gap-2 mb-2">
-        <div className=" lg:w-2/12">
+        <div className=" lg:w-2/12 flex gap-2">
+        <PhonelinkRingTwoToneIcon/>
           <h2 className="font-black  text-cyan-900 lg:text-lg ">
             Tablero <span className="font-black text-cyan-500">TABLET</span>
           </h2>
@@ -264,7 +273,7 @@ const TableroTablet = () => {
         </div>
       </div>
       {id_transportista ? (
-        <Home ventana={"Tablet"} verFormulario={verFormulario} camiones={oxs.filter((camionSistema) =>
+        <Home ventana={"Tablet"} verFormulario={verFormulario} id_transportista ={id_transportista} camiones={oxs.filter((camionSistema) =>
           camionesSistema.some((dataItem) => 
             dataItem.nom_patente.replace(/[\-\.]/g, '') === camionSistema.PATENTE.replace(/[\-\.]/g, '')
           )

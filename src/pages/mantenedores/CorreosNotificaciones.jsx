@@ -236,7 +236,7 @@ useEffect(() => {
       `/crud/obtener-notificacion/${id_empresa}/${id_transportista}/${empresaSistema}`,
       config
     );      
-     console.log(data)
+
     setNotificaciones(data);
   };
 
@@ -394,7 +394,7 @@ useEffect(() => {
               </div>
             )}
 
-<div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Empresa</InputLabel>
                 <Select
@@ -462,9 +462,7 @@ useEffect(() => {
               />
             </div>
 
-             
-
-            <div className="lg:flex lg:gap-3 lg:space-y-0">
+            {/* <div className="lg:flex lg:gap-3 lg:space-y-0">
               <TextField
                 id="asunto"
                 className="peer pt-3 pb-2 w-full"
@@ -487,7 +485,7 @@ useEffect(() => {
                 rows={4}
               />
             </div>
-
+ */}
             <div className="lg:space-y-0">
               <div className=" ">
                 <TextField
@@ -584,7 +582,7 @@ useEffect(() => {
                       </th>
 
                       <th scope="col" className="px-6 font-bold text-gray-900">
-                        Asunto
+                        Empresa / Transportista
                       </th>
                       <th scope="col" className="px-6 font-bold text-gray-900">
                         Correos
@@ -605,14 +603,7 @@ useEffect(() => {
                           <p className="font-bold">
                             {r.mae_tipo_notificacion.cat_notificacione.nom_tipo}
                           </p>
-                          <p>
-                            {r.mae_transportista.nombre +
-                              " " +
-                              r.mae_transportista.ape_paterno}
-                          </p>
-                          <p className="text-cyan-600">
-                            {r.mae_empresas_sistema.nom_empresa}
-                          </p>
+
                           {r.est_activo ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
                               <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
@@ -626,9 +617,14 @@ useEffect(() => {
                           )}
                         </td>
                         <td className="px-6 text-sm text-gray-500">
-                          <Tooltip title={"Mensaje: " + r.mensaje}>
-                            <p>{r.asunto}</p>
-                          </Tooltip>
+                          <p className="text-cyan-600 font-bold">
+                            {r.mae_empresas_sistema.nom_empresa}
+                          </p>{" "}
+                          <p>
+                            {r.mae_transportista.nombre +
+                              " " +
+                              r.mae_transportista.ape_paterno}
+                          </p>
                         </td>
 
                         <td className="px-6 text-xs font-bold text-gray-500">

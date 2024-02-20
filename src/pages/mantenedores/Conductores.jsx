@@ -85,8 +85,7 @@ const Conductores = () => {
   };
 ///////////////////////////////////////
 
-  const obtenerEmpresasListado = async () =>{
-   
+  const obtenerEmpresasListado = async () =>{   
         const token = localStorage.getItem("token_emsegur")
 
         if(!token) return
@@ -96,16 +95,12 @@ const Conductores = () => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             }
-        }                        
-     
+        }                             
         const {data} = await clienteAxios('/crud/obtener-empresas', config)           
         setEmpresasListado(data)
-
- 
 }   
 
   const obtenerEmpresas = async () =>{
-
         const token = localStorage.getItem("token_emsegur")
 
         if(!token) return
@@ -119,11 +114,10 @@ const Conductores = () => {
      
         const {data} = await clienteAxios(`/crud/obtener-empresas-sistema/${id_empresa}`, config)           
         setEmpresas(data)
-
 }   
 
-  const obtenerConductores = async () => {
 
+  const obtenerConductores = async () => {
       const token = localStorage.getItem("token_emsegur");
 
       if (!token) return;
@@ -140,7 +134,6 @@ const Conductores = () => {
         config
       );
       setConductores(data);
-
   };
 
   const limpiarFormulario = () => {
@@ -448,7 +441,7 @@ const Conductores = () => {
                       scope="col"
                       className="px-6 py-2 font-bold text-gray-900"
                     >
-                      Transportista
+                      Conductor
                     </th>
 
                     <th scope="col" className="px-6 font-bold text-gray-900">

@@ -6,27 +6,28 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
 import Sidebar from "./Sidebar";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import MeetingRoomSharpIcon from "@mui/icons-material/MeetingRoomSharp";
-import VpnKeySharpIcon from "@mui/icons-material/VpnKeySharp";
-const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
 import useAuth from "../../hooks/useAuth";
-import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
-import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
-import ShareLocationTwoToneIcon from '@mui/icons-material/ShareLocationTwoTone';
-import TaxiAlertTwoToneIcon from '@mui/icons-material/TaxiAlertTwoTone';
 import PhonelinkRingTwoToneIcon from '@mui/icons-material/PhonelinkRingTwoTone';
 import ModeOfTravelTwoToneIcon from '@mui/icons-material/ModeOfTravelTwoTone';
 import LocalShippingTwoToneIcon from '@mui/icons-material/LocalShippingTwoTone';
 
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import Camiones from "../../pages/mantenedores/Camiones";
+
+const componentes = {
+  "camiones": Camiones,
+};
 
 function Menu2() {
   const { auth, cerrarSesion } = useAuth();
@@ -36,6 +37,24 @@ function Menu2() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
+
+  const [dialogoAbierto, setDialogoAbierto] = React.useState(false);
+  const [componenteActivo, setComponenteActivo] = React.useState("");
+
+
+  const abrirDialogo = (componente) => {
+    setComponenteActivo(componente);
+    setDialogoAbierto(true);
+  };
+
+  const cerrarDialogo = () => {
+    setDialogoAbierto(false);
+    setComponenteActivo("");
+  };
+
+// Decide qué componente renderizar basado en el estado
+  const ComponenteDialogo = componenteActivo ? componentes[componenteActivo] : null;
+  
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -51,6 +70,21 @@ function Menu2() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const theme = useTheme();
+  // Usa un media query para aplicar pantalla completa solo en dispositivos pequeños
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
 
   return (
     <AppBar
@@ -81,35 +115,39 @@ function Menu2() {
               display: { xs: "flex", md: "flex", alignItems: "center" },
             }}
           >
-            
             <Sidebar />
-       
-       <div className="flex gap-2">
-       <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
-              <Tooltip title="TABLERO GENERAL">
-                <Link to="/admin">
-                  <ModeOfTravelTwoToneIcon />
-                </Link>
-              </Tooltip>
-            </div> 
-            <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
-              <Tooltip title="TABLERO TABLET">
-                <Link to="/admin/tablero-tablet">
-                  <PhonelinkRingTwoToneIcon />
-                </Link>
-              </Tooltip>
-            </div>
 
-            <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
-              <Tooltip title="UNIDADES">
-                <Link  to="/admin/camiones">
+            <div className="flex gap-2">
+              <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+                <Tooltip title="TABLERO OX-GPS">
+                  <Link to="/admin">
+                    <ModeOfTravelTwoToneIcon />
+                  </Link>
+                </Tooltip>
+              </div>
+              <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+                <Tooltip title="TABLERO TABLET">
+                  <Link to="/admin/tablero-tablet">
+                    <PhonelinkRingTwoToneIcon />
+                  </Link>
+                </Tooltip>
+              </div>
+
+               <div className="hover:bg-cyan-800  bg-cyan-900 p-2  rounded-lg">
+                <Tooltip title="UNIDADES">
+                  <Link to="/admin/camiones">
+                    <LocalShippingTwoToneIcon />
+                  </Link>
+                </Tooltip>
+              </div> 
+         {/*      <div className="hover:bg-cyan-800  bg-cyan-900 p-1  rounded-lg">
+                <Tooltip title="UNIDADES">
+                <Button variant="text" onClick={() => abrirDialogo("camiones")}>
                   <LocalShippingTwoToneIcon />
-                </Link>
-              </Tooltip>
+                </Button>
+                </Tooltip>
+              </div> */}
             </div>
-       </div>
-
-        
           </Box>
 
           <Typography
@@ -138,9 +176,7 @@ function Menu2() {
               color: "inherit",
               textDecoration: "none",
             }}
-          >
-            
-          </Typography>
+          ></Typography>
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Modificar Perfil">
@@ -183,6 +219,27 @@ function Menu2() {
           </Box>
         </Toolbar>
       </Container>
+
+
+      <Dialog
+       fullScreen={fullScreen} // Mantén esta línea si aún deseas el modo de pantalla completa en dispositivos pequeños
+       open={dialogoAbierto}
+       onClose={cerrarDialogo}
+       aria-labelledby="responsive-dialog-title"
+       fullWidth={true} // Asegúrate de que el diálogo se expanda al ancho disponible
+       maxWidth="xl"
+      >
+        <DialogContent>
+          {ComponenteDialogo ? <ComponenteDialogo /> : "No hay componente seleccionado."}
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={cerrarDialogo}>
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      
     </AppBar>
   );
 }

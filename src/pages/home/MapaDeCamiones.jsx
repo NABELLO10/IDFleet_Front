@@ -14,6 +14,14 @@ const MapaDeCamiones = ({ camiones, centroMapa, camionSeleccionado,  ventana }) 
     }
   }, [camionSeleccionado, markerRefs]);
 
+  const myIcon = new L.Icon({
+    iconUrl: '/icoMapa.png',
+    iconSize: [30, 31],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
   return (
     <>
       {ventana == "Inicio" && (
@@ -23,6 +31,7 @@ const MapaDeCamiones = ({ camiones, centroMapa, camionSeleccionado,  ventana }) 
           style={{ height: "100%", width: "100%" }}
           ref={mapRef}
         >
+          
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -32,6 +41,7 @@ const MapaDeCamiones = ({ camiones, centroMapa, camionSeleccionado,  ventana }) 
             <Marker
               key={index}
               position={[camion.latitud, camion.longitud]}
+              icon={myIcon}
               ref={(ref) => {
                 if (ref) {
                   markerRefs.current.set(camion.patente, ref);

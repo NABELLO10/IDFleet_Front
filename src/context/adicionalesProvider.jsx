@@ -1,46 +1,20 @@
 import {useState, useEffect, createContext} from 'react'
-import clienteAxios from '../config/axios'
 
 const AdicionalesContext = createContext()
 
 const AdicionalesProvider = ({children}) => {
 
-    const [empresas, setEmpresas] = useState([])
-      
-    const obtenerEmpresas = async () =>{
-        try {
-            const token = localStorage.getItem("token_emsegur")
-
-            if(!token) return
-      
-            const config = {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            }                        
-         
-            const {data} = await clienteAxios('/crud/obtener-empresas', config)           
-            setEmpresas(data)
-
-        } catch (error) {
-            console.log(error)
-        }
-    }   
-
-     
-
-
-    useEffect(() => {    
-        obtenerEmpresas()             
-    }, [])
-
- 
+    const [empresaSistema, setEmpresaSistema] = useState('');
+    const [id_transportista, setTransportista] = useState('');
+  
+    
     return(
         <AdicionalesContext.Provider 
-            value={{             
-                obtenerEmpresas,
-                empresas,    
+            value={{            
+                empresaSistema,
+                setEmpresaSistema,
+                id_transportista,
+                setTransportista,
             }}>
             {children}
         </AdicionalesContext.Provider>
