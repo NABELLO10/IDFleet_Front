@@ -28,7 +28,7 @@ const RptTemp = ({ data, nombrePdf }) => {
     <div className="flex justify-end gap-1">
       <Tooltip title="Descargar">
       <button
-        className="bg-blue-900 hover:bg-blue-700 transition-all rounded-md duration-200 px-3 text-xs text-white"
+           className="bg-green-900 hover:bg-green-700 transition-all rounded-md duration-200 px-3 text-xs text-white"
         onClick={handleDownloadExcel}
       >
         <DownloadTwoToneIcon/>

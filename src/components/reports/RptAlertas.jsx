@@ -6,8 +6,9 @@ import Tooltip from '@mui/material/Tooltip';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 import moment from 'moment-timezone';
 
-const RptAlertas = ({ data, nombrePdf }) => {  
-    const filteredData = data.map(item => {
+const RptAlertas = ({ data, nombrePdf, tipo }) => {  
+  
+    const filteredData = data.filter(r => r.tipo == tipo).map(item => {
       // Parseamos la cadena JSON para convertirla en un objeto JavaScript
       const detalleObj = JSON.parse(item.detalle);
   
@@ -38,7 +39,7 @@ const RptAlertas = ({ data, nombrePdf }) => {
       <div className="flex justify-end gap-1">
         <Tooltip title="Descargar">
           <button
-            className="bg-red-900 hover:bg-red-700 transition-all rounded-md duration-200 px-3 text-xs text-white"
+                 className="bg-green-900 hover:bg-green-700 transition-all rounded-md duration-200 px-3 text-xs text-white"
             onClick={handleDownloadExcel}
           >
             <DownloadTwoToneIcon/>

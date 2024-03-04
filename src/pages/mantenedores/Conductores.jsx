@@ -195,8 +195,8 @@ const Conductores = () => {
   };
 
   const registrar = async () => {
-    if ([empresaSistema, rut, nombre, ape_paterno, ape_materno, email, fono].includes("")) {
-      msgError("Ingrese todos los campos");
+    if ([empresaSistema, rut, nombre, ape_paterno].includes("")) {
+      msgError("Ingrese Rut, Nombre y Apellido Paterno");
       return;
     }
 

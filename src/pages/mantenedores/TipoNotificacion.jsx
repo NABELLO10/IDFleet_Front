@@ -301,9 +301,9 @@ const obtenerCatNot = async () => {
   return (
     <>
       <h2 className="font-black text-cyan-900 text-2xl mx-4 ">
-        Registrar{" "}
+        Ajustes{" "}
         <span className="font-black text-cyan-500 mb-10 text-center">
-          Tipo Notificacion
+          Sensores
         </span>
       </h2>
 

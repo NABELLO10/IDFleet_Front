@@ -68,8 +68,8 @@ const ordenarPorFechaGPS = (a, b) => new Date(a.fechaGPS) - new Date(b.fechaGPS)
 useEffect(() => {
   let resultadoOrdenado = [...camiones]
     .filter(val => busqueda === "" || val.patente.toLowerCase().includes(busqueda.toLowerCase()))
-    .filter(val => alertaOX ? true : val.est_alerta_ox)
-    .filter(val => alertaTemp ? true : val.est_alerta_temp);
+/*     .filter(val => alertaOX ? true : val.est_alerta_ox)
+    .filter(val => alertaTemp ? true : val.est_alerta_temp); */
 
   // Aplicar el ordenamiento basado en tipoOrdenamiento
   if (tipoOrdenamiento === 'patente') {
@@ -98,7 +98,7 @@ useEffect(() => {
 
 
 
-        <Tooltip
+       {/*  <Tooltip
           title={`${alertaOX ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS OX"}`}
         >
           <button
@@ -126,7 +126,7 @@ useEffect(() => {
           >
       T°
           </button>
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
           <button
@@ -158,8 +158,7 @@ useEffect(() => {
           }}
         >
            
-
-          {camionesOrdenados.map((item, index) => (
+           {camionesOrdenados.filter(r => r.est_ox == 1 || r.est_temp == 2).map((item, index) => (
               <div
                 onClick={() => {
                   onCamionClick(item);

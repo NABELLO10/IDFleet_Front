@@ -22,6 +22,7 @@ const RptOx = ({ data, nombrePdf }) => {
     'OX7': item.ox7,
     'OX8': item.ox8,
     'OX9': item.ox9,
+    'T°': item.temp,
   }));
 
   const handleDownloadExcel = () => {

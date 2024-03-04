@@ -4,9 +4,9 @@ import ModalesNotificaciones from './ModalesNotificaciones';
 import moment from 'moment';
 import GraficoGral from '../../../components/graficos/graficoGral';
 
-const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, open,handleClose, info,notActiva, notTemp, openAlerta, handleCloseAlerta, camiones,centroMapa, camionSeleccionado, id_transportista, tiposNotificaciones }) => {
-
+const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen,empresaSistema, open,handleClose, info,notActiva, notTemp, openAlerta, handleCloseAlerta, camiones,centroMapa, camionSeleccionado, id_transportista, tiposNotificaciones }) => {
  
+
   return (
     <div className="bg-white shadow-xl border p-3">
       <div className="mb-2 flex justify-between items-center">
@@ -39,13 +39,15 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, op
         />
       </div>
 
-      {camionSeleccionado.est_ox == 1 && (
+      {camionSeleccionado.est_ox == 1  && (
         <div>
           <div className="w-full gap-4 mb-2 ">
             <div className="bg-white lg:p-4 mt-2  rounded-lg shadow-lg border border-gray-300">
               <GraficoGral
                 handleClickOpenAlerta={handleClickOpenAlerta}
                 camionSeleccionado={camionSeleccionado}
+                empresaSistema = {empresaSistema}
+                id_transportista ={id_transportista}
               />
             </div>
           </div>
@@ -91,7 +93,7 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen, op
         </div>
       )}
 
-      {camionSeleccionado.est_ox == 0 && (
+      {camionSeleccionado.est_ox == 0 && camionSeleccionado.est_temp == 0 && (
         <div className="lg:grid lg:grid-cols-2 gap-4 mb-2">
           <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-300 mb-2">
             <h2 className="text-lg font-semibold mb-2 border-b-2">GPS</h2>

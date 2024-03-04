@@ -18,6 +18,17 @@ import Descargar from "../../components/datos/Descargar"
 import Autocomplete from "@mui/material/Autocomplete";
 import TablePagination from '@mui/material/TablePagination';
 import AssignmentIndTwoToneIcon from '@mui/icons-material/AssignmentIndTwoTone';
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableBody,
+} from "@mui/material";
+import TableContainer from "@mui/material/TableContainer";
+import { styled } from "@mui/system";
+import { useTheme } from "@mui/material/styles";
+import Tooltip from "@mui/material/Tooltip";
 
 const Camiones = () => {
   const { auth } = useAuth();  
@@ -51,7 +62,7 @@ const Camiones = () => {
 
   //Lista de Camiones registrados
   const [camiones, setCamiones] = useState([]);
-
+  const theme = useTheme();
 
  // PAGINACION TABLA ////////////////////////////////////////////////////////////////
  const [page, setPage] = useState(0);
@@ -250,16 +261,15 @@ const obtenerCamiones = async () => {
   const limpiarFormulario = () => {
     setPatente("");   
     setArrastre("");   
-    setUnidad("")
-    setTransportista("")
+    setUnidad("")   
     setEdit({});
     setID(null);    
     setEstado(1)  
     setEstadoOx(0)  
     setEstadoTemp(0)  
     handleClose()
-    obtenerTransportistas()
-    obtenerArrastres()
+   /*  obtenerTransportistas()
+    obtenerArrastres() */
     obtenerCamiones()
   };
 
@@ -408,7 +418,7 @@ const obtenerCamiones = async () => {
 
   const handleChange = (event, newValue) => {
     setUnidad(newValue ? newValue.id_wialon : null);
-    setPatente(newValue ? newValue.nm : "null");
+    setPatente(newValue ? newValue.nm : "");
   };
 
   const handleChangeConductor = (event, newValue) => {
@@ -420,6 +430,16 @@ const obtenerCamiones = async () => {
     const valorFiltrado = event.target.value.replace(/[-.]/g, '').toUpperCase();
     setPatente(valorFiltrado);
   };
+
+
+  
+  const StickyTableCell = styled(TableCell)(({ theme }) => ({
+    position: "sticky",
+    top: 0,
+    zIndex: 1,
+    backgroundColor: "#1b3242",
+    color: "white", // para asegurarte de que el fondo no sea transparente
+  }));
 
   return (
     <>
@@ -476,63 +496,9 @@ const obtenerCamiones = async () => {
                   ))}
                 </Select>
               </FormControl>
-
-              <FormControlLabel
-                id="est_activo"
-                control={<Checkbox checked={estado === 1} />}
-                onChange={(e) => setEstado(e.target.checked ? 1 : 0)}
-                label="Activo"
-              />
-
-              <FormControlLabel
-                id="est_ox"
-                control={<Checkbox checked={est_ox === 1} />}
-                onChange={(e) => setEstadoOx(e.target.checked ? 1 : 0)}
-                label="OX"
-              />
-             
-              <FormControlLabel
-                id="est_temp"
-                control={<Checkbox checked={est_temp === 1} />}
-                onChange={(e) => setEstadoTemp(e.target.checked ? 1 : 0)}
-                label="T°"
-              />
-            </div>
-            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
-              <div className="w-full">
-                <Autocomplete
-                  options={unidadesWialon}
-                  getOptionLabel={(option) =>
-                    option.nm + " / " + option.id_wialon
-                  }
-                  value={
-                    unidadesWialon.find((r) => r.id_wialon === unidad) || null
-                  } // Asegura un valor controlado
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Unidad wialon"
-                      variant="outlined"
-                    />
-                  )}
-                  onChange={handleChange}
-                />
-              </div>
             </div>
 
-            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
-              <div className="lg:w-3/12 w-full">
-                <TextField
-                  id="nom_patente"
-                  className="peer pt-3 pb-2 block"
-                  value={nom_patente}
-                  onChange={(e) => setPatente(e.target.value)}
-                  label="Patente"
-                  inputProps={{ maxLength: 7 }}
-                  variant="outlined"
-                />
-              </div>
-              <div className="lg:w-9/12 w-full">
+            <div className="w-full">
                 <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">
                     Transportista
@@ -551,7 +517,64 @@ const obtenerCamiones = async () => {
                     ))}
                   </Select>
                 </FormControl>
+              </div>            
+
+            <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
+            <div className="lg:w-8/12  w-full">
+                <Autocomplete
+                  options={unidadesWialon}
+                  getOptionLabel={(option) =>
+                    option.nm + " / " + option.id_wialon
+                  }
+                  value={
+                    unidadesWialon.find((r) => r.id_wialon === unidad) || null
+                  } // Asegura un valor controlado
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Unidad wialon"
+                      variant="outlined"
+                    />
+                  )}
+                  onChange={handleChange}
+                />
               </div>
+
+              <div className="lg:w-4/12 w-full">
+                <TextField
+                  id="nom_patente"
+                  className="peer pt-3 pb-2 block"
+                  value={nom_patente}
+                  onChange={(e) => setPatente(e.target.value)}
+                  label="Patente"
+                  inputProps={{ maxLength: 7 }}
+                  variant="outlined"
+                />
+              </div>
+             
+
+            </div>
+            <div className="lg:flex gap-3 justify-center space-y-4 lg:space-y-0">
+              <FormControlLabel
+                id="est_activo"
+                control={<Checkbox checked={estado === 1} />}
+                onChange={(e) => setEstado(e.target.checked ? 1 : 0)}
+                label="Activo"
+              />
+
+              <FormControlLabel
+                id="est_ox"
+                control={<Checkbox checked={est_ox === 1} />}
+                onChange={(e) => setEstadoOx(e.target.checked ? 1 : 0)}
+                label="OX"
+              />
+
+              <FormControlLabel
+                id="est_temp"
+                control={<Checkbox checked={est_temp === 1} />}
+                onChange={(e) => setEstadoTemp(e.target.checked ? 1 : 0)}
+                label="T°"
+              />
             </div>
 
             <div className="lg:flex gap-3 space-y-4 lg:space-y-0">
@@ -647,8 +670,8 @@ const obtenerCamiones = async () => {
           </form>
         </div>
 
-        <div className=" rounded-lg lg:mx-auto max-h-36 md:w-full mb-20 lg:w-8/12 mt-5 lg:mt-0">
-          <div className="flex gap-4 ">
+        <div className=" rounded-lg lg:mx-auto   md:w-full  lg:w-8/12 mt-5 lg:mt-0">
+          <div className="flex gap-4 mb-2 ">
             <input
               name="busqueda"
               id="busqueda"
@@ -662,195 +685,182 @@ const obtenerCamiones = async () => {
             <Descargar data={camiones} nombrePdf={"Camiones"} item={1} />
           </div>
 
-          <div className="overflow-auto  rounded-lg md:w-full mt-2">
-            {camiones.length > 0 ? (
-              <>
-                <div>
-                  <div className="w-full">
-                    <table
-                      id="table"
-                      className=" border-collapse border-2 lg:w-full shadow-lg border-gray-300 rounded-lg bg-white text-left text-xs text-gray-500"
-                    >
-                      <thead className="bg-gray-300 ">
-                        <tr>
-                          <th
-                            scope="col"
-                            className="px-6 py-2 font-bold text-gray-900"
-                          >
-                            Patente
-                          </th>{" "}
-                          <th
-                            scope="col"
-                            className="px-6 font-bold text-gray-900"
-                          >
-                            Wialon
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 font-bold text-gray-900"
-                          >
-                            Informacion
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 font-bold text-gray-900"
-                          >
-                            Documentos
-                          </th>
-                          <th
-                            scope="col"
-                            className="px-6 font-medium text-gray-900"
-                          ></th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100  border-gray-100">
-                        {paginatedCamiones.map((r) => (
-                          <tr
-                            className="whitespace-nowrap w-full hover:bg-gray-200"
-                            key={r.id}
-                          >
-                            <td className="px-6  font-bold py-3 text-sm text-gray-500">
-                              <div className=" flex flex-col ">
-                                <div
-                                  className={`${
-                                    r.est_ox == 1
-                                      ? "text-blue-600"
-                                      : "text-gray-500"
-                                  }`}
-                                >
-                                  {r.nom_patente}
-                                </div>
+          <TableContainer
+            className="bg-white"
+            style={{ maxHeight: 580, overflowY: "auto" }}
+          >
+            <Table className="min-w-full">
+              <TableHead>
+                <TableRow>
+                  <StickyTableCell
+                    style={{
+                      fontWeight: theme.typography.fontWeightBold,
+                    }}
+                  >
+                    Patente
+                  </StickyTableCell>
+                  <StickyTableCell
+                    style={{
+                      fontWeight: theme.typography.fontWeightBold,
+                    }}
+                  >
+                    Wialon
+                  </StickyTableCell>
+                  <StickyTableCell
+                    style={{
+                      fontWeight: theme.typography.fontWeightBold,
+                    }}
+                  >
+                    Información
+                  </StickyTableCell>
+                  <StickyTableCell
+                    style={{
+                      fontWeight: theme.typography.fontWeightBold,
+                    }}
+                  >
+                    Documentos
+                  </StickyTableCell>
 
-                                <div className="">
-                                  {" "}
-                                  {r.est_activo ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-                                      <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                                      Activo
-                                    </span>
-                                  ) : (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
-                                      <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-                                      Inactivo
-                                    </span>
-                                  )}
-                                </div>
+                  <StickyTableCell
+                    style={{
+                      fontWeight: theme.typography.fontWeightBold,
+                    }}
+                  >
+              
+                  </StickyTableCell>
+               
+                </TableRow>
+              </TableHead>
 
-                               
-                              </div>
-                            </td>
+              <TableBody>
+                {filtered
+                  .filter((val) => id_transportista == val.id_transportista)
+                  .map((r) => (
+                    <TableRow key={r.id}>
+                      <TableCell style={{ borderBottom: "1px solid #FFFFFF" }}>
+                        <div className=" flex flex-col ">
+                          <div>
+                            {r.nom_patente}
+                          </div>
 
-                            <td className="px-6  text-sm text-gray-600">
-                              {unidadesWialon
-                                .filter((u) => u.id_wialon == r.id_wialon)
-                                .map((r) => (
-                                  <div className="font-bold">
-                                    <p>ID: {r.id_wialon}</p>
-                                    <p>NM: {r.nm}</p>
-                                  </div>
-                                ))}
-                            </td>
+                         
+                          <div className="flex gap-2 font-bold text-blue-700 mx-2">
+                            <p className={`${r.est_ox == 1 ? "block" : "hidden"}`}>OX</p>
+                            <p className={`${r.est_temp == 1 ? "block" : "hidden"}`}>T°</p>
+                          </div>
+                          <div className="">
+                            {" "}
+                            {r.est_activo ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
+                                <span className="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                                Activo
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+                                <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
+                                Inactivo
+                              </span>
+                            )}
+                          </div>
 
-                            <td className="px-6   text-sm text-gray-500">
-                              <p>
-                                {"Transportista: " +r.mae_transportista.nombre +
-                                  " " +
-                                  r.mae_transportista.ape_paterno}
-                              </p>
-                              <p>{"Empresa: " + r.mae_empresas_sistema.nom_empresa}</p>
-                              {r.mae_conductore && (
-                                  <div className="font-semibold text-xs flex items-center text-cyan-700">
-                                    <AssignmentIndTwoToneIcon />
-                                    {r.mae_conductore.nombre +
-                                      " " +
-                                      r.mae_conductore.ape_paterno}
-                                  </div>
-                                )}
-                            </td>
+                        </div>
+                      </TableCell>
 
-                            <td className="px-6   text-sm text-gray-500">
-                              <p>RT: {invertirFecha(r.fec_rev_tecnica)}</p>
-                              <p>SEG: {invertirFecha(r.fec_seguro)}</p>
-                              <p>PC: {invertirFecha(r.fec_per_circulacion)}</p>
-                            </td>
+                      <TableCell style={{ borderBottom: "1px solid #FFFFFF" }}>
+                        {unidadesWialon
+                          .filter((u) => u.id_wialon == r.id_wialon)
+                          .map((r) => (
+                            <div className="font-bold">
+                              <p>ID: {r.id_wialon}</p>
+                              <p>NM: {r.nm}</p>
+                            </div>
+                          ))}
+                      </TableCell>
 
-                            <td>
-                              <button
-                                type="button"
-                                onClick={() => setEdicion(r)}
-                                className="py-1 mx-2"
+                      <TableCell style={{ borderBottom: "1px solid #FFFFFF" }}>
+                        <div>
+                          {"Transportista: " +
+                            r.mae_transportista.nombre +
+                            " " +
+                            r.mae_transportista.ape_paterno}
+                        </div>
+                        <div>
+                          {"Empresa: " + r.mae_empresas_sistema.nom_empresa}
+                        </div>
+                        {r.mae_conductore && (
+                          <div className="font-semibold text-xs flex items-center text-cyan-700">
+                            <AssignmentIndTwoToneIcon />
+                            {r.mae_conductore.nombre +
+                              " " +
+                              r.mae_conductore.ape_paterno}
+                          </div>
+                        )}
+                      </TableCell>
+
+                      <TableCell style={{ borderBottom: "1px solid #FFFFFF" }}>
+                        <p>RT: {invertirFecha(r.fec_rev_tecnica)}</p>
+                        <p>SEG: {invertirFecha(r.fec_seguro)}</p>
+                        <p>PC: {invertirFecha(r.fec_per_circulacion)}</p>
+                      </TableCell>
+                
+
+                      <TableCell style={{ borderBottom: "1px solid #FFFFFF" }}>
+                        <div className="flex">
+                          <Tooltip title="Editar">
+                            <button
+                              type="button"
+                              onClick={() => setEdicion(r)}
+                              className="py-1 mx-2"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-6 h-6 text-blue-400 hover:text-blue-800"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="w-6 h-6 text-blue-400 hover:text-blue-800"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                  />
-                                </svg>
-                              </button>
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                            </button>
+                          </Tooltip>
 
-                              <button
-                                className="py-1 "
-                                onClick={() => {
-                                  setID(edit.id);
-                                  setEdicion(r);
-                                  handleClickOpen();
-                                }}
+                          <Tooltip title="Eliminar">
+                            <button
+                              className="py-1 "
+                              onClick={() => {
+                                setID(edit.id);
+                                setEdicion(r);
+                                handleClickOpen();
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-6 h-6 text-red-500 hover:text-red-800"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="w-6 h-6 text-red-500 hover:text-red-800"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                  />
-                                </svg>
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="bg-gray-300 w-full">
-                    <TablePagination
-                      count={camiones.length}
-                      page={page}
-                      onPageChange={handleChangePage}
-                      rowsPerPage={rowsPerPage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                      labelRowsPerPage="Registros por página:"
-                      className="bg-gray-300 "
-                      labelDisplayedRows={({ from, to, count }) =>
-                        `${from}-${to} de ${count}`
-                      }
-                    />
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="h1 text-center mt-20 font-bold text-blue-900">
-                {" "}
-                {empresaSistema == ""
-                  ? "SELECCIONE EMPRESA"
-                  : "NO HAY DATOS"}{" "}
-              </div>
-            )}
-          </div>
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
       </div>
 

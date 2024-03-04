@@ -16,8 +16,8 @@ import moment from 'moment-timezone';
 ChartJS.register(...registerables);
 
 // Componente de React
-const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
-  const [selectedPatent, setSelectedPatent] = useState(camionSeleccionado.patente);
+const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta, empresaSistema, id_transportista}) => {
+  const [selectedPatent, setSelectedPatent] = useState(camionSeleccionado.patente.replace(/-/g, '').toUpperCase());
   const [desde, setDesde] = useState(format(new Date(), "yyyy-MM-dd"));
   const [hasta, setHasta] = useState(format(new Date(), "yyyy-MM-dd"));
   
@@ -28,7 +28,7 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
     DatosOx()    
     obtenerLog()
     setSelectedPatent(camionSeleccionado.patente)    
-  },[camionSeleccionado, desde, hasta])
+  },[camionSeleccionado, desde, hasta, selectedPatent])
 
   
   const DatosOx = async () => {
@@ -54,6 +54,7 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
     } 
   };
 
+
   const obtenerLog = async () => {
      try { 
        const token = localStorage.getItem("token_emsegur");
@@ -69,8 +70,10 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
            Authorization: `Bearer ${token}`,
          },
        };
-       const { data } = await clienteAxios.get(`/general/obtenerLog/${selectedPatent}/${desde}/${hasta}`, config);  
-      
+       
+       const { data } = await clienteAxios.get(`/general/obtenerLog/${selectedPatent.replace(/-/g, '').toUpperCase()}/${desde}/${hasta}/${empresaSistema}/${id_transportista}`, config);  
+    
+       
        setLog(data);
     
       } catch (error) {
@@ -78,45 +81,63 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
      } 
    };
 
-   
-  const alertsCountByDate = useMemo(() => {
+   const alertsCountByDateAndType = useMemo(() => {
     const counts = {};
   
-    // Asumimos que cada elemento en `log` es una alerta.
+    // Asumimos que cada elemento en `log` es una alerta y tiene un campo `tipo`.
     log.forEach(item => {
-      // Usamos la fecha de registro como clave para contar las alertas.
-      const date = item.fechaRegistro // Ajusta esto según el formato exacto de tu fecha.
-      if (!counts[date]) {
-        counts[date] = 0;
+      // Usamos la fecha de registro y el tipo como clave para contar las alertas.
+      const key = `${item.fecAlerta}-${item.tipo}`; // Ajusta esto según el formato exacto de tu fecha y tipo.
+      if (!counts[key]) {
+        counts[key] = { date: item.fecAlerta, type: item.tipo, count: 0 };
       }
-      counts[date] += 1; // Sumamos 1 por cada alerta.
+      counts[key].count += 1; // Sumamos 1 por cada alerta.
     });
-        
-    // Convertimos el objeto en un array de objetos para usarlo en el gráfico.
-    return Object.entries(counts).map(([date, count]) => ({
-      fechaRegistro: date,
-      numAlertas: count
-    }));
- 
+
+    console.log(Object.values(counts))
+  
+    // Convertimos el objeto en un array de objetos para usarlo en los gráficos, separado por tipo.
+    return Object.values(counts);
   }, [log]);
-
-
-  const alertBarChartData = {
-    labels: alertsCountByDate.map(data => data.fechaRegistro),
+  
+  // Filtramos por tipo de alerta para cada gráfico
+  const alertsForTemperature = alertsCountByDateAndType.filter(alert => alert.type === "Temperatura GPS fuera de límites");
+  const alertsForOxygenation = alertsCountByDateAndType.filter(alert => alert.type === "Oxigenación GPS fuera de límites");
+  
+  // Preparando datos para el gráfico de Temperatura
+  const alertBarChartDataTemp = {
+    labels: alertsForTemperature.map(data => data.date),
     datasets: [
       {
-        label: 'Alertas por día',
-        data: alertsCountByDate.map(data =>  data.numAlertas),
-        backgroundColor: 'rgba(255, 99, 132, 0.5)'
+        label: 'Alertas de Temperatura por día',
+        data: alertsForTemperature.map(data => data.count),
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
     ]
   };
   
+  // Preparando datos para el gráfico de Oxigenación
+  const alertBarChartDataOX = {
+    labels: alertsForOxygenation.map(data => data.date),
+    datasets: [
+      {
+      label: 'Alertas de Oxigenación por día',
+      data: alertsForOxygenation.map(data => data.count),
+      backgroundColor: 'rgba(54, 162, 235, 0.5)',
+      },
+    ]
+  };
+  
+  
+  
+
   const filteredData = datosOX.filter((data) => {
-    if (selectedPatent && data.patente !== selectedPatent) {
+
+    if (selectedPatent.replace(/-/g, '').toUpperCase() && data.patente.replace(/-/g, '').toUpperCase() !== selectedPatent.replace(/-/g, '').toUpperCase()) {
       return false;
     }
-    const date = new Date(data.fec_gps);
+    const date = moment.tz(data.fechaGPS, 'America/Santiago').format('DD-MM-YYYY');
+
     if (desde && date < new Date(desde)) {
       return false;
     }
@@ -126,9 +147,12 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
     return true;
   });
   
+
+
+
   // Configuración del gráfico de líneas
   const lineChartData = {
-    labels: filteredData.map(data => data.fechaRegistro),
+    labels: filteredData.map(data => data.fechaGPS),
     datasets: [
       {
         label: 'OX1',
@@ -142,8 +166,7 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
         data: filteredData.map(data => data.ox2),
         fill: false,
         borderColor: 'black',
-        tension: 0.2,
-        fechaAdd: filteredData.map(data => format(new Date(data.fechaRegistro), 'dd-MM-yyyy HH:mm:ss'))
+        tension: 0.2    
       },
       {
         label: 'OX3',
@@ -201,7 +224,7 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
 
 
   const tempChartData = {
-    labels: filteredData.map(data => data.fechaRegistro),
+    labels: filteredData.map(data => data.fechaGPS),
     datasets: [
       {
         label: 'Temperatura',
@@ -227,12 +250,10 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
     plugins: {
       tooltip: {
         callbacks: {
-          title: function (context) {
-            console.log(context)
+          title: function (context) {          
             // Personaliza el título del tooltip
-            return 'Fecha Registro: ' + moment.tz(context[0].label, 'America/Santiago').format('YYYY-MM-DD HH:mm:ss') ;
-          },
-               
+            return 'Fecha GPS: ' + moment.tz(context[0].label, 'America/Santiago').format('DD-MM-YYYY HH:mm:ss') ;
+          },               
         }
       }
     }
@@ -253,7 +274,6 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
       tooltip: {
         callbacks: {
           title: function (context) {
-            console.log(context)
             // Personaliza el título del tooltip
             return 'Fecha Registro : ' + moment.tz(context[0].label, 'America/Santiago').format('YYYY-MM-DD') ;
           },               
@@ -294,7 +314,7 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
       <div className="">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold mt-2">
-            Oxigenación {camionSeleccionado.patente}
+            Oxigenación / {camionSeleccionado.patente}
           </h2>
 
         <RptOx data={datosOX} nombrePdf={"Oxigenación"} /> 
@@ -303,11 +323,24 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
 
         <Line data={lineChartData} options={options} />
       </div>
+      <div className="mt-4">
+        <div className="flex justify-between">
+          <h2 className="text-lg font-semibold mt-2">
+            Alertas OX / {camionSeleccionado.patente}
+          </h2>
+
+          <RptAlertas data={log} nombrePdf={"Alertas"} tipo ={"Oxigenación GPS fuera de límites"} /> 
+        </div>
+
+        {/*    <Line data={alertBarChartDataTemp} options={optionsAlertas} /> */}
+        <Bar data={alertBarChartDataOX} options={optionsAlertas} />
+      </div>
+
 
       <div className="mt-4">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold mt-2">
-            Temp {camionSeleccionado.patente}
+            Temp / {camionSeleccionado.patente}
           </h2>
 
           <RptTemp data={datosOX} nombrePdf={"Temperatura"} /> 
@@ -321,14 +354,14 @@ const GraficoGral = ({camionSeleccionado, handleClickOpenAlerta}) => {
       <div className="mt-4">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold mt-2">
-            Alertas {camionSeleccionado.patente}
+            Alertas T° / {camionSeleccionado.patente}
           </h2>
 
-          <RptAlertas data={log} nombrePdf={"Alertas"} /> 
+          <RptAlertas data={log} nombrePdf={"Alertas"} tipo ={"Temperatura GPS fuera de límites"} /> 
         </div>
 
-        {/*    <Line data={alertBarChartData} options={optionsAlertas} /> */}
-        <Bar data={alertBarChartData} options={optionsAlertas} />
+        {/*    <Line data={alertBarChartDataTemp} options={optionsAlertas} /> */}
+        <Bar data={alertBarChartDataTemp} options={optionsAlertas} />
       </div>
     </div>
   );

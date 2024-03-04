@@ -26,6 +26,8 @@ import CorreosNotificaciones from "./pages/mantenedores/CorreosNotificaciones"
 import TableroWialon from "./pages/procesos/TableroWialon"
 import TabletoTablet from "./pages/procesos/TabletoTablet"
 import Turnos from "./pages/procesos/Turnos"
+import TableroConductor from "./pages/procesos/TableroConductor"
+import InicioConductor from "./pages/procesos/InicioConductor"
 
 
 function App() {
@@ -42,6 +44,9 @@ function App() {
                 element={<NuevoPassword />}
               />
               <Route path="primer-ingreso/:token" element={<NuevoPassword />} />
+
+              <Route path="alertas" element={<InicioConductor />} />
+
             </Route>
 
             <Route path="/admin" element={<RutaProtegida />}>
@@ -61,9 +66,10 @@ function App() {
               <Route path="tipo-notificacion" element={<TipoNotificacion />} />
               <Route path="correos-notificacion" element={<CorreosNotificaciones />} />
               <Route path="tablero-wialon" element={<TableroWialon />} />
-              <Route path="tablero-wialon" element={<TableroWialon />} />
+        
 
               <Route path="tablero-tablet" element={<TabletoTablet />} />
+              <Route path="tablero-conductor" element={<TableroConductor />} />
               <Route path="turnos" element={<Turnos />} />
             </Route>
           </Routes>

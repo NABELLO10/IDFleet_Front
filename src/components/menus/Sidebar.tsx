@@ -35,7 +35,7 @@ import GpsFixedTwoToneIcon from '@mui/icons-material/GpsFixedTwoTone';
 import EditNotificationsTwoToneIcon from '@mui/icons-material/EditNotificationsTwoTone';
 import BadgeTwoToneIcon from '@mui/icons-material/BadgeTwoTone';
 import AccountBalanceTwoToneIcon from '@mui/icons-material/AccountBalanceTwoTone';
-
+import TuneTwoToneIcon from '@mui/icons-material/TuneTwoTone';
 type Anchor = "left";
 
 const menuGlobal = [
@@ -59,8 +59,9 @@ const menuCamiones = [
 
 const menuNotificaciones = [
 /*   { name: "Cat. Notificacion", href: "/admin/cat-not", icono: <EditNotificationsTwoToneIcon /> }, */
-  { name: "Tipo Notificacion", href: "/admin/tipo-notificacion", icono: <NotificationsActiveTwoToneIcon /> },
-  { name: "Notificaciones", href: "/admin/correos-notificacion", icono: <ContactMailTwoToneIcon /> },
+  { name: "Ajustes", href: "/admin/tipo-notificacion", icono: <TuneTwoToneIcon /> },
+  { name: "Conductor", href: "/admin/tablero-conductor", icono: <TuneTwoToneIcon /> },
+/*   { name: "Notificaciones", href: "/admin/correos-notificacion", icono: <ContactMailTwoToneIcon /> }, */
 ];
 
 
@@ -234,7 +235,7 @@ export default function Sidebar() {
           id="notificaciones-header"
           onClick={(e) => e.stopPropagation()} // Avoid closing Sidebar when clicking the Accordion
         >
-          <Typography> Notificaciones</Typography>
+          <Typography>Sensores</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <List>
