@@ -21,7 +21,7 @@ import MuiAccordionSummary, {
 } from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
-
+import useAuth from "../../hooks/useAuth.jsx"
 
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import TuneIcon from '@mui/icons-material/Tune';
@@ -39,6 +39,7 @@ import TuneTwoToneIcon from '@mui/icons-material/TuneTwoTone';
 type Anchor = "left";
 
 const menuGlobal = [
+  
   { name: "Wialon Token", href: "/admin/wialon", icono: <GpsFixedTwoToneIcon /> },
   { name: "Empresas Gral.", href: "/admin/empresaGlobal", icono: <AccountBalanceTwoToneIcon /> },
 /*   { name: "Turnos", href: "/admin/turnos", icono: <GpsFixedTwoToneIcon /> }, */
@@ -60,7 +61,7 @@ const menuCamiones = [
 const menuNotificaciones = [
 /*   { name: "Cat. Notificacion", href: "/admin/cat-not", icono: <EditNotificationsTwoToneIcon /> }, */
   { name: "Ajustes", href: "/admin/tipo-notificacion", icono: <TuneTwoToneIcon /> },
-  { name: "Conductor", href: "/admin/tablero-conductor", icono: <TuneTwoToneIcon /> },
+/*   { name: "Conductor", href: "/admin/tablero-conductor", icono: <TuneTwoToneIcon /> }, */
 /*   { name: "Notificaciones", href: "/admin/correos-notificacion", icono: <ContactMailTwoToneIcon /> }, */
 ];
 
@@ -106,6 +107,8 @@ export default function Sidebar() {
     left: false,
   });
 
+  const { auth } = useAuth();
+
   const [expanded, setExpanded] = React.useState<string | false>("");
 
   const handleChange =
@@ -149,7 +152,7 @@ export default function Sidebar() {
       onClick={toggleDrawer(anchor, true)}
       onKeyDown={toggleDrawer(anchor, false)}
     >
-      {menuGlobal.map((item) => (
+     {/*  {menuGlobal.map((item) => (
         <Link
           key={item.name}
           to={item.href}
@@ -162,7 +165,7 @@ export default function Sidebar() {
             </ListItemButton>
           </ListItem>
         </Link>
-      ))}
+      ))} */}
 
       <Accordion
         expanded={expanded === "config"}
@@ -260,6 +263,8 @@ export default function Sidebar() {
       <Divider />
     </Box>
   );
+
+  
 
   return (
     <div>

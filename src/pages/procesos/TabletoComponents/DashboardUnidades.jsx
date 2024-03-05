@@ -44,7 +44,6 @@ const DashboardUnidades = ({setInfo,  handleClickOpenAlerta, handleClickOpen,emp
           <div className="w-full gap-4 mb-2 ">
             <div className="bg-white lg:p-4 mt-2  rounded-lg shadow-lg border border-gray-300">
               <GraficoGral
-                handleClickOpenAlerta={handleClickOpenAlerta}
                 camionSeleccionado={camionSeleccionado}
                 empresaSistema = {empresaSistema}
                 id_transportista ={id_transportista}

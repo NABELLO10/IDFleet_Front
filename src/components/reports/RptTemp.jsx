@@ -6,14 +6,27 @@ import Tooltip from '@mui/material/Tooltip';
 import moment from 'moment-timezone';
 import DownloadTwoToneIcon from '@mui/icons-material/DownloadTwoTone';
 
-const RptTemp = ({ data, nombrePdf }) => {
+const RptTemp = ({ data, nombrePdf, tipo }) => {
+  let filteredData = []
 
-  const filteredData = data.map(item => ({
-    'Patente': item.patente,
-    'Fecha del GPS': item.fechaGPS,
-    'Fecha Registro': moment.tz(item.fechaRegistro, 'America/Santiago').format('YYYY-MM-DD HH:mm:ss'),
-    'Temp': item.temp,
-  }));
+  if(tipo == "Tablet"){
+    filteredData = data.map(item => ({
+      'Patente': item.PATENTE,
+      'Fecha del GPS': item.fec_add,
+      'Fecha Registro': item.DATE + " " + item.TIME,
+      'Temp': item.TEMP,
+    }));
+  }
+
+  if(tipo == "GPS"){
+    filteredData = data.map(item => ({
+      'Patente': item.patente,
+      'Fecha del GPS': item.fechaGPS,
+      'Fecha Registro': moment.tz(item.fechaRegistro, 'America/Santiago').format('YYYY-MM-DD HH:mm:ss'),
+      'Temp': item.temp,
+    }));
+  }
+  
 
   const handleDownloadExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredData);

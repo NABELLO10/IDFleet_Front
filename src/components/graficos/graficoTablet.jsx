@@ -16,8 +16,8 @@ import moment from 'moment-timezone';
 ChartJS.register(...registerables);
 
 // Componente de React
-const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => {
-  const [selectedPatent, setSelectedPatent] = useState(camionSeleccionado.patente.replace(/-/g, '').toUpperCase());
+const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) => {
+
   const [desde, setDesde] = useState(format(new Date(), "yyyy-MM-dd"));
   const [hasta, setHasta] = useState(format(new Date(), "yyyy-MM-dd"));
   
@@ -27,8 +27,7 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
   useEffect(() => {
     DatosOx()    
     obtenerLog()
-    setSelectedPatent(camionSeleccionado.patente)    
-  },[camionSeleccionado, desde, hasta, selectedPatent])
+  },[camionSeleccionado, desde, hasta])
 
   
   const DatosOx = async () => {
@@ -46,7 +45,8 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
           Authorization: `Bearer ${token}`,
         },
       };
-      const { data } = await clienteAxios.get(`/general/datos-ox-fechas/${camionSeleccionado.patente}/${desde}/${hasta}`, config);
+      const { data } = await clienteAxios.get(`/general/datos-tablet-fechas/${camionSeleccionado.PATENTE.replace(/-/g, '').toUpperCase()}/${desde}/${hasta}`, config);
+
       setDatosOx(data);
    
     } catch (error) {
@@ -71,9 +71,8 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
          },
        };
        
-       const { data } = await clienteAxios.get(`/general/obtenerLog/${selectedPatent.replace(/-/g, '').toUpperCase()}/${desde}/${hasta}/${empresaSistema}/${id_transportista}`, config);  
+       const { data } = await clienteAxios.get(`/general/obtenerLogTablet/${camionSeleccionado.PATENTE.replace(/-/g, '').toUpperCase()}/${desde}/${hasta}`, config);  
     
-       
        setLog(data);
     
       } catch (error) {
@@ -98,10 +97,12 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
     // Convertimos el objeto en un array de objetos para usarlo en los gráficos, separado por tipo.
     return Object.values(counts);
   }, [log]);
+
+  console.log(alertsCountByDateAndType)
   
   // Filtramos por tipo de alerta para cada gráfico
-  const alertsForTemperature = alertsCountByDateAndType.filter(alert => alert.type === "Temperatura GPS fuera de límites");
-  const alertsForOxygenation = alertsCountByDateAndType.filter(alert => alert.type === "Oxigenación GPS fuera de límites");
+  const alertsForTemperature = alertsCountByDateAndType.filter(alert => alert.type === "Temperatura TABLET fuera de límites");
+  const alertsForOxygenation = alertsCountByDateAndType.filter(alert => alert.type === "Oxigenación TABLET fuera de límites");
   
   // Preparando datos para el gráfico de Temperatura
   const alertBarChartDataTemp = {
@@ -127,15 +128,13 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
     ]
   };
   
-  
-  
+    
 
   const filteredData = datosOX.filter((data) => {
-
-    if (selectedPatent.replace(/-/g, '').toUpperCase() && data.patente.replace(/-/g, '').toUpperCase() !== selectedPatent.replace(/-/g, '').toUpperCase()) {
+    if (camionSeleccionado.PATENTE.replace(/-/g, '').toUpperCase() && data.PATENTE.replace(/-/g, '').toUpperCase() !== camionSeleccionado.PATENTE.replace(/-/g, '').toUpperCase()) {
       return false;
     }
-    const date = moment.tz(data.fechaGPS, 'America/Santiago').format('DD-MM-YYYY');
+    const date = moment.tz(data.DATE, 'America/Santiago').format('YYYY--MM-DD');
 
     if (desde && date < new Date(desde)) {
       return false;
@@ -144,76 +143,80 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
       return false;
     }
     return true;
-  });
-  
-
-
+  });  
 
   // Configuración del gráfico de líneas
   const lineChartData = {
-    labels: filteredData.map(data => data.fechaGPS),
+    labels: filteredData.map(data => data.DATE),
     datasets: [
       {
         label: 'OX1',
-        data: filteredData.map(data => data.ox1),
+        data: filteredData.map(data => data.O1),
         fill: false,
         borderColor: 'gray',
         tension: 0.2,    
       },
       {
         label: 'OX2',
-        data: filteredData.map(data => data.ox2),
+        data: filteredData.map(data => data.O2),
         fill: false,
         borderColor: 'black',
         tension: 0.2    
       },
       {
         label: 'OX3',
-        data: filteredData.map(data => data.ox3),
+        data: filteredData.map(data => data.O3),
         fill: false,
         borderColor: 'MediumVioletRed',
         tension: 0.2
       },
       {
         label: 'OX4',
-        data: filteredData.map(data => data.ox4),
+        data: filteredData.map(data => data.O4),
         fill: false,
         borderColor: 'green',
         tension: 0.2
       },
       {
         label: 'OX5',
-        data: filteredData.map(data => data.ox5),
+        data: filteredData.map(data => data.O5),
         fill: false,
         borderColor: 'DarkBlue',
         tension: 0.5
       },
       {
         label: 'OX6',
-        data: filteredData.map(data => data.ox6),
+        data: filteredData.map(data => data.O6),
         fill: false,
         borderColor: 'Olive',
         tension: 0.2
       },
       {
         label: 'OX7',
-        data: filteredData.map(data => data.ox7),
+        data: filteredData.map(data => data.O7),
         fill: false,
         borderColor: 'DarkRed',
         tension: 0.2
       },
       {
         label: 'OX8',
-        data: filteredData.map(data => data.ox8),
+        data: filteredData.map(data => data.O8),
         fill: false,
         borderColor: 'Darkorange',
         tension: 0.2
       },
       {
         label: 'OX9',
-        data: filteredData.map(data => data.ox9),
+        data: filteredData.map(data => data.O9),
         fill: false,
         borderColor: 'Indigo',
+        tension: 0.2
+      },
+      {
+        label: 'OX10',
+        data: filteredData.map(data => data.O10),
+        fill: false,
+        borderColor: 'DarkYellow',
         tension: 0.2
       },
      
@@ -223,11 +226,11 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
 
 
   const tempChartData = {
-    labels: filteredData.map(data => data.fechaGPS),
+    labels: filteredData.map(data => data.DATE),
     datasets: [
       {
         label: 'Temperatura',
-        data: filteredData.map(data => data.temp),
+        data: filteredData.map(data => data.TEMP),
         fill: false,
         borderColor: 'DodgerBlue',
         tension: 0.2
@@ -313,10 +316,10 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
       <div className="">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold mt-2">
-            Oxigenación / {camionSeleccionado.patente}
+            Oxigenación / {camionSeleccionado.PATENTE}
           </h2>
 
-        <RptOx data={datosOX} tipo={"GPS"} nombrePdf={"Oxigenación"} /> 
+        <RptOx tipo={"Tablet"}  data={datosOX} nombrePdf={"Oxigenación"} /> 
 
         </div>
 
@@ -325,10 +328,10 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
       <div className="mt-4">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold mt-2">
-            Alertas OX / {camionSeleccionado.patente}
+            Alertas OX / {camionSeleccionado.PATENTE}
           </h2>
 
-          <RptAlertas data={log} nombrePdf={"Alertas"} tipo ={"Oxigenación GPS fuera de límites"} /> 
+          <RptAlertas data={log} nombrePdf={"Alertas"} tipo ={"Oxigenación tablet fuera de límites"} /> 
         </div>
 
         {/*    <Line data={alertBarChartDataTemp} options={optionsAlertas} /> */}
@@ -336,34 +339,29 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
       </div>
 
 
-      <div className="mt-4">
+       <div className="mt-4">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold mt-2">
-            Temp / {camionSeleccionado.patente}
+            Temp / {camionSeleccionado.PATENTE}
           </h2>
-
-          <RptTemp tipo={"GPS"} data={datosOX} nombrePdf={"Temperatura"} /> 
-
-          
+          <RptTemp data={datosOX} tipo={"Tablet"} nombrePdf={"Temperatura"} />           
         </div>
-        {/* Gráfico de líneas para Temperatura */}
+   
         <Line data={tempChartData} options={options} />
       </div>
 
-      <div className="mt-4">
+    {/*   <div className="mt-4">
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold mt-2">
-            Alertas T° / {camionSeleccionado.patente}
+            Alertas T° / {camionSeleccionado.PATENTE}
           </h2>
 
           <RptAlertas data={log} nombrePdf={"Alertas"} tipo ={"Temperatura GPS fuera de límites"} /> 
-        </div>
-
-        {/*    <Line data={alertBarChartDataTemp} options={optionsAlertas} /> */}
+        </div>       
         <Bar data={alertBarChartDataTemp} options={optionsAlertas} />
-      </div>
+      </div>  */}
     </div>
   );
 };
 
-export default GraficoGral;
+export default GraficoTablet;

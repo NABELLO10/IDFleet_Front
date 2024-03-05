@@ -52,7 +52,6 @@ const TableroTablet = () => {
   }, [empresaSistema, id_empresa]);
 
 
-
   const obtenerEmpresasGlobal = async () => {
     const token = localStorage.getItem("token_emsegur");
 
@@ -68,6 +67,7 @@ const TableroTablet = () => {
     const { data } = await clienteAxios("/crud/obtener-empresas", config);
     setEmpresasGlobales(data);
   };
+
 
   const obtenerTransportistas = async () => {
     const token = localStorage.getItem("token_emsegur");
@@ -88,6 +88,7 @@ const TableroTablet = () => {
     setTransportistas(data);
   };
 
+
   const obtenerEmpresasSistema = async () => {
     const token = localStorage.getItem("token_emsegur");
 
@@ -106,6 +107,7 @@ const TableroTablet = () => {
     );
     setEmpresasSistema(data);
   };
+
 
   useEffect(() => {
     if (empresaSistema > 0 && id_transportista > 0) {
@@ -144,7 +146,6 @@ const TableroTablet = () => {
   };
 
 
-
   const obtenerDatosTablet = async () => {
     setIsLoading2(true);
     try {
@@ -179,9 +180,9 @@ const TableroTablet = () => {
 
   return (
     <>
-        <div className="lg:flex items-center gap-2 mb-2">
+      <div className="lg:flex items-center gap-2 mb-2">
         <div className=" lg:w-2/12 flex gap-2">
-        <PhonelinkRingTwoToneIcon/>
+          <PhonelinkRingTwoToneIcon />
           <h2 className="font-black  text-cyan-900 lg:text-lg ">
             Tablero <span className="font-black text-cyan-500">TABLET</span>
           </h2>
@@ -273,11 +274,19 @@ const TableroTablet = () => {
         </div>
       </div>
       {id_transportista ? (
-        <Home ventana={"Tablet"} verFormulario={verFormulario} id_transportista ={id_transportista} camiones={oxs.filter((camionSistema) =>
-          camionesSistema.some((dataItem) => 
-            dataItem.nom_patente.replace(/[\-\.]/g, '') === camionSistema.PATENTE.replace(/[\-\.]/g, '')
-          )
-        )}  />
+        <Home
+          ventana={"Tablet"}
+          verFormulario={verFormulario}
+          empresaSistema={empresaSistema}
+          id_transportista={id_transportista}
+          camiones={oxs.filter((camionSistema) =>
+            camionesSistema.some(
+              (dataItem) =>
+                dataItem.nom_patente.replace(/[\-\.]/g, "") ===
+                camionSistema.PATENTE.replace(/[\-\.]/g, "")
+            )
+          )}
+        />
       ) : (
         <span className="flex mt-20 text-cyan-900 font-bold text-2xl justify-center">
           Seleccione Transportista
