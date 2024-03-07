@@ -79,7 +79,7 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
           className=" p-2 border border-gray-400 shadow "
           placeholder=" Buscar unidad..."
         />
-        <Tooltip
+       {/*  <Tooltip
           title={`${alerta ? "TODOS LOS REGISTROS" : "REGISTROS CON ALERTAS"}`}
         >
           <button
@@ -92,7 +92,7 @@ const ListaCamiones = ({open,handleClose, info, setInfo, openAlerta, handleClose
           >
             <NotificationsActiveTwoToneIcon />
           </button>
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip title={`${orden ? "A-Z" : "Z-A"}`}>
           <button

@@ -33,6 +33,7 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
   const DatosOx = async () => {
      try {
       const token = localStorage.getItem("token_emsegur");
+      
 
       if (!token) {
         msgError("Token no valido");
@@ -45,7 +46,7 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
           Authorization: `Bearer ${token}`,
         },
       };
-      const { data } = await clienteAxios.get(`/general/datos-tablet-fechas/${camionSeleccionado.PATENTE.replace(/-/g, '').toUpperCase()}/${desde}/${hasta}`, config);
+      const { data } = await clienteAxios.get(`/general/datos-tablet-fechas/${camionSeleccionado.PATENTE}/${desde}/${hasta}`, config);
 
       setDatosOx(data);
    
@@ -98,7 +99,6 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
     return Object.values(counts);
   }, [log]);
 
-  console.log(alertsCountByDateAndType)
   
   // Filtramos por tipo de alerta para cada gráfico
   const alertsForTemperature = alertsCountByDateAndType.filter(alert => alert.type === "Temperatura TABLET fuera de límites");
@@ -131,7 +131,7 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
     
 
   const filteredData = datosOX.filter((data) => {
-    if (camionSeleccionado.PATENTE.replace(/-/g, '').toUpperCase() && data.PATENTE.replace(/-/g, '').toUpperCase() !== camionSeleccionado.PATENTE.replace(/-/g, '').toUpperCase()) {
+    if (camionSeleccionado.PATENTE && data.PATENTE !== camionSeleccionado.PATENTE) {
       return false;
     }
     const date = moment.tz(data.DATE, 'America/Santiago').format('YYYY--MM-DD');
@@ -331,7 +331,7 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
             Alertas OX / {camionSeleccionado.PATENTE}
           </h2>
 
-          <RptAlertas data={log} nombrePdf={"Alertas"} tipo ={"Oxigenación tablet fuera de límites"} /> 
+          <RptAlertas data={log} nombrePdf={"Alertas"}  tipo ={"Oxigenación TABLET fuera de límites"} /> 
         </div>
 
         {/*    <Line data={alertBarChartDataTemp} options={optionsAlertas} /> */}

@@ -20,10 +20,10 @@ const InicioConductor = () => {
 
   const handleIniciarClick = () => {
 
-
+/* 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        (position) => { */
           if (patente &&  rut) {
             if (!validateRut(rut)) {
                 alert("RUT Invalido");
@@ -34,15 +34,16 @@ const InicioConductor = () => {
         } else {
             alert('Por favor, complete todos los campos.');
         }     
-        },
+        /* },
         (error) => {
           alert("Activa el GPS de tu dispositivo");
         }
       );
     } else {
       alert("Geolocalización no soportada por este navegador.");
-    } 
+    }  */
   };
+  
 
   const handleCerrarClick = () => {
     iniciarConductor(0)
@@ -64,9 +65,6 @@ const InicioConductor = () => {
     }  
   };
 
-
-
-
   
   return (
     <>
@@ -84,21 +82,23 @@ const InicioConductor = () => {
                 value={rut}
                 onChange={(e) => setRut(formatearRut(e.target.value))}
                 inputProps={{
-                    maxLength: 10
-                  }}  
+                  maxLength: 10,
+                }}
               />
-             
+
               <TextField
                 label="Patente"
                 fullWidth
                 style={{ marginBottom: 8 }}
                 value={patente}
-                onChange={(e) => setPatente(e.target.value.replace(/-/g, '').toUpperCase())}        
+                onChange={(e) =>
+                  setPatente(e.target.value.replace(/-/g, "").toUpperCase())
+                }
                 inputProps={{
-                    maxLength: 6
-                  }}        
+                  maxLength: 6,
+                }}
               />
-           
+
               <Button
                 variant="contained"
                 color="primary"
@@ -116,14 +116,17 @@ const InicioConductor = () => {
           <div className="justify-center">
             <div>
               {" "}
-              <button onClick={handleCerrarClick} className="bg-gray-800 w-full text-white text-xl hover:bg-gray-500 p-2">
+              <button
+                onClick={handleCerrarClick}
+                className="bg-gray-800 w-full text-white text-xl hover:bg-gray-500 p-2"
+              >
                 Cerrar Sesión
               </button>
             </div>
             <div>
               <TableroConductor patente={patente} rut={rut} />
             </div>
-          </div>      
+          </div>
         </Box>
       )}
     </>

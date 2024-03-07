@@ -65,49 +65,52 @@ const LogsList = ({ logs, onMarkAsSeen, actualizar, actualizarTodos }) => {
 
   return (
     <>
-        {logs.length > 0 ?   <div className="lg:w-6/12 mt-2 mx-5 lg:mx-auto">
+      {logs.length > 0 ? (
+        <div className="lg:w-6/12 mt-2 mx-5 lg:mx-auto">
+          <div className="flex justify-between ">
+            <button
+              onClick={scrollToTop}
+              className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-700"
+            >
+              <KeyboardDoubleArrowUpTwoToneIcon />
+            </button>
+            <div className="text-center text-xl items-center flex font-semibold ">
+              Pendientes: {logs.filter((log) => log.est_revisado !== 1).length}
+            </div>
+            <button
+              onClick={scrollToBottom}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              <KeyboardDoubleArrowDownTwoToneIcon />
+            </button>
+          </div>
 
-<div className="flex justify-between ">
-  <button
-    onClick={scrollToTop}
-    className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-700"
-  >
-    <KeyboardDoubleArrowUpTwoToneIcon />
-  </button>
-  <div className="text-center text-xl items-center flex font-semibold ">
-  Pendientes: {logs.filter((log) => log.est_revisado !== 1).length}
-</div>
-  <button
-    onClick={scrollToBottom}
-    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-  >
-    <KeyboardDoubleArrowDownTwoToneIcon />
-  </button>
-</div>
+          <div ref={scrollContainerRef} className="h-96 mt-2 overflow-auto">
+            {logs.map((log) => (
+              <LogEntry
+                key={log.id}
+                log={log}
+                onMarkAsSeen={onMarkAsSeen}
+                actualizar={actualizar}
+              />
+            ))}
+          </div>
 
-<div ref={scrollContainerRef} className="h-96 mt-2 overflow-auto">
-  {logs.map((log) => (
-    <LogEntry
-      key={log.id}
-      log={log}
-      onMarkAsSeen={onMarkAsSeen}
-      actualizar={actualizar}
-    />
-  ))}
-</div>
-
-<div>
-<button
-    onClick={() => actualizarTodos()}
-    className="px-4 w-full mt-5 py-2 bg-green-800 text-white rounded hover:bg-green-700"
-  >
-    Marcar Todos como Revisados
-  </button>
-</div>
-
-</div> : <div className='text-center font-bold mt-32 text-xl'>Sin <span className='text-red-900'>Registros</span></div> }
+          <div>
+            <button
+              onClick={() => actualizarTodos()}
+              className="px-4 w-full mt-5 py-2 bg-green-800 text-white rounded hover:bg-green-700"
+            >
+              Marcar Todos como Revisados
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center font-bold mt-32 text-xl">
+          Sin <span className="text-red-900">Registros</span>
+        </div>
+      )}
     </>
-  
   );
 };
 
@@ -116,9 +119,7 @@ const TableroConductor = ({patente, rut }) => {
   const [logs, setLog] = useState([])
 
  
- 
-    useEffect(() => {
-      
+    useEffect(() => {      
     const enviarGPS = async (lat, lon) => {
       await clienteAxios.post(`/general/enviarGPS`, {
         patente,

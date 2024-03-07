@@ -8,6 +8,7 @@ import moment from 'moment-timezone';
 
 const RptAlertas = ({ data, nombrePdf, tipo }) => {  
   
+  
     const filteredData = data.filter(r => r.tipo == tipo).map(item => {
       // Parseamos la cadena JSON para convertirla en un objeto JavaScript
       const detalleObj = JSON.parse(item.detalle);
@@ -25,6 +26,8 @@ const RptAlertas = ({ data, nombrePdf, tipo }) => {
         'Detalle': detalleComoString, // Cadena con claves y valores
       };
     });
+
+
   
     const handleDownloadExcel = () => {
       const ws = XLSX.utils.json_to_sheet(filteredData);

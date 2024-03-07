@@ -36,7 +36,7 @@ const TableroTablet = () => {
    useEffect(() => {
     const interval = setInterval(() => {
       obtenerDatosTablet();
-    }, 10000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
