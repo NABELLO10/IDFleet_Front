@@ -8,6 +8,8 @@ import UpdateTwoToneIcon from '@mui/icons-material/UpdateTwoTone';
 import HistoryTwoToneIcon from '@mui/icons-material/HistoryTwoTone';
 
 import Tooltip from "@mui/material/Tooltip";
+
+
 const ListadoUnidades = ({open,handleClose, info, setInfo, openAlerta, handleCloseAlerta, camiones, onCamionClick, id_transportista, notActiva, notTemp}) => {
  
   const [busqueda, setBusqueda] = useState("");
@@ -18,6 +20,7 @@ const ListadoUnidades = ({open,handleClose, info, setInfo, openAlerta, handleClo
   const [camionesOrdenados, setCamionesOrdenados] = useState([]);
 
   const [tipoOrdenamiento, setTipoOrdenamiento] = useState(null);
+
 
 function esMenorA20Minutos(fechaStr) {
   const fecha = new Date(fechaStr);
@@ -44,6 +47,42 @@ function esFechaValida(valor) {
 }
 
 const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 1024); // 1024px es el breakpoint 'lg' por defecto en Tailwind
+
+
+
+function parseAndFormatDate(input) {
+  if (input === null || input.trim() === '') {
+    return null; // Si la entrada es null o una cadena vacía, devolver null
+  }
+
+  // Diccionario para convertir los nombres de los meses a números
+  const monthNames = {
+    Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06',
+    Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'
+  };
+
+  let parts, year, month, day, hour, minute;
+
+  if (input.includes('/')) { // Formato "DD-MMM-YY / HH:MM"
+    parts = input.split(/[-/ :]/);
+    year = `20${parts[2]}`; // Asumir que el año está en formato de dos dígitos y agregar '20' al inicio
+    month = monthNames[parts[1]]; // Convertir el nombre del mes a su número correspondiente
+    day = parts[0].length === 1 ? `0${parts[0]}` : parts[0]; // Asegurar que el día tenga dos dígitos
+    [hour, minute] = parts[3].split(':');
+  } else { // Formato "YYYY-MM-DD HH:MM"
+    parts = input.split(/[- :]/);
+    [year, month, day] = parts;
+    hour = parts[3];
+    minute = parts[4];
+  }
+
+  // Asegurar que la hora y minuto tengan dos dígitos
+  hour = hour.length === 1 ? `0${hour}` : hour;
+  minute = minute.length === 1 ? `0${minute}` : minute;
+
+  // Concatenar la fecha en el formato deseado
+  return `${year}-${month}-${day} ${hour}:${minute}:00`;
+}
 
 useEffect(() => {
   setInfo({})
@@ -169,7 +208,7 @@ useEffect(() => {
                   info.patente === item.patente ? "bg-gray-300" : "bg-white" // Si `info.patente` es igual a `item.patente`, se aplica la clase de color de fondo azul, de lo contrario, blanco
                 } shadow-md border border-gray-300 rounded p-2  hover:bg-gray-100 mb-2 cursor-pointer`}
               >
-                <div className="flex items-center justify-between">
+                <div className="lg:flex  lg:justify-between  justify-center">
                   <span className="text-md font-bold text-black">
                     {item.patente}
                   </span>
@@ -178,12 +217,18 @@ useEffect(() => {
                       esMenorA20Minutos(item.fechaGPS)
                         ? "text-red-500"
                         : "text-green-600"
-                    }`}
+                    } font-semibold`}
                   >
-                    {" "}
-                    {esFechaValida(item.fechaGPS)
+                    {"  GPS: "}
+                     {esFechaValida(item.fechaGPS)
                       ? formatearFecha(item.fechaGPS)
-                      : item.fechaGPS}
+                      : item.fechaGPS}                     
+                  </span>
+                  <span
+                    className={" text-gray-500 font font-semibold "}
+                  >
+                 {" Estanque: "}
+                      {item.fecha}
                   </span>
                 </div>
 
@@ -316,6 +361,20 @@ useEffect(() => {
                       } `}
                     >
                       {item.ox9}
+                    </span>
+                    <span className="text-sm font-bold text-gray-500">
+                      E10:{" "}
+                    </span>{" "}
+                    <span
+                      className={`${
+                        (notActiva &&
+                          parseInt(item.ox10) > parseInt(notActiva.val_max)) ||
+                        parseInt(item.ox10) < parseInt(notActiva.val_min)
+                          ? "text-red-400 text-md animate-bounce font-bold"
+                          : "text-gray-500 text-sm"
+                      } `}
+                    >
+                      {item.ox10}
                     </span>
                     <span className="text-sm font-bold text-gray-500">
                       {" "}

@@ -5,7 +5,7 @@ import { msgError, msgInfo, msgOk, msgWarning } from "../../components/Alertas";
 import KeyboardDoubleArrowDownTwoToneIcon from '@mui/icons-material/KeyboardDoubleArrowDownTwoTone';
 import KeyboardDoubleArrowUpTwoToneIcon from '@mui/icons-material/KeyboardDoubleArrowUpTwoTone';
 
-const LogEntry = ({ log, onMarkAsSeen, actualizar }) => {
+const LogEntry = ({ log}) => {
 
   const formatDetails = (detalle) => {
     // Reemplazar las barras invertidas y luego ordenar
@@ -21,7 +21,6 @@ const LogEntry = ({ log, onMarkAsSeen, actualizar }) => {
       return cleanDetail; // Retorna el detalle sin barras invertidas si hay un error en el parseo
     }
   };
-
 
   return (
     <div className="flex flex-col md:flex-row justify-between items-center bg-white border border-gray-300 shadow-xl rounded-lg p-2 mb-2" >
@@ -115,11 +114,9 @@ const LogsList = ({ logs, onMarkAsSeen, actualizar, actualizarTodos }) => {
 };
 
 //tablero conductor
-const TableroConductor = ({patente, rut }) => {
-  const [logs, setLog] = useState([])
-
- 
-    useEffect(() => {      
+const TableroConductor = ({patente, rut, setShowInicio }) => {
+  const [logs, setLog] = useState([]) 
+   /*  useEffect(() => {      
     const enviarGPS = async (lat, lon) => {
       await clienteAxios.post(`/general/enviarGPS`, {
         patente,
@@ -127,10 +124,8 @@ const TableroConductor = ({patente, rut }) => {
         lat,
         lon,
       });
-    };
-
-    
-    const intervalId = setInterval(() => {
+    }; */
+ /*    const intervalId = setInterval(() => {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -147,40 +142,43 @@ const TableroConductor = ({patente, rut }) => {
   
       // Función para limpiar el intervalo al desmontar el componente
       return () => clearInterval(intervalId);
-    }, []); 
+    }, []);  */
 
+    useEffect(() => {
+      const intervalId = setInterval(async () => { 
+        try {
+          const estado = await obtenerEstado();
+         
+          if (estado == null) {
+            setShowInicio(true)
+          } 
 
+        } catch (error) {
+          console.error(error);
+        }
+      }, 60000);     
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      obtenerEstado();
-      // Aquí podrías llamar a cualquier otra función que necesites ejecutar cada minuto
-    }, 300000); // 60000 milisegundos = 1 minuto
-  
-    // Asegúrate de limpiar el intervalo cuando el componente se desmonte
-    return () => clearInterval(intervalId);
-  }, []);
-  
-  const obtenerEstado = async () => {
-    try {
+      return () => {
+        clearInterval(intervalId);
+      };
+    }, []);
     
-      const { data } = await clienteAxios(
-        `/general/obtenerConductorActivo/${patente}/${rut}`);
-      
-        alert(data)
-        return data
 
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    const obtenerEstado = async () => {
+      try {
+        const response = await clienteAxios.get(`/general/obtenerConductorActivo/${patente}/${rut}`);
+        return response.data;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    };
+
 
   const actualizar = async (id) => {
-    try {
-      // Se elimina la parte donde se obtiene y configura el token
+    try {   
       const {data} = await clienteAxios.put(`/general/revisarLog/${id}`);
-      
-      // Actualiza el estado local de logs
+    
       setLog(logs.map(log => log.id === id ? { ...log, est_revisado: 1 } : log));
       msgOk(data.msg);    
 
@@ -190,15 +188,12 @@ const TableroConductor = ({patente, rut }) => {
 };
 
 const actualizarTodos = async (id) => {
-  try {
-    // Se elimina la parte donde se obtiene y configura el token
+  try {   
     const {data} = await clienteAxios.put(
       `/general/revisarTodos/${patente}`);
 
-    // Actualiza el estado local para reflejar los cambios
     setLog(logs.map(log => ({ ...log, est_revisado: 1 })));
     msgOk(data.msg); 
-
  } catch (error) {
     msgError(error.response.data.msg);
   } 
@@ -208,13 +203,11 @@ useEffect(() => {
     const obtenerLog = async () => {
       try {
         const { data } = await clienteAxios.get(
-          `/general/obtenerLogConductor2/${patente}`);
-
-       console.log(data)
+          `/general/obtenerLogConductor2/${patente}`);    
         setLog(data);
       } catch (error) {
         // msgError debe ser una función que maneje los errores de la petición
-        alert(error.response ? error.response.data.msg : "Error al obtener los logs");
+        console.log(error.response ? error.response.data.msg : "Error al obtener los logs");
       }
     };
 

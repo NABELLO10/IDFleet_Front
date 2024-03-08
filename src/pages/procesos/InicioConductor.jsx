@@ -17,24 +17,30 @@ const InicioConductor = () => {
     setPatente("")
   },[])
 
+  useEffect(()=> {
+    if(showInicio){
+      setPatente("")
+    }  
+  },[showInicio])
+
+
 
   const handleIniciarClick = () => {
-
-/* 
+    /* 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => { */
-          if (patente &&  rut) {
-            if (!validateRut(rut)) {
-                alert("RUT Invalido");
-                return;
-              }
-              iniciarConductor(1)
-          setShowInicio(false);
-        } else {
-            alert('Por favor, complete todos los campos.');
-        }     
-        /* },
+    if (patente && rut) {
+      if (!validateRut(rut)) {
+        alert("RUT Invalido");
+        return;
+      }
+      iniciarConductor(1);
+      setShowInicio(false);
+    } else {
+      alert("Por favor, complete todos los campos.");
+    }
+    /* },
         (error) => {
           alert("Activa el GPS de tu dispositivo");
         }
@@ -43,6 +49,8 @@ const InicioConductor = () => {
       alert("Geolocalización no soportada por este navegador.");
     }  */
   };
+
+
   
 
   const handleCerrarClick = () => {
@@ -52,8 +60,7 @@ const InicioConductor = () => {
   };
   
   const iniciarConductor = async (est_activo) => {
-     try { 
-      // Se elimina la parte donde se obtiene y configura el token
+     try {    
       await clienteAxios.post('/general/inicioConductor', {
         patente,
         rut, 
@@ -124,7 +131,7 @@ const InicioConductor = () => {
               </button>
             </div>
             <div>
-              <TableroConductor patente={patente} rut={rut} />
+              <TableroConductor patente={patente} rut={rut} setShowInicio={setShowInicio} />
             </div>
           </div>
         </Box>

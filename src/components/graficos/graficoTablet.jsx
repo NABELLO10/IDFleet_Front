@@ -315,7 +315,7 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
 
       <div className="">
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold mt-2">
+          <h2 className="text-lg mx-2  font-semibold mt-2">
             Oxigenación / {camionSeleccionado.PATENTE}
           </h2>
 
@@ -327,7 +327,7 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
       </div>
       <div className="mt-4">
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold mt-2">
+          <h2 className="text-lg mx-2  font-semibold mt-2">
             Alertas OX / {camionSeleccionado.PATENTE}
           </h2>
 
@@ -341,7 +341,7 @@ const GraficoTablet = ({camionSeleccionado, empresaSistema, id_transportista}) =
 
        <div className="mt-4">
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold mt-2">
+          <h2 className="text-lg mx-2  font-semibold mt-2">
             Temp / {camionSeleccionado.PATENTE}
           </h2>
           <RptTemp data={datosOX} tipo={"Tablet"} nombrePdf={"Temperatura"} />           

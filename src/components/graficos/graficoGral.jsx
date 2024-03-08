@@ -312,7 +312,7 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
 
       <div className="">
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold mt-2">
+          <h2 className="text-lg mx-2 font-semibold mt-2">
             Oxigenación / {camionSeleccionado.patente}
           </h2>
 
@@ -324,7 +324,7 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
       </div>
       <div className="mt-4">
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold mt-2">
+          <h2 className="text-lg mx-2  font-semibold mt-2">
             Alertas OX / {camionSeleccionado.patente}
           </h2>
 
@@ -338,7 +338,7 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
 
       <div className="mt-4">
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold mt-2">
+          <h2 className="text-lg mx-2  font-semibold mt-2">
             Temp / {camionSeleccionado.patente}
           </h2>
 
@@ -352,7 +352,7 @@ const GraficoGral = ({camionSeleccionado, empresaSistema, id_transportista}) => 
 
       <div className="mt-4">
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold mt-2">
+          <h2 className="text-lg mx-2  font-semibold mt-2">
             Alertas T° / {camionSeleccionado.patente}
           </h2>
 
